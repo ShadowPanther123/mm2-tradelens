@@ -1,0 +1,75 @@
+import type { SourceId } from "@tradelens/item-schema";
+import { buildSnapshot, mergeSources, type RawRow } from "./index.js";
+
+/**
+ * Bundled sample data so the app is fully usable offline and in tests.
+ *
+ * IMPORTANT: these are illustrative placeholder figures, not live values.
+ * Real deployments replace this snapshot with a signed feed from an approved
+ * source. Values here are community-style estimates for demonstration only, so
+ * every row is stamped `verified: false` and `extractionMethod: "manual-entry"`
+ * — the data audit and the UI both surface that these are not trusted figures.
+ */
+
+const GENERATED_AT = "2026-07-29T15:10:00Z";
+const SUPREME_UPDATED = "2026-07-29T15:10:00Z";
+const MM2V_UPDATED = "2026-07-28T16:03:17Z";
+
+/** Stamp shared placeholder provenance onto a set of hand-written rows. */
+function placeholder(rows: RawRow[]): RawRow[] {
+  return rows.map((row) => ({
+    ...row,
+    retrievedAt: GENERATED_AT,
+    extractionMethod: "manual-entry",
+    verified: false,
+  }));
+}
+
+const supremeRows: RawRow[] = placeholder([
+  { name: "Icepiercer", aliases: ["ice piercer", "ip"], category: "gun", rarity: "ancient", origin: "Christmas 2022", year: 2022, value: 1350, demand: 4, rarityScore: 4, stability: "stable", trendPercent: -3.6, previousValue: 1400, updatedAt: SUPREME_UPDATED },
+  { name: "Icebreaker", aliases: ["ib"], category: "knife", rarity: "ancient", origin: "Christmas 2021", year: 2021, value: 900, demand: 3, rarityScore: 4, stability: "stable", trendPercent: 0, previousValue: 900, updatedAt: SUPREME_UPDATED },
+  { name: "Iceblaster", category: "gun", rarity: "legendary", origin: "Christmas 2020", year: 2020, value: 220, demand: 2, rarityScore: 3, stability: "fluctuating", trendPercent: 4.8, previousValue: 210, updatedAt: SUPREME_UPDATED },
+  { name: "Harvester", aliases: ["harv"], category: "knife", rarity: "ancient", origin: "Halloween 2019", year: 2019, value: 1350, demand: 5, rarityScore: 5, stability: "stable", trendPercent: 5.6, previousValue: 1278, updatedAt: SUPREME_UPDATED },
+  { name: "Chroma Luger", aliases: ["cluger", "chroma luger"], category: "gun", rarity: "chroma", origin: "Chroma Set", year: 2017, chroma: true, value: 2200, demand: 4, rarityScore: 5, stability: "fluctuating", trendPercent: -2.1, previousValue: 2250, updatedAt: SUPREME_UPDATED },
+  { name: "Bat", category: "knife", rarity: "godly", origin: "Batter Up", year: 2018, value: 425, demand: 3, rarityScore: 3, stability: "stable", trendPercent: -5.9, previousValue: 452, updatedAt: SUPREME_UPDATED },
+  { name: "Candy", aliases: ["candies"], category: "knife", rarity: "godly", origin: "Halloween 2016", year: 2016, value: 300, demand: 3, rarityScore: 3, stability: "stable", trendPercent: 0, previousValue: 300, updatedAt: SUPREME_UPDATED },
+  { name: "Evergun", category: "gun", rarity: "unique", origin: "Christmas 2017", year: 2017, value: 5000, demand: 5, rarityScore: 5, stability: "stable", trendPercent: 0, previousValue: 5000, updatedAt: SUPREME_UPDATED },
+  { name: "Elderwood Scythe", aliases: ["ew scythe", "scythe"], category: "knife", rarity: "unique", origin: "Elderwood Set", year: 2018, value: 3200, demand: 4, rarityScore: 5, stability: "stable", trendPercent: 1.2, previousValue: 3160, updatedAt: SUPREME_UPDATED },
+  { name: "Ginger Gun", aliases: ["gg"], category: "gun", rarity: "godly", origin: "Christmas 2019", year: 2019, value: 180, demand: 2, rarityScore: 3, stability: "volatile", trendPercent: 12.5, previousValue: 160, updatedAt: SUPREME_UPDATED },
+  { name: "Prismatic", aliases: ["prism"], category: "knife", rarity: "vintage", origin: "Prismatic Set", year: 2017, value: 4200, demand: 4, rarityScore: 5, stability: "stable", trendPercent: 2.0, previousValue: 4118, updatedAt: SUPREME_UPDATED },
+  { name: "Corrupt", category: "pet", rarity: "godly", origin: "Pet Update", year: 2020, value: 260, demand: 3, rarityScore: 3, stability: "fluctuating", trendPercent: -1.5, previousValue: 264, updatedAt: SUPREME_UPDATED },
+  { name: "Elderwood Set", aliases: ["ew set"], category: "bundle", rarity: "unique", origin: "Elderwood Set", year: 2018, value: 6400, demand: 4, rarityScore: 5, stability: "stable", trendPercent: 0.8, previousValue: 6349, updatedAt: SUPREME_UPDATED },
+]);
+
+const mm2valuesRows: RawRow[] = placeholder([
+  { name: "Icepiercer", aliases: ["ip"], category: "gun", rarity: "ancient", origin: "Christmas 2022", year: 2022, value: 1425, demand: 4, rarityScore: 4.5, stability: "stable", previousValue: 1450, updatedAt: MM2V_UPDATED },
+  { name: "Icebreaker", category: "knife", rarity: "ancient", origin: "Christmas 2021", year: 2021, value: 950, demand: 3, rarityScore: 4, stability: "stable", previousValue: 950, updatedAt: MM2V_UPDATED },
+  { name: "Iceblaster", category: "gun", rarity: "legendary", origin: "Christmas 2020", year: 2020, value: 210, demand: 2, rarityScore: 3, stability: "fluctuating", previousValue: 205, updatedAt: MM2V_UPDATED },
+  { name: "Harvester", category: "knife", rarity: "ancient", origin: "Halloween 2019", year: 2019, value: 1300, demand: 5, rarityScore: 5, stability: "stable", previousValue: 1250, updatedAt: MM2V_UPDATED },
+  { name: "Chroma Luger", aliases: ["chroma luger"], category: "gun", rarity: "chroma", origin: "Chroma Set", year: 2017, chroma: true, value: 2100, demand: 4, rarityScore: 5, stability: "fluctuating", previousValue: 2180, updatedAt: MM2V_UPDATED },
+  { name: "Bat", category: "knife", rarity: "godly", origin: "Batter Up", year: 2018, value: 400, demand: 3, rarityScore: 3, stability: "stable", previousValue: 420, updatedAt: MM2V_UPDATED },
+  { name: "Candy", category: "knife", rarity: "godly", origin: "Halloween 2016", year: 2016, value: 310, demand: 3, rarityScore: 3, stability: "stable", previousValue: 305, updatedAt: MM2V_UPDATED },
+  { name: "Evergun", category: "gun", rarity: "unique", origin: "Christmas 2017", year: 2017, value: 5200, demand: 5, rarityScore: 5, stability: "stable", previousValue: 5150, updatedAt: MM2V_UPDATED },
+  { name: "Elderwood Scythe", aliases: ["scythe"], category: "knife", rarity: "unique", origin: "Elderwood Set", year: 2018, value: 3100, demand: 4, rarityScore: 5, stability: "stable", previousValue: 3080, updatedAt: MM2V_UPDATED },
+  { name: "Ginger Gun", category: "gun", rarity: "godly", origin: "Christmas 2019", year: 2019, value: 210, demand: 2, rarityScore: 3, stability: "volatile", previousValue: 175, updatedAt: MM2V_UPDATED },
+  { name: "Prismatic", category: "knife", rarity: "vintage", origin: "Prismatic Set", year: 2017, value: 4100, demand: 4, rarityScore: 5, stability: "stable", previousValue: 4050, updatedAt: MM2V_UPDATED },
+  { name: "Corrupt", category: "pet", rarity: "godly", origin: "Pet Update", year: 2020, value: 275, demand: 3, rarityScore: 3, stability: "fluctuating", previousValue: 270, updatedAt: MM2V_UPDATED },
+  { name: "Elderwood Set", category: "bundle", rarity: "unique", origin: "Elderwood Set", year: 2018, value: 6300, demand: 4, rarityScore: 5, stability: "stable", previousValue: 6280, updatedAt: MM2V_UPDATED },
+]);
+
+const SOURCES: SourceId[] = ["supreme", "mm2values"];
+
+/** Merged canonical items from the bundled sample rows. */
+export const sampleItems = mergeSources(
+  { supreme: supremeRows, mm2values: mm2valuesRows },
+  GENERATED_AT,
+  { supreme: "sample-1.0.0", mm2values: "sample-1.0.0" },
+);
+
+/** A ready-to-use signed-style snapshot for offline/demo use. */
+export const sampleSnapshot = buildSnapshot(
+  sampleItems,
+  SOURCES,
+  1,
+  GENERATED_AT,
+);

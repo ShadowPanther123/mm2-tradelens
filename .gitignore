@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+# Tauri / Rust
+target/
+**/target/
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+
+# Vite
+apps/desktop/.vite/
+
+# Env & secrets
+.env
+.env.local
+*.local
+*.pem
+
+# Release artefacts (may contain signing keys — never commit)
+release/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+*.swp
+
+# Local data (SQLite, cache snapshots)
+*.sqlite
+*.sqlite-journal
+data/local/

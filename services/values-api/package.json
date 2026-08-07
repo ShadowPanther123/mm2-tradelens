@@ -1,0 +1,25 @@
+{
+  "name": "@tradelens/values-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/server.ts",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs && node dist/server.js",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tradelens/item-schema": "0.1.0",
+    "@tradelens/snapshot-signing": "0.1.0",
+    "@tradelens/source-adapters": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}

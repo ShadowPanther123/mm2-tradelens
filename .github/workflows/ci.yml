@@ -1,0 +1,188 @@
+name: ci
+
+# Full continuous-integration pipeline. Fast checks (types, lint, unit tests)
+# run on every push and pull request; the Windows release build and the
+# publish step run only when a version tag is pushed, and only after every
+# check has passed.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---- Fast JavaScript/TypeScript checks -----------------------------------
+  checks:
+    name: types, lint & unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Type-check all workspaces
+        run: npm run typecheck
+      - name: Lint all workspaces
+        run: npm run lint
+      - name: Unit tests (all workspaces)
+        run: npm test
+
+  # ---- Rust tests + clippy --------------------------------------------------
+  rust:
+    name: rust tests & clippy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop/src-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+      # Tauri's Linux build needs the WebKitGTK/AppIndicator system libraries.
+      - name: Install Tauri system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Rust tests
+        run: cargo test --all-features
+
+  # ---- End-to-end + screenshot regression (Playwright) ---------------------
+  e2e:
+    name: end-to-end (playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/desktop
+      - name: Run E2E tests
+        run: npm run test:e2e
+        working-directory: apps/desktop
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/desktop/playwright-report
+          retention-days: 7
+
+  # ---- Dependency vulnerability audit --------------------------------------
+  security-audit:
+    name: security audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Gate on shipped (production) dependencies only; dev-tool advisories in
+      # the bundler/test runner never reach end users.
+      - run: npm audit --omit=dev --audit-level=high
+
+  # ---- Windows release build + installer smoke test ------------------------
+  build-windows:
+    name: build & smoke-test installer
+    runs-on: windows-latest
+    # Only spend a Windows runner once the cheap checks have passed.
+    needs: [checks, rust, e2e, security-audit]
+    outputs:
+      installer: ${{ steps.find.outputs.path }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+      - run: npm ci
+      - name: Build workspaces
+        run: npm run build
+      - name: Build Windows installer (NSIS)
+        run: npm run tauri --workspace @tradelens/desktop -- build
+      - name: Locate the installer
+        id: find
+        shell: pwsh
+        run: |
+          $bundle = "apps/desktop/src-tauri/target/release/bundle"
+          $exe = Get-ChildItem -Path $bundle -Recurse -Include *-setup.exe, *.msi |
+            Select-Object -First 1
+          if (-not $exe) { throw "No installer produced under $bundle" }
+          "path=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+      - name: Smoke-test the installer
+        shell: pwsh
+        run: |
+          $path = "${{ steps.find.outputs.path }}"
+          $file = Get-Item $path
+          # A real installer is a non-trivial PE ("MZ") file.
+          if ($file.Length -lt 500KB) { throw "Installer looks too small: $($file.Length) bytes" }
+          $sig = [System.IO.File]::ReadAllBytes($path)[0..1]
+          if ($sig[0] -ne 0x4D -or $sig[1] -ne 0x5A) { throw "Installer is not a valid PE (missing MZ header)" }
+          Write-Host "Installer OK:" $file.Name $file.Length "bytes"
+      - name: Publish installer checksum
+        shell: pwsh
+        run: |
+          $path = "${{ steps.find.outputs.path }}"
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Get-FileHash $path -Algorithm SHA256 |
+            ForEach-Object { "{0}  {1}" -f $_.Hash.ToLower(), (Split-Path $_.Path -Leaf) } |
+            Set-Content -Path release/SHA256SUMS.txt -Encoding ascii
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: |
+            ${{ steps.find.outputs.path }}
+            release/SHA256SUMS.txt
+          retention-days: 14
+
+  # ---- Publish a GitHub release (tags only, after everything passes) -------
+  publish:
+    name: publish release
+    runs-on: ubuntu-latest
+    needs: [build-windows]
+    # Releases are cut only from version tags, and only reach here if every
+    # upstream job (checks, rust, e2e, audit, build+smoke) has succeeded.
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: dist
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**
+          fail_on_unmatched_files: true
+          generate_release_notes: true

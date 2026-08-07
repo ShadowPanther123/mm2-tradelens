@@ -1,0 +1,34 @@
+{
+  "name": "mm2-tradelens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MM2 TradeLens — an independent fan-made trading companion for Murder Mystery 2.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev:desktop": "npm run dev --workspace apps/desktop",
+    "dev:api": "npm run dev --workspace services/values-api",
+    "sync:values": "npm run sync:values --workspace @tradelens/source-adapters",
+    "publish:local": "node scripts/publish-local.mjs",
+    "release": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1",
+    "release:validate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-release.ps1",
+    "release:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/acceptance-gate.ps1",
+    "assets:validate": "node scripts/validate-assets.mjs",
+    "clean": "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true})\""
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

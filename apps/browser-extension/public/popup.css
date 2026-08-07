@@ -1,0 +1,86 @@
+:root {
+  --bg: #171a21;
+  --panel: #202430;
+  --border: #2c313f;
+  --text: #e7e9ee;
+  --dim: #9aa1b2;
+  --accent: #6ea8fe;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  width: 320px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.hd {
+  padding: 10px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.q {
+  width: calc(100% - 24px);
+  margin: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.q:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.results {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.card__name {
+  font-weight: 600;
+}
+
+.card__meta {
+  color: var(--dim);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.card__values {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.empty {
+  color: var(--dim);
+  text-align: center;
+  padding: 12px;
+  font-size: 12px;
+}
+
+.ft {
+  font-size: 9px;
+  color: var(--dim);
+  line-height: 1.4;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+}

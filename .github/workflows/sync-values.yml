@@ -1,0 +1,74 @@
+name: sync-values
+
+# Weekly automated MM2Values refresh. Runs the collector, bundles any changed
+# values into the snapshot, and opens a pull request. No manual work required.
+on:
+  schedule:
+    # Mondays at 07:00 UTC.
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-values
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: refresh MM2Values snapshot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Sync values from MM2Values
+        run: npm run sync:values --workspace @tradelens/source-adapters
+
+      - name: Validate snapshot
+        run: npm test --workspace @tradelens/source-adapters
+
+      - name: Detect snapshot changes
+        id: diff
+        run: |
+          if git diff --quiet -- packages/source-adapters/src/mm2values-snapshot.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No value changes found."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            revision=$(node -p "require('./packages/source-adapters/src/mm2values-snapshot.json').revision")
+            generated=$(node -p "require('./packages/source-adapters/src/mm2values-snapshot.json').generatedAt")
+            echo "revision=$revision" >> "$GITHUB_OUTPUT"
+            echo "generated=$generated" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(values): weekly MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
+          branch: bot/sync-values
+          delete-branch: true
+          title: "chore(values): weekly MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
+          body: |
+            Automated weekly MM2Values refresh.
+
+            - **Revision:** ${{ steps.diff.outputs.revision }}
+            - **Generated:** ${{ steps.diff.outputs.generated }}
+            - **Source:** mm2values.com (collector `scripts/sync-values.mjs`)
+
+            Snapshot validated by `@tradelens/source-adapters` tests. Merge to
+            bundle the latest values into the next build.
+          labels: |
+            values
+            automated
+          add-paths: |
+            packages/source-adapters/src/mm2values-snapshot.json

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src *; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'"
+    />
+    <title>TradeLens Admin</title>
+    <style>
+      :root {
+        --bg: #14161c;
+        --panel: #1b1e27;
+        --border: #2c313f;
+        --text: #e7e9ee;
+        --dim: #9aa1b2;
+        --accent: #6ea8fe;
+        --warn: #f0b866;
+        --bad: #f08a8a;
+        --ok: #7fd7a0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      body { margin: 0; background: var(--bg); color: var(--text); }
+      header { padding: 14px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+      main { padding: 20px; display: grid; gap: 16px; max-width: 1000px; }
+      .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+      .row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+      input { flex: 1; min-width: 160px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+      input[type="checkbox"] { flex: 0; min-width: 0; }
+      button { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #0d1017; font-weight: 600; cursor: pointer; }
+      button.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+      button.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
+      nav { display: flex; gap: 6px; flex-wrap: wrap; }
+      nav button { background: transparent; color: var(--dim); border-color: var(--border); }
+      nav button.active { color: var(--text); border-color: var(--accent); }
+      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { color: var(--dim); font-weight: 500; }
+      .meta { color: var(--dim); font-size: 12px; }
+      .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); }
+      .pill.bad { color: var(--bad); border-color: var(--bad); }
+      .pill.ok { color: var(--ok); border-color: var(--ok); }
+      .pill.warn { color: var(--warn); border-color: var(--warn); }
+      .count { color: var(--dim); font-weight: 400; }
+      .disclaimer { font-size: 11px; color: var(--dim); padding: 0 20px 20px; max-width: 1000px; }
+      h3 { margin-top: 0; }
+      h4 { margin-bottom: 6px; }
+    </style>
+  </head>
+  <body>
+    <header>MM2 TradeLens · Admin dashboard</header>
+    <main>
+      <section class="panel">
+        <div class="row">
+          <input id="api" value="http://localhost:8787" aria-label="API base URL" />
+          <input id="token" type="password" placeholder="Admin token (for reports & publishing)" aria-label="Admin token" />
+          <button id="load">Load</button>
+        </div>
+        <div id="status" class="meta">Point at a running values-api and load the current snapshot.</div>
+      </section>
+
+      <section class="panel">
+        <nav id="nav">
+          <button data-view="mapping" class="active">Item mapping</button>
+          <button data-view="duplicates">Duplicates</button>
+          <button data-view="missing">Missing items</button>
+          <button data-view="disagreement">Source disagreement</button>
+          <button data-view="stale">Stale data</button>
+          <button data-view="publish">Review &amp; publish</button>
+        </nav>
+      </section>
+
+      <section id="view" class="panel">
+        <div class="meta">Load a snapshot to begin.</div>
+      </section>
+
+      <section class="panel">
+        <div class="row">
+          <button id="exportJson" class="ghost">Export audit JSON</button>
+          <button id="exportCsv" class="ghost">Export audit CSV</button>
+        </div>
+        <div class="meta">Exports use the loaded audit report. CSV download requires the admin token.</div>
+      </section>
+    </main>
+    <p class="disclaimer">
+      Independent fan project. Not affiliated with Roblox, Nikilis, MM2Values or
+      Supreme Values. Values shown are community estimates for administration and
+      review only.
+    </p>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => (n == null ? "—" : Math.round(n).toLocaleString("en-US"));
+      const esc = (s) =>
+        String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const STALE_DAYS = 14;
+
+      const state = { snapshot: null, audit: null, view: "mapping" };
+
+      const base = () => $("api").value.replace(/\/$/, "");
+      const authHeaders = () => {
+        const t = $("token").value.trim();
+        return t ? { authorization: "Bearer " + t } : {};
+      };
+
+      async function load() {
+        $("status").textContent = "Loading…";
+        try {
+          const res = await fetch(base() + "/v1/snapshot");
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          state.snapshot = await res.json();
+          // The audit report is token-gated; load it when a token is present.
+          state.audit = null;
+          if ($("token").value.trim()) {
+            const ar = await fetch(base() + "/v1/admin/audit", { headers: authHeaders() });
+            if (ar.ok) state.audit = await ar.json();
+          }
+          const s = state.snapshot;
+          const flag = state.audit
+            ? state.audit.clean
+              ? '<span class="pill ok">audit clean</span>'
+              : '<span class="pill bad">audit issues</span>'
+            : '<span class="pill warn">audit not loaded — add token</span>';
+          $("status").innerHTML =
+            "Revision " + s.revision + " · " + s.items.length + " items · generated " +
+            esc(s.generatedAt) + " " + flag;
+          render();
+        } catch (err) {
+          $("status").textContent = "Failed to load: " + err.message;
+          $("view").innerHTML = "";
+        }
+      }
+
+      function table(headers, rows) {
+        if (!rows.length) return '<div class="meta">Nothing to review here.</div>';
+        return (
+          "<table><thead><tr>" +
+          headers.map((h) => "<th>" + esc(h) + "</th>").join("") +
+          "</tr></thead><tbody>" +
+          rows.map((r) => "<tr>" + r.map((c) => "<td>" + c + "</td>").join("") + "</tr>").join("") +
+          "</tbody></table>"
+        );
+      }
+
+      const needAudit = () =>
+        '<div class="meta">This report needs the audit data. Enter the admin token and reload.</div>';
+
+      function renderMapping() {
+        const items = state.snapshot.items;
+        const rows = items.map((it) => {
+          const prov = Object.entries(it.values)
+            .map(([src, v]) => esc(src) + (v.sourceItemId ? " #" + esc(v.sourceItemId) : ""))
+            .join("<br>");
+          const status =
+            it.verified === false
+              ? '<span class="pill warn">unverified</span>'
+              : '<span class="pill ok">verified</span>';
+          return [
+            esc(it.displayName) + '<div class="meta">' + esc(it.id) + "</div>",
+            esc(it.category),
+            esc(it.rarity),
+            it.image ? esc(it.image) : '<span class="pill bad">none</span>',
+            prov || "—",
+            status,
+          ];
+        });
+        return (
+          "<h3>Item-mapping review <span class='count'>(" + items.length + ")</span></h3>" +
+          table(["Item", "Category", "Rarity", "Image", "Provenance", "Status"], rows)
+        );
+      }
+
+      function renderDuplicates() {
+        if (!state.audit) return needAudit();
+        const a = state.audit;
+        const groups = (title, list, keyLabel) =>
+          "<h4>" + title + " <span class='count'>(" + list.length + ")</span></h4>" +
+          table([keyLabel, "Items"], list.map((g) => [esc(g.key), esc(g.itemIds.join(", "))]));
+        return (
+          "<h3>Duplicate resolution</h3>" +
+          groups("Duplicate ids", a.duplicateIds, "Id") +
+          groups("Duplicate names", a.duplicateNames, "Name") +
+          groups("Duplicate aliases", a.duplicateAliases, "Alias") +
+          groups("Duplicate images", a.duplicateImages, "Image key")
+        );
+      }
+
+      function renderMissing() {
+        if (!state.audit) return needAudit();
+        const a = state.audit;
+        const missingSource = [];
+        for (const [src, ids] of Object.entries(a.missingBySource)) {
+          for (const id of ids) missingSource.push([esc(id), esc(src)]);
+        }
+        return (
+          "<h3>Missing-item review</h3>" +
+          "<h4>Missing images <span class='count'>(" + a.missingImages.length + ")</span></h4>" +
+          table(["Item"], a.missingImages.map((id) => [esc(id)])) +
+          "<h4>Broken image paths <span class='count'>(" + a.brokenImagePaths.length + ")</span></h4>" +
+          table(["Item"], a.brokenImagePaths.map((id) => [esc(id)])) +
+          "<h4>Missing source values <span class='count'>(" + missingSource.length + ")</span></h4>" +
+          table(["Item", "Missing source"], missingSource) +
+          "<h4>Single-source items <span class='count'>(" + a.sourceOnly.length + ")</span></h4>" +
+          table(["Item", "Only source"], a.sourceOnly.map((s) => [esc(s.itemId), esc(s.source)]))
+        );
+      }
+
+      function renderDisagreement() {
+        if (!state.audit) return needAudit();
+        const a = state.audit;
+        const rows = a.conflicts.map((c) => [
+          esc(c.itemId),
+          (c.disagreement * 100).toFixed(1) + "%",
+          c.readings.map((r) => esc(r.source) + "=" + fmt(r.value)).join(", "),
+        ]);
+        const catRows = a.conflictingCategories
+          .map((c) => ["category", esc(c.name), esc(c.values.join(" vs "))])
+          .concat(a.conflictingRarities.map((c) => ["rarity", esc(c.name), esc(c.values.join(" vs "))]))
+          .concat(a.conflictingTypes.map((c) => ["type", esc(c.name), esc(c.values.join(" vs "))]));
+        return (
+          "<h3>Source-disagreement report</h3>" +
+          "<h4>Value disagreement <span class='count'>(" + a.conflicts.length + ")</span></h4>" +
+          table(["Item", "Gap", "Readings"], rows) +
+          "<h4>Field conflicts <span class='count'>(" + catRows.length + ")</span></h4>" +
+          table(["Field", "Name", "Values"], catRows)
+        );
+      }
+
+      function renderStale() {
+        const now = Date.now();
+        const cutoff = now - STALE_DAYS * 86400000;
+        const rows = [];
+        for (const it of state.snapshot.items) {
+          let latest = 0;
+          let future = false;
+          for (const v of Object.values(it.values)) {
+            const t = Date.parse(v.updatedAt);
+            if (!Number.isNaN(t)) {
+              latest = Math.max(latest, t);
+              if (t > now) future = true;
+            }
+          }
+          if (latest === 0 || latest < cutoff || future) {
+            const label = future
+              ? '<span class="pill bad">future</span>'
+              : latest === 0
+              ? '<span class="pill bad">no timestamp</span>'
+              : '<span class="pill warn">' + Math.floor((now - latest) / 86400000) + "d old</span>";
+            rows.push([esc(it.id), latest ? new Date(latest).toISOString() : "—", label]);
+          }
+        }
+        return (
+          "<h3>Stale-data report <span class='count'>(&gt; " + STALE_DAYS + " days)</span></h3>" +
+          table(["Item", "Latest update", "State"], rows)
+        );
+      }
+
+      function renderPublish() {
+        const a = state.audit;
+        const gate = a
+          ? a.clean
+            ? '<span class="pill ok">audit clean — safe to publish</span>'
+            : '<span class="pill bad">audit issues — resolve before publishing</span>'
+          : '<span class="pill warn">audit not loaded</span>';
+        return (
+          "<h3>Review &amp; publish</h3>" +
+          "<p class='meta'>Stage new source rows, review the audit above, then publish. " +
+          "Rolling back restores the previous revision.</p>" +
+          "<div class='row'>" + gate + "</div>" +
+          "<div class='row'>" +
+          "<label class='meta'><input type='checkbox' id='requireClean' checked /> Require a clean audit to publish</label>" +
+          "</div>" +
+          "<div class='row'>" +
+          "<button id='publishBtn'>Publish staged revision</button>" +
+          "<button id='discardBtn' class='ghost'>Discard staged</button>" +
+          "<button id='rollbackBtn' class='danger'>Roll back one revision</button>" +
+          "</div>" +
+          "<div id='publishStatus' class='meta'></div>"
+        );
+      }
+
+      function render() {
+        if (!state.snapshot) return;
+        const views = {
+          mapping: renderMapping,
+          duplicates: renderDuplicates,
+          missing: renderMissing,
+          disagreement: renderDisagreement,
+          stale: renderStale,
+          publish: renderPublish,
+        };
+        $("view").innerHTML = (views[state.view] || renderMapping)();
+        if (state.view === "publish") wirePublish();
+      }
+
+      async function adminPost(path, body) {
+        const res = await fetch(base() + path, {
+          method: "POST",
+          headers: { "content-type": "application/json", ...authHeaders() },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      function wirePublish() {
+        $("publishBtn").addEventListener("click", async () => {
+          const r = await adminPost("/v1/admin/publish", { requireClean: $("requireClean").checked });
+          $("publishStatus").textContent = r.ok
+            ? "Published revision " + r.data.revision
+            : "Publish failed: " + (r.data.detail || r.data.error || r.status);
+          if (r.ok) load();
+        });
+        $("discardBtn").addEventListener("click", async () => {
+          const r = await adminPost("/v1/admin/discard");
+          $("publishStatus").textContent = r.ok ? "Staged candidate discarded." : "Failed: " + r.status;
+        });
+        $("rollbackBtn").addEventListener("click", async () => {
+          const r = await adminPost("/v1/admin/rollback");
+          $("publishStatus").textContent = r.ok
+            ? "Rolled back to revision " + r.data.revision
+            : "Rollback failed: " + (r.data.detail || r.data.error || r.status);
+          if (r.ok) load();
+        });
+      }
+
+      function download(name, text, type) {
+        const blob = new Blob([text], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      $("load").addEventListener("click", load);
+      $("nav").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-view]");
+        if (!btn) return;
+        state.view = btn.dataset.view;
+        for (const b of $("nav").querySelectorAll("button")) b.classList.toggle("active", b === btn);
+        render();
+      });
+      $("exportJson").addEventListener("click", () => {
+        if (!state.audit) return alert("Load the audit (with a token) first.");
+        download("audit.json", JSON.stringify(state.audit, null, 2), "application/json");
+      });
+      $("exportCsv").addEventListener("click", async () => {
+        const res = await fetch(base() + "/v1/admin/audit.csv", { headers: authHeaders() });
+        if (!res.ok) return alert("CSV export failed (" + res.status + "). Check the admin token.");
+        download("audit.csv", await res.text(), "text/csv");
+      });
+    </script>
+  </body>
+</html>

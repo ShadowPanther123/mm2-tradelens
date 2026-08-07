@@ -1,0 +1,85 @@
+import { NavLink } from "react-router-dom";
+import { cn } from "@/utils/cn";
+import { useDataStore } from "@/hooks/useDataStore";
+import type { SourceMode } from "@/types";
+
+interface NavItem {
+  to: string;
+  label: string;
+  icon: string;
+}
+
+const NAV: NavItem[] = [
+  { to: "/", label: "Dashboard", icon: "◈" },
+  { to: "/search", label: "Search", icon: "⌕" },
+  { to: "/calculator", label: "Calculator", icon: "⇄" },
+  { to: "/scan", label: "Scan", icon: "▣" },
+  { to: "/trends", label: "Trends", icon: "↗" },
+  { to: "/favorites", label: "Favorites", icon: "★" },
+  { to: "/history", label: "History", icon: "⟲" },
+  { to: "/settings", label: "Settings", icon: "⚙" },
+];
+
+const SOURCE_LABELS: Record<SourceMode, string> = {
+  supreme: "Supreme Values",
+  mm2values: "MM2Values",
+  community: "Community",
+  "compare-both": "Compare Both",
+  consensus: "Combined estimate",
+};
+
+/** Always-visible readout of which source and data revision is in use. */
+function SourceIndicator() {
+  const mode = useDataStore((s) => s.settings.sourceMode);
+  const revision = useDataStore((s) => s.snapshotMeta?.revision);
+  const isSampleData = useDataStore((s) => s.isSampleData);
+  return (
+    <div className="px-2 pb-1 pt-3 text-[11px] leading-relaxed text-slate-500">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-slate-600">Source</span>
+        <span className="truncate font-medium text-slate-400">{SOURCE_LABELS[mode]}</span>
+      </div>
+      <div className="mt-0.5 flex items-center justify-between gap-2">
+        <span className="text-slate-600">Data</span>
+        <span className="truncate font-medium text-slate-400">
+          {isSampleData ? "Sample data" : revision ? `rev ${revision}` : "—"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Left navigation rail. */
+export function Sidebar() {
+  return (
+    <nav className="flex w-52 shrink-0 flex-col gap-1 border-r border-white/5 bg-base-800/40 p-3">
+      {NAV.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          end={item.to === "/"}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+              isActive
+                ? "bg-accent/15 text-white shadow-glow"
+                : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
+            )
+          }
+        >
+          <span className="w-4 text-center text-base leading-none" aria-hidden="true">
+            {item.icon}
+          </span>
+          {item.label}
+        </NavLink>
+      ))}
+      <div className="mt-auto border-t border-white/5">
+        <SourceIndicator />
+        <div className="px-2 pt-2 text-[10px] leading-relaxed text-slate-600">
+          Independent fan project. Not affiliated with Roblox, Nikilis, MM2Values or
+          Supreme Values.
+        </div>
+      </div>
+    </nav>
+  );
+}

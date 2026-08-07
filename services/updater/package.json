@@ -1,0 +1,21 @@
+{
+  "name": "@tradelens/updater",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "run:sample": "node build.mjs && node dist/updater.js --out out",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@tradelens/item-schema": "0.1.0",
+    "@tradelens/snapshot-signing": "0.1.0",
+    "@tradelens/source-adapters": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4"
+  }
+}

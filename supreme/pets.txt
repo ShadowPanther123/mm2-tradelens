@@ -1,0 +1,611 @@
+﻿Supreme Values - The values for all of the pets in Murder Mystery 2.
+MAIN PAGES:
+×
+Home
+Trading Servers
+MM2 Trading
+Discord Info
+Discord Bot
+Use Guide
+
+
+GAMES:
+Murder Mystery 2
+
+
+CATEGORIES:
+Sets
+Uniques
+Evos
+Ancients
+Vintages
+Chromas
+Godlies
+Legendaries
+Rares
+Uncommons
+Commons
+Pets
+Misc. Items
+Untradables
+
+
+EXTRAS:
+Scam Prevention
+FAQ
+
+
+SOCIALS:
+YouTube
+Twitter
+Discord
+Values Last Updated - August 1st, 2026 at 12:13 PM  //  Join our Discord Server
+Join our Discord Server Join our Roblox Group
+Trade your MM2 items using Cosmic Values, our official trading partner! Take me there
+The Supreme Values Discord bot has returned! Learn more
+Tier 4 Tier 3 Tier 2 Tier 1 Untradable Pets Changelog
+TIP: You can click on an item's image to see extra features and information. Read more about this in our use guide!
+ Search In-Page
+Filter by Event/Year/Stability: 
+Select Event
+Valentine's
+Easter
+Halloween
+Christmas
+ 
+Select Year
+2025
+2023
+2021
+2020
+2019
+2018
+2017
+2016
+ 
+Select Stability
+Stable
+Underpaid For
+ Sort by: 
+Value (High->Low)
+Value (Low->High)
+Stability (High->Low)
+Stability (Low->High)
+Demand (High->Low)
+Demand (Low->High)
+Rarity (High->Low)
+Rarity (Low->High)
+Change % (High->Low)
+Change % (Low->High)
+
+
+Tier 4
+Zombie Dog
+Class - Common
+Value - 750 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 5
+Change in Value - (-25) -3.2%
++1 -1 ~
+Elf (2019)
+Class - Uncommon
+Value - 525 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 5
+Change in Value - (+25) +5.0%
++1 -1 ~
+Blue Pumpkin
+Class - Common
+Value - 220 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+10) +4.8%
++1 -1 ~
+Dogey
+Class - Uncommon
+Value - 160 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +3.2%
++1 -1 ~
+Red Pumpkin
+Class - Common
+Value - 120 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +4.3%
++1 -1 ~
+Black Cat
+Class - Common
+Value - 90 [80 - 90]
+Stability - Underpaid For 
+Demand - 3 Rarity - 4
+Change in Value - (-5) -5.3%
++1 -1 ~
+Green Pumpkin
+Class - Common
+Value - 60 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +9.1%
++1 -1 ~
+Pumpkin (2017)
+Class - Common
+Value - 55 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 5
+Change in Value - (+5) +10.0%
++1 -1 ~
+Mr. Reindeer
+Class - Rare
+Value - 55 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +10.0%
++1 -1 ~
+Piggy
+Class - Common
+Value - 55 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +10.0%
++1 -1 ~
+Tier 3
+Elf
+Class - Common
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+5) +25.0%
++1 -1 ~
+Red Pumpkin
+Class - Legendary
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+5) +25.0%
++1 -1 ~
+Red Pumpkin
+Class - Legendary
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +11.1%
++1 -1 ~
+Mr. Snowman
+Class - Common
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+2) +13.3%
++1 -1 ~
+Green Pumpkin
+Class - Rare
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +15.4%
++1 -1 ~
+Skully
+Class - Legendary
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+3) +25.0%
++1 -1 ~
+Green Pumpkin
+Class - Rare
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+1) +8.3%
++1 -1 ~
+Blue Pumpkin
+Class - Uncommon
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +14.3%
++1 -1 ~
+Shadow Pumpkin
+Class - Uncommon
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+2) +40.0%
++1 -1 ~
+<3
+Class - Common
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -12.5%
++1 -1 ~
+Tier 2
+Nobledragon
+Class - Legendary
+Value - 5 [3 - 5]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -28.6%
++1 -1 ~
+Chilly
+Class - Uncommon
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Eyeball
+Class - Rare
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Fairy
+Class - Uncommon
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Green Pumpkin
+Class - Rare
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Jetstream
+Class - Rare
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Overseer Eye
+Class - Legendary
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Pengy
+Class - Common
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Purple Pumpkin
+Class - Common
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Red Pumpkin
+Class - Rare
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Reindeer
+Class - Common
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Rudolph
+Class - Legendary
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Seahorsey
+Class - Uncommon
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Tankie
+Class - Rare
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Vampire Bat
+Class - Legendary
+Value - 4 [2 - 4]
+Stability - Underpaid For 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Snowbear
+Class - Common
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +50.0%
++1 -1 ~
+Mechbug
+Class - Rare
+Value - 3 [2 - 3]
+Stability - Underpaid For 
+Demand - 1 Rarity - 3
+Change in Value - (-2) -40.0%
++1 -1 ~
+UFO
+Class - Common
+Value - 3 [2 - 3]
+Stability - Underpaid For 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -25.0%
++1 -1 ~
+Lil' Alien
+Class - Common
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1)
++1 -1 ~
+Blue Pumpkin
+Class - Uncommon
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -50.0%
++1 -1 ~
+Badger
+Class - Common
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Tier 1
+Carrot Bunny
+Class - Common
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Deathspeaker
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Electro
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Frostbird
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Ice Phoenix
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Icey
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Phoenix
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Sammy
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Skelly
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Steambird
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Traveller
+Class - Godly
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Pumpkin (2018)
+Class - Common
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Fire Bat
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fire Bear
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fire Bunny
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fire Cat
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fire Dog
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fire Fox
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fire Pig
+Class - Godly
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Scarecrow
+Class - Rare
+Value - x1 T1 Legendary
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Teddy
+Class - Common
+Value - x1 T1 Legendary
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Pumpkin (2019)
+Class - Common
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Bat
+Class - Legendary
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Santa Dog
+Class - Common
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Elitey
+Class - Legendary
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Bear
+Class - Rare
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fox
+Class - Uncommon
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Pig
+Class - Uncommon
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Pumpkin (2020)
+Class - Common
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Cat
+Class - Common
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Dog
+Class - Common
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Pumpkin (2021)
+Class - Common
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Untradable Pets
+Santa (2019)
+Class - Rare
+Value - N/A
+Stability - Untradable 
+Demand - N/ARarity - 4
+
+Ghosty
+Class - Godly
+Value - N/A
+Stability - Untradable 
+Demand - N/ARarity - 2
+
+Snowman
+Class - Common
+Value - N/A
+Stability - Untradable 
+Demand - N/ARarity - 1
+
+Bunny
+Class - Common
+Value - N/A
+Stability - Untradable 
+Demand - N/ARarity - 1
+
+Value Key (Percentile): <1 Value · 0-39 · 40-84 · 85-99
+PETS:
+Elf (2019) increased to 525, demand increased to 4
+Black Cat reduced to 90 [80-90]
+Site Created and Managed by hdmi
+Copyright © 2020-2026 Supreme Values
+			
+	
+Privacy Policy
+FAQ
+Terms of Use
+	
+Trading Servers
+Scam Prevention
+Use Guide
+	
+Discord Info
+Discord Invite
+Roblox Group
+Your Inventory Value:
+0 [N/A]
+View Inventory

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "MM2 TradeLens",
+  "version": "0.1.0",
+  "identifier": "com.tradelens.mm2",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "MM2 TradeLens",
+        "width": 960,
+        "height": 640,
+        "minWidth": 720,
+        "minHeight": 480,
+        "resizable": true,
+        "alwaysOnTop": true,
+        "decorations": false,
+        "transparent": false,
+        "skipTaskbar": false,
+        "center": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https: ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "MM2 TradeLens contributors",
+    "category": "Utility",
+    "shortDescription": "Independent fan-made trading companion for MM2.",
+    "longDescription": "An independent, fan-made always-on-top companion for Murder Mystery 2 that looks up community item values, compares sources and checks trade fairness. Not affiliated with Roblox, Nikilis, MM2Values or Supreme Values. Never modifies or automates Roblox.",
+    "licenseFile": "../../../LICENSE",
+    "resources": ["../../../THIRD-PARTY-NOTICES.md"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "installerHooks": "./installer-hooks.nsh",
+        "displayLanguageSelector": false,
+        "languages": ["English"]
+      },
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com"
+    }
+  },
+  "plugins": {}
+}

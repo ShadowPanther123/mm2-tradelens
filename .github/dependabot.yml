@@ -1,0 +1,41 @@
+version: 2
+updates:
+  # Root npm workspace (apps, packages, services).
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      # Batch low-risk dev tooling into a single PR to reduce noise.
+      dev-dependencies:
+        dependency-type: development
+    ignore:
+      # react-router v7 introduces GHSA-qwww-vcr4-c8h2 (RSC-mode CSRF), which is
+      # not applicable to this client-only Tauri app but is flagged high and
+      # would fail the production audit gate. Stay on the maintained v6 line
+      # (still receives minor/patch updates) until a clean major is evaluated.
+      - dependency-name: react-router-dom
+        update-types: [version-update:semver-major]
+    labels:
+      - dependencies
+      - javascript
+
+  # Rust crates for the Tauri desktop backend.
+  - package-ecosystem: cargo
+    directory: "/apps/desktop/src-tauri"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - rust
+
+  # Keep the GitHub Actions themselves current.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - ci

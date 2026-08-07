@@ -1,0 +1,747 @@
+﻿MAIN PAGES:
+×
+Home
+Trading Servers
+MM2 Trading
+Discord Info
+Discord Bot
+Use Guide
+
+
+GAMES:
+Murder Mystery 2
+
+
+CATEGORIES:
+Sets
+Uniques
+Evos
+Ancients
+Vintages
+Chromas
+Godlies
+Legendaries
+Rares
+Uncommons
+Commons
+Pets
+Misc. Items
+Untradables
+
+
+EXTRAS:
+Scam Prevention
+FAQ
+
+
+SOCIALS:
+YouTube
+Twitter
+Discord
+Values Last Updated - August 1st, 2026 at 12:13 PM  //  Join our Discord Server
+Join our Discord Server Join our Roblox Group
+Trade your MM2 items using Cosmic Values, our official trading partner! Take me there
+The Supreme Values Discord bot has returned! Learn more
+MM2 Set Values
+
+Supreme Values provides up-to-date MM2 Set values, demands, and rarities for trading every Murder Mystery 2 item set.
+
+TIP: You can click on an item's image to see extra features and information. Read more about this in our use guide!
+Chroma Tier Small Tier Collectible Tier Bulk Tier Dynamic Sets Changelog
+ Search In-Page
+Filter: 
+Select Stability
+Doing Well
+Fluctuating
+Stable
+Underpaid For
+ Sort by: 
+Value (High->Low)
+Value (Low->High)
+Stability (High->Low)
+Stability (Low->High)
+Demand (High->Low)
+Demand (Low->High)
+Rarity (High->Low)
+Rarity (Low->High)
+Change % (High->Low)
+Change % (Low->High)
+
+
+Chroma Tier
+Chroma Ever Set
+Value - 124K [123K - 124K]
+Stability - Underpaid For 
+Demand - 8Rarity - 8
+Change in Value - (-1,000) -0.8%
++1 -1 ~
+Chroma Alien Set
+Value - 36,250 [N/A]
+Stability - Stable 
+Demand - 6Rarity - 6
+Change in Value - (+250) +0.7%
++1 -1 ~
+Chroma Bauble Set
+Value - 35,800 [N/A]
+Stability - Stable 
+Demand - 7Rarity - 6
+Change in Value - (-1,000) -2.7%
++1 -1 ~
+Chroma Sun Set
+Value - 21,500 [N/A]
+Stability - Stable 
+Demand - 6Rarity - 5
+Change in Value - (+500) +2.4%
++1 -1 ~
+Chroma Snow Set
+Value - 12,500 [N/A]
+Stability - Stable 
+Demand - 6Rarity - 5
+Change in Value - (-250) -2.0%
++1 -1 ~
+Chroma Blizzard Set
+Value - 12,250 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 5
+Change in Value - (+50) +0.4%
++1 -1 ~
+Chroma Sweet Set
+Value - 5,150 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 4
+Change in Value - (+50) +1.0%
++1 -1 ~
+Chroma Beach Set
+Value - 3,550 [3,350 - 3,750]
+Stability - Fluctuating 
+Demand - 5Rarity - 4
+Change in Value - (-450) -11.3%
++1 -1 ~
+Chroma Bringer Set
+Value - 125 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-10) -7.4%
++1 -1 ~
+Chroma Slasher Set
+Value - 72 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -1.4%
++1 -1 ~
+Chroma Pet Set
+Value - 21 [14 - 21]
+Stability - Underpaid For 
+Demand - 1Rarity - 2
+Change in Value - (-7) -25.0%
++1 -1 ~
+Small Tier
+Traveler's Set
+Value - 13,700 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 5
+Change in Value - (+100) +0.7%
++1 -1 ~
+Ever Set
+Value - 5,950 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 4
+Change in Value - (-50) -0.8%
++1 -1 ~
+Celestial Set
+Value - 4,925 [4,925 - 4,975]
+Stability - Doing Well 
+Demand - 6Rarity - 4
+Change in Value - (+50) +1.0%
++1 -1 ~
+Alien Set
+Value - 3,350 [3,350 - 3,375]
+Stability - Doing Well 
+Demand - 6Rarity - 4
+Change in Value - (+50) +1.5%
++1 -1 ~
+Dark Set
+Value - 3,325 [N/A]
+Stability - Stable 
+Demand - 6Rarity - 4
+Change in Value - (+50) +1.5%
++1 -1 ~
+Vampire's Set
+Value - 3,175 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 4
+Change in Value - (+25) +0.8%
++1 -1 ~
+Sakura Set
+Value - 2,630 [2,630 - 2,650]
+Stability - Doing Well 
+Demand - 6Rarity - 4
+Change in Value - (+20) +0.8%
++1 -1 ~
+Sun Set
+Value - 1,750 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 4
+Change in Value - (+50) +2.9%
++1 -1 ~
+Soul Set
+Value - 1,220 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 3
+Change in Value - (+10) +0.8%
++1 -1 ~
+Snow Set
+Value - 1,100 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 3
+Change in Value - (-5) -0.5%
++1 -1 ~
+Bauble Set
+Value - 852 [850 - 853]
+Stability - Fluctuating 
+Demand - 5Rarity - 4
+Change in Value - (-25) -2.9%
++1 -1 ~
+Rainbow Set
+Value - 830 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 3
+Change in Value - (+10) +1.2%
++1 -1 ~
+Bloom Set
+Value - 810 [N/A]
+Stability - Stable 
+Demand - 5Rarity - 3
+Change in Value - (+20) +2.5%
++1 -1 ~
+Ocean Set
+Value - 565 [N/A]
+Stability - Stable 
+Demand - 4Rarity - 3
+Change in Value - (+10) +1.8%
++1 -1 ~
+Xeno Set
+Value - 560 [N/A]
+Stability - Stable 
+Demand - 4Rarity - 3
+Change in Value - (+10) +1.8%
++1 -1 ~
+Flowerwood Set
+Value - 525 [N/A]
+Stability - Stable 
+Demand - 4Rarity - 3
+Change in Value - (+10) +1.9%
++1 -1 ~
+Blizzard Set
+Value - 520 [N/A]
+Stability - Stable 
+Demand - 4Rarity - 3
+Change in Value - (+10) +2.0%
++1 -1 ~
+Corrupt Set
+Value - 500 [N/A]
+Stability - Stable 
+Demand - 4Rarity - 3
+Change in Value - (-10) -2.0%
++1 -1 ~
+Bow Set
+Value - 410 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 2
+Change in Value - (-20) -4.7%
++1 -1 ~
+Sweet Set
+Value - 305 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 3
+Change in Value - (-10) -3.2%
++1 -1 ~
+Beach Set
+Value - 300 [280 - 320]
+Stability - Fluctuating 
+Demand - 3Rarity - 3
+Change in Value - (-20) -6.3%
++1 -1 ~
+Borealis Set
+Value - 285 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 3
+Change in Value - (-10) -3.4%
++1 -1 ~
+Full Ice Set
+Value - 258 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 2
+Change in Value - (-2) -0.8%
++1 -1 ~
+Pearl Set
+Value - 175 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-10) -5.4%
++1 -1 ~
+Bat Set
+Value - 153 [148 - 158]
+Stability - Fluctuating 
+Demand - 2Rarity - 2
+Change in Value - (-2) -1.3%
++1 -1 ~
+Candy Set
+Value - 112 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -0.9%
++1 -1 ~
+Full Elderwood Set
+Value - 104 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-6) -5.5%
++1 -1 ~
+Ice Set
+Value - 98 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -2.0%
++1 -1 ~
+Elderwood Set
+Value - 71 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-4) -5.3%
++1 -1 ~
+Spectre Set
+Value - 70 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-4) -5.4%
++1 -1 ~
+Full Swirly Set
+Value - 68 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-3) -4.2%
++1 -1 ~
+Bringer Set
+Value - 66 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-4) -5.7%
++1 -1 ~
+Swirly Set
+Value - 56 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -3.4%
++1 -1 ~
+Hallow Set
+Value - 50 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -3.8%
++1 -1 ~
+Old Glory Set
+Value - 37 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -2.6%
++1 -1 ~
+Slasher Set
+Value - 37 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -2.6%
++1 -1 ~
+Iceflake Set
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-4) -10.8%
++1 -1 ~
+Plasma Set
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Logchopper Set
+Value - 31 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -6.1%
++1 -1 ~
+Ginger Set (Godly)
+Value - 30 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -6.3%
++1 -1 ~
+Virtual Set
+Value - 30 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-3) -9.1%
++1 -1 ~
+Eternalcane Set
+Value - 26 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-4) -13.3%
++1 -1 ~
+Cookie Set
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -3.8%
++1 -1 ~
+Collectible Tier
+Pumpkin Set
+Value - 404 [402 - 404]
+Stability - Underpaid For 
+Demand - 3Rarity - 4
+Change in Value - (-1) -0.2%
++1 -1 ~
+Latte Set
+Value - 280 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 3
+Change in Value - (-10) -3.4%
++1 -1 ~
+Bats Set
+Value - 231 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 5
+Change in Value - (+10) +4.5%
++1 -1 ~
+Zombified Set
+Value - 135 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (+5) +3.8%
++1 -1 ~
+Dark Set (Rare)
+Value - 76 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (-5) -6.2%
++1 -1 ~
+Gingerbread Set
+Value - 76 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (-1) -1.3%
++1 -1 ~
+Spectral Set
+Value - 63 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (-5) -7.4%
++1 -1 ~
+Traveler Set
+Value - 63 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (-5) -7.4%
++1 -1 ~
+Silent Night Set
+Value - 62 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 4
+Change in Value - (-1) -1.6%
++1 -1 ~
+Aurora Set (Legend.)
+Value - 58 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (-5) -7.9%
++1 -1 ~
+Vampire Set (Legend.)
+Value - 58 [N/A]
+Stability - Stable 
+Demand - 3Rarity - 4
+Change in Value - (-5) -7.9%
++1 -1 ~
+Pumpkin Set (2020)
+Value - 48 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 4
+Change in Value - (+8) +20.0%
++1 -1 ~
+Pumpkin Set (2021)
+Value - 40 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 4
+Change in Value - (+5) +14.3%
++1 -1 ~
+Wrap Set
+Value - 16 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (+2) +14.3%
++1 -1 ~
+Aurora Set (Rare)
+Value - 9 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-2) -18.2%
++1 -1 ~
+Toxic Set
+Value - 9 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-1) -10.0%
++1 -1 ~
+Pumpkin Set (2019)
+Value - 9 [5 - 9]
+Stability - Underpaid For 
+Demand - 1Rarity - 3
+Change in Value - (-2) -18.2%
++1 -1 ~
+Cavern Set
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-1) -11.1%
++1 -1 ~
+Eye Set
+Value - 8 [4 - 8]
+Stability - Underpaid For 
+Demand - 1Rarity - 2
+Change in Value - (-2) -20.0%
++1 -1 ~
+Ghost Set
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-1) -12.5%
++1 -1 ~
+Icedriller Set
+Value - 6 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 2
+Change in Value - (-3) -33.3%
++1 -1 ~
+Full Elite Set
+Value - 6 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -25.0%
++1 -1 ~
+Santa's Set (Legend.)
+Value - 6 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-4) -40.0%
++1 -1 ~
+Scratch Set
+Value - 6 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-1) -14.3%
++1 -1 ~
+Zombie Set
+Value - 6 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -25.0%
++1 -1 ~
+Candy Swirl Set
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-2) -33.3%
++1 -1 ~
+Snakebite Set
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-2) -33.3%
++1 -1 ~
+Vampire Set (Rare)
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-2) -33.3%
++1 -1 ~
+Frozen Set
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -33.3%
++1 -1 ~
+Marble Set
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-1) -20.0%
++1 -1 ~
+Potion Set
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -33.3%
++1 -1 ~
+Grave Set
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-1) -25.0%
++1 -1 ~
+Lights Set
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-1) -25.0%
++1 -1 ~
+Mummy Set
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-1) -25.0%
++1 -1 ~
+Slime Set
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -40.0%
++1 -1 ~
+Haunted Set
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -50.0%
++1 -1 ~
+Bulk Tier
+Full Bringer Set
+Value - 191 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-4) -2.1%
++1 -1 ~
+Full Luger Set
+Value - 180 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -0.6%
++1 -1 ~
+Luger Set
+Value - 130 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-1) -0.8%
++1 -1 ~
+Sparkle Set
+Value - 127 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (+2) +1.6%
++1 -1 ~
+Vintage Set
+Value - 59 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -3.3%
++1 -1 ~
+Full Colored Seer Set
+Value - 44 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-2) -4.3%
++1 -1 ~
+Eternal Set
+Value - 43 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-8) -15.7%
++1 -1 ~
+Skate Set
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (-5) -16.7%
++1 -1 ~
+Pals Set
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 2Rarity - 3
+Change in Value - (+4) +25.0%
++1 -1 ~
+Colored Seer Set
+Value - 16 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 1
+Change in Value - (-6) -27.3%
++1 -1 ~
+Wrapping Paper Set
+Value - 14 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 3
+Change in Value - (-2) -12.5%
++1 -1 ~
+Dynamic Tier
+Small Set (107)
+Value - 1,295 [1,245 - 1,345]
+Stability - Fluctuating 
+Demand - 4Rarity - 4
+Change in Value - (-20) -1.5%
++1 -1 ~
+Small Set (103)
+Value - 1,260 [1,210 - 1,310]
+Stability - Fluctuating 
+Demand - 4Rarity - 4
+Change in Value - (-1) -0.1%
++1 -1 ~
+Full Chroma Set
+Value - 555 [N/A]
+Stability - Underpaid For 
+Demand - 1Rarity - 2
+Change in Value - (-15) -2.6%
++1 -1 ~
+Chroma Weapon Set
+Value - 535 [N/A]
+Stability - Stable 
+Demand - 1Rarity - 2
+Change in Value - (-10) -1.8%
++1 -1 ~
+
+FOOTNOTE: Sets are groups of more than one item that are commonly traded together where two or more of the items have a value of at least one (1). Some sets round up in value rather than being the exact sum of its items' values.
+Value Key (Percentile): <1 Value · 0-39 · 40-84 · 85-99
+NEW ITEMS:
+Chroma Beach Set's range changed to [3,350-3,750]
+Beach Set reduced to 300 [280-320]
+SETS:
+Chroma Ever Set reduced to 124,000 [123,000-124,000]
+Chroma Alien Set increased to 36,250
+Chroma Snow Set reduced to 12,500
+Chroma Sweet Set increased to 5,150 [N/A], demand reduced to 5, stability changed from "Doing Well" to "Stable"
+
+
+Celestial Set increased to 4,925 [4,925-4,975]
+Alien Set increased to 3,350 [3,350-3,375]
+Dark Set increased to 3,325
+Sakura Set increased to 2,630 [2,630-2,650]
+Snow Set reduced to 1,100
+
+
+Bats Set increased to 231
+Wrap Set increased to 16
+
+
+Site Created and Managed by hdmi
+Copyright © 2020-2026 Supreme Values
+			
+	
+Privacy Policy
+FAQ
+Terms of Use
+	
+Trading Servers
+Scam Prevention
+Use Guide
+	
+Discord Info
+Discord Invite
+Roblox Group
+Your Inventory Value:
+0 [N/A]
+View Inventory

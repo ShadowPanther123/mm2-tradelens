@@ -1,0 +1,530 @@
+﻿MAIN PAGES:
+×
+Home
+Trading Servers
+MM2 Trading
+Discord Info
+Discord Bot
+Use Guide
+
+
+GAMES:
+Murder Mystery 2
+
+
+CATEGORIES:
+Sets
+Uniques
+Evos
+Ancients
+Vintages
+Chromas
+Godlies
+Legendaries
+Rares
+Uncommons
+Commons
+Pets
+Misc. Items
+Untradables
+
+
+EXTRAS:
+Scam Prevention
+FAQ
+
+
+SOCIALS:
+YouTube
+Twitter
+Discord
+Values Last Updated - August 1st, 2026 at 12:13 PM  //  Join our Discord Server
+Join our Discord Server Join our Roblox Group
+Trade your MM2 items using Cosmic Values, our official trading partner! Take me there
+The Supreme Values Discord bot has returned! Learn more
+MM2 Legendary Values
+
+Supreme Values provides up-to-date MM2 Legendary values, demands, and rarities for trading every Murder Mystery 2 Legendary item.
+
+TIP: You can click on an item's image to see extra features and information. Read more about this in our use guide!
+Tier 3 Tier 2 Tier 1 Changelog
+ Search In-Page
+Filter by Event/Year/Stability: 
+Select Event
+Valentine's
+Easter
+Summer
+Halloween
+Thanksgiving
+Christmas
+ 
+Select Year
+2026
+2025
+2024
+2023
+2022
+2021
+2020
+2019
+2018
+2017
+2016
+2015
+ 
+Select Stability
+Stable
+ Sort by: 
+Value (High->Low)
+Value (Low->High)
+Stability (High->Low)
+Stability (Low->High)
+Demand (High->Low)
+Demand (Low->High)
+Rarity (High->Low)
+Rarity (Low->High)
+Change % (High->Low)
+Change % (Low->High)
+
+
+Tier 3
+Latte (Gun)
+Value - 140 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -3.4%
++1 -1 ~
+Latte (Knife)
+Value - 140 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -3.4%
++1 -1 ~
+Spectral (Knife)
+Value - 60 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (-5) -7.7%
++1 -1 ~
+Traveler (Gun)
+Value - 60 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (-5) -7.7%
++1 -1 ~
+Aurora (Gun)
+Value - 55 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (-5) -8.3%
++1 -1 ~
+Vampire (Gun)
+Value - 55 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (-5) -8.3%
++1 -1 ~
+Beach
+Value - 35 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+5) +16.7%
++1 -1 ~
+Cotton Candy
+Value - 35 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-3) -7.9%
++1 -1 ~
+JD
+Value - 28 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-2) -6.7%
++1 -1 ~
+Arctic (Gun)
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+3) +42.9%
++1 -1 ~
+Cavern (Knife)
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-1) -12.5%
++1 -1 ~
+Broken
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Icedriller
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-2) -28.6%
++1 -1 ~
+Nightsky
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +25.0%
++1 -1 ~
+Ghost (Knife)
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Ginger (Gun)
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -16.7%
++1 -1 ~
+Bunnies
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-1) -20.0%
++1 -1 ~
+Red Scratch
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Skulls
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -20.0%
++1 -1 ~
+Aurora (Knife)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +50.0%
++1 -1 ~
+Spectral (Gun)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +50.0%
++1 -1 ~
+Traveler (Knife)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +50.0%
++1 -1 ~
+Vampire (Knife)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +50.0%
++1 -1 ~
+Witched
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-1) -25.0%
++1 -1 ~
+Blue Elite
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Green Elite
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Santa's Magic
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Santa's Spirit
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Energized (Gun)
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +100.0%
++1 -1 ~
+Frostfade (Knife)
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +100.0%
++1 -1 ~
+Blue Scratch
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Ghost (Gun)
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Bubbles
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-1) -50.0%
++1 -1 ~
+Chromatic (Knife)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-1) -50.0%
++1 -1 ~
+Icecracker
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (-1) -50.0%
++1 -1 ~
+Red Fire
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Cavern (Gun)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Tier 2
+Arctic (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Chromatic (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Cursed (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Emerald
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Energized (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Frozen (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Nightstar
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Overseer (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Predator (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Ripper (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Rupture
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Tree (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Tree (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Web
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Green Fire
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Aquarium (Gun)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Cursed (Gun)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Frostfade (Gun)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Frozen (Knife)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Midnight
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Palms (Gun)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Sparkle
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Cupid
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Ginger (Knife)
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Ripper (Gun)
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Aquarium (Knife)
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Palms (Knife)
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Tier 1
+Overseer (Knife)
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+Predator (Gun)
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+Rune
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+Universe
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+Viper
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+Fade
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fusion
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Plasmite
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Shiny
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Splash (Knife)
+Value - x4 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Elite
+Value - x3 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Splash (Gun)
+Value - x3 T1 Rares
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Value Key (Percentile): <1 Value · 0-39 · 40-84 · 85-99
+NEW ITEMS:
+Bubbles reduced to 1, rarity reduced to 2
+Site Created and Managed by hdmi
+Copyright © 2020-2026 Supreme Values
+			
+	
+Privacy Policy
+FAQ
+Terms of Use
+	
+Trading Servers
+Scam Prevention
+Use Guide
+	
+Discord Info
+Discord Invite
+Roblox Group
+Your Inventory Value:
+0 [N/A]
+View Inventory

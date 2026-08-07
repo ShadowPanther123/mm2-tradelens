@@ -1,0 +1,1588 @@
+﻿MAIN PAGES:
+×
+Home
+Trading Servers
+MM2 Trading
+Discord Info
+Discord Bot
+Use Guide
+
+
+GAMES:
+Murder Mystery 2
+
+
+CATEGORIES:
+Sets
+Uniques
+Evos
+Ancients
+Vintages
+Chromas
+Godlies
+Legendaries
+Rares
+Uncommons
+Commons
+Pets
+Misc. Items
+Untradables
+
+
+EXTRAS:
+Scam Prevention
+FAQ
+
+
+SOCIALS:
+YouTube
+Twitter
+Discord
+Values Last Updated - August 1st, 2026 at 12:13 PM  //  Join our Discord Server
+Join our Discord Server Join our Roblox Group
+Trade your MM2 items using Cosmic Values, our official trading partner! Take me there
+The Supreme Values Discord bot has returned! Learn more
+MM2 Common Values
+
+Supreme Values provides up-to-date MM2 Common values, demands, and rarities for trading every Murder Mystery 2 Common item.
+
+TIP: You can click on an item's image to see extra features and information. Read more about this in our use guide!
+Victim Tier Tier 3 Tier 2 Tier 1 Changelog
+ Search In-Page
+Filter by Event/Year/Stability: 
+Select Event
+Valentine's
+Easter
+Summer
+Halloween
+Thanksgiving
+Christmas
+ 
+Select Year
+2026
+2025
+2024
+2023
+2022
+2021
+2020
+2019
+2018
+2017
+2016
+2015
+ 
+Select Stability
+Stable
+ Sort by: 
+Value (High->Low)
+Value (Low->High)
+Stability (High->Low)
+Stability (Low->High)
+Demand (High->Low)
+Demand (Low->High)
+Rarity (High->Low)
+Rarity (Low->High)
+Change % (High->Low)
+Change % (Low->High)
+
+
+Default Tier
+Default Knife
+Demand - 0Rarity - 0
+
+ 
+Default Gun
+Demand - 0Rarity - 0
+
+Victim Tier
+Glitch1
+Value - 70 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -6.7%
++1 -1 ~
+Glitch2
+Value - 40 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-5) -11.1%
++1 -1 ~
+Tier 3
+Bats (Knife)
+Value - 230 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 5
+Change in Value - (+10) +4.5%
++1 -1 ~
+Ghoulish
+Value - 100 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (-5) -4.8%
++1 -1 ~
+Gifts (Knife)
+Value - 95 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +5.6%
++1 -1 ~
+Pine (Knife)
+Value - 85 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 4
+Change in Value - (+5) +6.3%
++1 -1 ~
+Frosted (Knife)
+Value - 30 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +7.1%
++1 -1 ~
+Wrapped (Gun)
+Value - 30 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+3) +11.1%
++1 -1 ~
+Sparkle9
+Value - 30 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Snowflakes (Gun)
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+3) +13.6%
++1 -1 ~
+Snowman (Gun)
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+3) +13.6%
++1 -1 ~
+Webbed (Gun)
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+5) +25.0%
++1 -1 ~
+CandyCorn (2017)
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+3) +13.6%
++1 -1 ~
+Ecto
+Value - 25 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+5) +25.0%
++1 -1 ~
+Mummified
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+5) +33.3%
++1 -1 ~
+Sparkle10
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Sparkle8
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Sparkle7
+Value - 18 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Elf (Knife)
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+0)
++1 -1 ~
+RIP
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +13.3%
++1 -1 ~
+Coal (Knife)
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+3) +25.0%
++1 -1 ~
+Slimy
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+5) +50.0%
++1 -1 ~
+Pumpkin (2019)
+Value - 12 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +20.0%
++1 -1 ~
+Prism
+Value - 12 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+2) +20.0%
++1 -1 ~
+Sparkle6
+Value - 12 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Candy Corn (2019)
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +25.0%
++1 -1 ~
+Elf (2018)
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 4
+Change in Value - (+2) +25.0%
++1 -1 ~
+Combat II
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Phantom
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+2) +25.0%
++1 -1 ~
+Sparkle4
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+2) +25.0%
++1 -1 ~
+Skool
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Sparkle5
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Tailslide
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-1) -12.5%
++1 -1 ~
+Zombie
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+2) +40.0%
++1 -1 ~
+Ollie
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-2) -28.6%
++1 -1 ~
+Sidewinder
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-2) -28.6%
++1 -1 ~
+Starry
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+2) +66.7%
++1 -1 ~
+Alex
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +33.3%
++1 -1 ~
+Corl
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +33.3%
++1 -1 ~
+Denis
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +33.3%
++1 -1 ~
+Euro
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-1) -20.0%
++1 -1 ~
+Sketchy
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +33.3%
++1 -1 ~
+Sub
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +33.3%
++1 -1 ~
+Apocalypse (Gun)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +50.0%
++1 -1 ~
+Bats (2020)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +50.0%
++1 -1 ~
+Infected (Gun)
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1) +50.0%
++1 -1 ~
+Ghosty
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Sparkle1
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Sparkle2
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+1) +50.0%
++1 -1 ~
+Sparkle3
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Asteroid
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -33.3%
++1 -1 ~
+Grave (Gun)
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -33.3%
++1 -1 ~
+Grind
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (+0)
++1 -1 ~
+Slime (Knife)
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -33.3%
++1 -1 ~
+Indy
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Slashed
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (+1)
++1 -1 ~
+Bats (Gun)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -50.0%
++1 -1 ~
+Grave (Knife)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -50.0%
++1 -1 ~
+Haunted (Gun)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -50.0%
++1 -1 ~
+Haunted (Knife)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -50.0%
++1 -1 ~
+Slime (Gun)
+Value - 1 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 3
+Change in Value - (-1) -50.0%
++1 -1 ~
+Tier 2
+Apocalypse (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Infected (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+2015
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Blossom
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Bunny
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Carrot
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Choco
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Egg
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Elf (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Goo
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Hearts
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Ornament
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Ornament1
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Ornament2 (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Ornament2 (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Passion
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Patrick
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Reptile
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Roses
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Santa (Gun)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Santa (Knife)
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Sweetheart
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Tulip
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Valentine
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Bones
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Brains
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Witch
+Value - x4 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Frosted (Gun)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Gift Bag (Knife)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Hunter
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Webbed (Knife)
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Infected
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Neon
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+TNL
+Value - x3 T1 Legendaries
+Stability - Stable 
+Demand - 1 Rarity - 3
+
+Gifts (Gun)
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Ribbons
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Snowflakes (Knife)
+Value - x2 T1 Legendaries
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Pine (Gun)
+Value - x3 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+RB Knife
+Value - x3 T1 Rares
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Cane (Gun)
+Value - x1 T1 Rare
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Etched
+Value - x1 T1 Rare
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Ornaments (Gun)
+Value - x1 T1 Rare
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Coal (Knife)
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Moon
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Fragile (Gun)
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Fragile (Knife)
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Love (2023)
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Scarf
+Value - x3 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Candied (Knife)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Cracks (Gun)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Darkness (Knife)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Snowman (Gun)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Webs
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Gift Bag (Gun)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Ornaments (Knife)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Stockings
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Toy (Knife)
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Trees
+Value - x2 T1 Uncommons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Aliens
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Coal (Gun)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Ghosts (2023)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Pumpkin (2023)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Vines (Knife)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 3
+
+Cat
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Coal (Gun)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Ribbon
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Santa (2023)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Toy (Gun)
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Penguin
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Reindeer
+Value - x1 T1 Uncommon
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candied (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Candle
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Candy Corn (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Candy Corn (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Cane (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Carved (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Coal
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Coal (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Cracks (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Darkness (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Elf (2017)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Frozen (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Present
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Present (2023)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Santa
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Santa (2018)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Snowman (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Watcher (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Wrapped (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Stickers (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Stickers (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Wavy (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Bats (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candles
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candy Corn (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candy Corn (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Carrots
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Cats
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Chick
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Clownfish (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Gifts (2024)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Haunted (2025)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Hot Chocolate
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Igloo (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+UFOs (Knife)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Wavy (Gun)
+Value - x3 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candy Corn (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Carved (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Coal (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Giftwrap
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Haunted
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Watcher (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 2 Rarity - 2
+
+Candy Corn (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Eyeball
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Snowman (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 2
+
+Balloons
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Bats (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Bells
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candy Corn (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Candy Corn (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Cherries
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Clownfish (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Coconut
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Dolphins
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Duckies
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Elf (2023)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fall
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Frozen (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Ghosts (2024)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Hearts (2026)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Igloo (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Leaves
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Leaves
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Lights (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Lights (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Peppermint (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Peppermint (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Plaid
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Reindeer
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Sand
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Sandy (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Skyline
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Snowball (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Snowball (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Snowfall
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Spider (2023)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Starfish (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Starfish (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stickers
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stockings (2024)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Strawberries (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Strawberries (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Striped (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Striped (Knife)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Tourist
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+UFOs (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Vines (Gun)
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Wood
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Xbox
+Value - x2 T1 Commons
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Tier 1
+Clown (Gun)
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+Clown (Knife)
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 2 Rarity - 1
+
+8Bit
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Aqua
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Big Kill
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Bit
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Bleached
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Borders
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Brown
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Cardboard
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Cherry
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Clan
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Cold
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Combat
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Copper
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Eco
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Engraved
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Fallout
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Green
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Hardened
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+HL2
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Ice
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Infiltrator
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Iron
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Juice
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Leaf
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Linked
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Log
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Love (Knife)
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Lovely
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+News
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Oily
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Orange
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Pea
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Sandy
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Shaded
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Slate
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Splat
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Splatter
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Stainless
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Star
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Static
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Whiteout
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Yellow
+Value - x1 T1 Common
+Stability - Stable 
+Demand - 1 Rarity - 1
+
+Value Key (Percentile): <1 Value · 0-39 · 40-84 · 85-99
+NEW ITEMS:
+Cherries reduced to x2 T1 Commons
+Duckies reduced to x2 T1 Commons
+Sand reduced to x2 T1 Commons
+Tourist reduced to x2 T1 Commons
+COMMONS:
+Bats (Knife) [HALLOWS2018] increased to 230
+Site Created and Managed by hdmi
+Copyright © 2020-2026 Supreme Values
+			
+	
+Privacy Policy
+FAQ
+Terms of Use
+	
+Trading Servers
+Scam Prevention
+Use Guide
+	
+Discord Info
+Discord Invite
+Roblox Group
+Your Inventory Value:
+0 [N/A]
+View Inventory

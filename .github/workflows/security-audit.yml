@@ -1,0 +1,45 @@
+name: security-audit
+
+# Dependency vulnerability scanning for both ecosystems. Runs on pushes/PRs and
+# on a weekly schedule so newly disclosed advisories are caught even without a
+# code change.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      # Gate on shipped (production) dependencies only: dev-tool advisories in
+      # the bundler/test runner (vite, vitest, esbuild) never reach end users,
+      # so they must not permanently fail CI. Any high/critical in a runtime
+      # dependency still blocks the build.
+      - run: npm audit --omit=dev --audit-level=high
+      # Informational full audit (never fails the job) so dev-tool advisories
+      # stay visible for periodic review.
+      - run: npm audit || true
+
+  cargo-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop/src-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: apps/desktop/src-tauri

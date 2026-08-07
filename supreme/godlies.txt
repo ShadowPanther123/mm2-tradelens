@@ -1,0 +1,876 @@
+﻿MAIN PAGES:
+×
+Home
+Trading Servers
+MM2 Trading
+Discord Info
+Discord Bot
+Use Guide
+
+
+GAMES:
+Murder Mystery 2
+
+
+CATEGORIES:
+Sets
+Uniques
+Evos
+Ancients
+Vintages
+Chromas
+Godlies
+Legendaries
+Rares
+Uncommons
+Commons
+Pets
+Misc. Items
+Untradables
+
+
+EXTRAS:
+Scam Prevention
+FAQ
+
+
+SOCIALS:
+YouTube
+Twitter
+Discord
+Values Last Updated - August 1st, 2026 at 12:13 PM  //  Join our Discord Server
+Join our Discord Server Join our Roblox Group
+Trade your MM2 items using Cosmic Values, our official trading partner! Take me there
+The Supreme Values Discord bot has returned! Learn more
+MM2 Godly Values
+
+Supreme Values provides up-to-date MM2 Godly values, demands, and rarities for trading every Murder Mystery 2 Godly item.
+
+TIP: You can click on an item's image to see extra features and information. Read more about this in our use guide!
+Tier 4 Tier 3 Tier 2 Tier 1 Tier 0 Changelog
+ Search In-Page
+Filter by Event/Year/Stability: 
+Select Event
+Valentine's
+Easter
+Summer
+Halloween
+Thanksgiving
+Christmas
+ 
+Select Year
+2026
+2025
+2024
+2023
+2022
+2021
+2020
+2019
+2018
+2017
+2016
+2015
+ 
+Select Stability
+Doing Well
+Fluctuating
+Stable
+ Sort by: 
+Value (High->Low)
+Value (Low->High)
+Stability (High->Low)
+Stability (Low->High)
+Demand (High->Low)
+Demand (Low->High)
+Rarity (High->Low)
+Rarity (Low->High)
+Change % (High->Low)
+Change % (Low->High)
+
+
+Tier 4
+Traveler's Gun
+Value - 5,600 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 5
+Change in Value - (+100) +1.8%
++1 -1 ~
+Evergun
+Value - 3,450 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (-25) -0.7%
++1 -1 ~
+Constellation
+Value - 2,700 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (-25) -0.9%
++1 -1 ~
+Evergreen
+Value - 2,500 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (-25) -1.0%
++1 -1 ~
+Turkey
+Value - 2,450 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (-25) -1.0%
++1 -1 ~
+Vampire's Gun
+Value - 1,950 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (+25) +1.3%
++1 -1 ~
+Alienbeam
+Value - 1,850 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (-25) -1.3%
++1 -1 ~
+Darkshot
+Value - 1,675 [N/A]
+Stability - Stable 
+Demand - 6 Rarity - 4
+Change in Value - (+25) +1.5%
++1 -1 ~
+Darksword
+Value - 1,650 [N/A]
+Stability - Stable 
+Demand - 6 Rarity - 4
+Change in Value - (+25) +1.5%
++1 -1 ~
+Raygun
+Value - 1,500 [1,500 - 1,525]
+Stability - Doing Well 
+Demand - 6 Rarity - 3
+Change in Value - (+50) +3.4%
++1 -1 ~
+Blossom
+Value - 1,320 [1,320 - 1,330]
+Stability - Doing Well 
+Demand - 6 Rarity - 4
+Change in Value - (+10) +0.8%
++1 -1 ~
+Sakura
+Value - 1,310 [1,310 - 1,320]
+Stability - Doing Well 
+Demand - 6 Rarity - 4
+Change in Value - (+10) +0.8%
++1 -1 ~
+Sunrise
+Value - 1,125 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (+25) +2.3%
++1 -1 ~
+Snowcannon
+Value - 850 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+25) +3.0%
++1 -1 ~
+Bauble
+Value - 825 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 4
+Change in Value - (-25) -2.9%
++1 -1 ~
+Sunset
+Value - 625 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+25) +4.2%
++1 -1 ~
+Soul
+Value - 615 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+5) +0.8%
++1 -1 ~
+Spirit
+Value - 605 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+5) +0.8%
++1 -1 ~
+Rainbow Gun
+Value - 420 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+5) +1.2%
++1 -1 ~
+Flora
+Value - 410 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+10) +2.5%
++1 -1 ~
+Rainbow
+Value - 410 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+5) +1.2%
++1 -1 ~
+Bloom
+Value - 400 [N/A]
+Stability - Stable 
+Demand - 5 Rarity - 3
+Change in Value - (+10) +2.6%
++1 -1 ~
+Tier 3
+Heart Wand
+Value - 340 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+10) +3.0%
++1 -1 ~
+Ocean
+Value - 285 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+5) +1.8%
++1 -1 ~
+Waves
+Value - 280 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+5) +1.8%
++1 -1 ~
+Xenoknife
+Value - 280 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3 
+Change in Value - (+5) +1.8%
++1 -1 ~
+Xenoshot
+Value - 280 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3 
+Change in Value - (+5) +1.8%
++1 -1 ~
+Flowerwood Gun
+Value - 265 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+5) +1.9%
++1 -1 ~
+Blizzard
+Value - 260 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+5) +2.0%
++1 -1 ~
+Flowerwood
+Value - 260 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+5) +2.0%
++1 -1 ~
+Snowstorm
+Value - 260 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (+5) +2.0%
++1 -1 ~
+Snow Dagger
+Value - 250 [N/A]
+Stability - Stable 
+Demand - 4 Rarity - 3
+Change in Value - (-5) -2.0%
++1 -1 ~
+Watergun
+Value - 250 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-10) -3.8%
++1 -1 ~
+Icecream
+Value - 160 [150 - 165]
+Stability - Fluctuating 
+Demand - 3 Rarity - 3
+Change in Value - (-40) -20.0%
++1 -1 ~
+Treat
+Value - 155 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -3.1%
++1 -1 ~
+Beachy
+Value - 150 [140 - 160]
+Stability - Fluctuating 
+Demand - 3 Rarity - 3
+Change in Value - (-10) -6.3%
++1 -1 ~
+Sands
+Value - 150 [140 - 160]
+Stability - Fluctuating 
+Demand - 3 Rarity - 3
+Change in Value - (-10) -6.3%
++1 -1 ~
+Sweet
+Value - 150 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -3.2%
++1 -1 ~
+Borealis
+Value - 145 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -3.3%
++1 -1 ~
+Australis
+Value - 140 [N/A]
+Stability - Stable 
+Demand - 3 Rarity - 3
+Change in Value - (-5) -3.4%
++1 -1 ~
+Bat
+Value - 120 [115 - 125]
+Stability - Fluctuating 
+Demand - 2 Rarity - 2
+Change in Value - (-5) -4.0%
++1 -1 ~
+Pearlshine
+Value - 90 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-5) -5.3%
++1 -1 ~
+Pearl
+Value - 85 [N/A]
+Stability - Stable 
+Demand - 2 Rarity - 3
+Change in Value - (-5) -5.6%
++1 -1 ~
+Candy
+Value - 80 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-5) -5.9%
++1 -1 ~
+Heartblade
+Value - 65 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -3.0%
++1 -1 ~
+Tier 2
+Luger
+Value - 40 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -4.8%
++1 -1 ~
+Red Luger
+Value - 37 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -2.6%
++1 -1 ~
+Phantom
+Value - 35 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.4%
++1 -1 ~
+Spectre
+Value - 35 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.4%
++1 -1 ~
+Candleflame
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Darkbringer
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Elderwood Blade
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Elderwood Revolver
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Iceblaster
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Lightbringer
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Makeshift
+Value - 33 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -5.7%
++1 -1 ~
+Sugar
+Value - 32 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -3.0%
++1 -1 ~
+Ornament
+Value - 27 [25 - 28]
+Stability - Fluctuating 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -3.6%
++1 -1 ~
+Green Luger
+Value - 23 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -8.0%
++1 -1 ~
+Amerilaser
+Value - 22 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -4.3%
++1 -1 ~
+Laser
+Value - 22 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -4.3%
++1 -1 ~
+Hallowgun
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -9.1%
++1 -1 ~
+Nightblade
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -9.1%
++1 -1 ~
+Shark
+Value - 20 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-3) -13.0%
++1 -1 ~
+Tier 1
+Icebeam
+Value - 18 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -10.0%
++1 -1 ~
+Plasmabeam
+Value - 18 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-4) -18.2%
++1 -1 ~
+Swirly Gun
+Value - 18 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -10.0%
++1 -1 ~
+Battleaxe II
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -5.6%
++1 -1 ~
+Blaster
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -5.6%
++1 -1 ~
+Ginger Luger
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-3) -15.0%
++1 -1 ~
+Pixel
+Value - 17 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-3) -15.0%
++1 -1 ~
+Gemstone
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -11.8%
++1 -1 ~
+Iceflake
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -11.8%
++1 -1 ~
+Old Glory
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -11.8%
++1 -1 ~
+Plasmablade
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -11.8%
++1 -1 ~
+Slasher
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -11.8%
++1 -1 ~
+Vampire's Edge
+Value - 15 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Cookiecane
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Deathshard
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Eternalcane
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Gingerblade
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Jinglegun
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Lugercane
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Minty
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Nebula
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Virtual
+Value - 13 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -13.3%
++1 -1 ~
+Battleaxe
+Value - 12 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Gingermint
+Value - 12 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -7.7%
++1 -1 ~
+Swirly Blade
+Value - 12 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -7.7%
++1 -1 ~
+Chill
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -16.7%
++1 -1 ~
+Clockwork
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -16.7%
++1 -1 ~
+Fang
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -16.7%
++1 -1 ~
+Frostsaber
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Heat
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -16.7%
++1 -1 ~
+Spider
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -16.7%
++1 -1 ~
+Tides
+Value - 10 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -16.7%
++1 -1 ~
+Tier 0
+Bioblade
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -20.0%
++1 -1 ~
+Eternal III
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -20.0%
++1 -1 ~
+Eternal IV
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -20.0%
++1 -1 ~
+Hallow's Blade
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Hallow's Edge
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Handsaw
+Value - 8 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Boneblade
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Eternal
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -12.5%
++1 -1 ~
+Eternal II
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -12.5%
++1 -1 ~
+Frostbite
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Ghostblade
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Ice Dragon
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -12.5%
++1 -1 ~
+Ice Shard
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -12.5%
++1 -1 ~
+Prismatic
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Pumpking
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -12.5%
++1 -1 ~
+Saw
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Xmas
+Value - 7 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-1) -12.5%
++1 -1 ~
+Eggblade
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Flames
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -28.6%
++1 -1 ~
+Snowflake
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Winter's Edge
+Value - 5 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (-2) -28.6%
++1 -1 ~
+Peppermint
+Value - 4 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Cookieblade
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 2
+Change in Value - (+0)
++1 -1 ~
+Blue Seer
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 1
+Change in Value - (+0)
++1 -1 ~
+Purple Seer
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 1
+Change in Value - (+0)
++1 -1 ~
+Red Seer
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 1
+Change in Value - (+0)
++1 -1 ~
+Seer
+Value - 3 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 1
+Change in Value - (+0)
++1 -1 ~
+Orange Seer
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 1
+Change in Value - (+0)
++1 -1 ~
+Yellow Seer
+Value - 2 [N/A]
+Stability - Stable 
+Demand - 1 Rarity - 1
+Change in Value - (+0)
++1 -1 ~
+Value Key (Percentile): <1 Value · 0-39 · 40-84 · 85-99
+NEW ITEMS:
+Icecream's range changed to [150-165]
+Beachy reduced to 150 [140-160]
+Sands reduced to 150 [140-160]
+GODLIES:
+Darkshot increased to 1,675
+Darksword increased to 1,650
+Raygun increased to 1,500 [1,500-1,525]
+Blossom increased to 1,320 [1,320-1,330]
+Sakura increased to 1,310 [1,310-1,320]
+Snow Dagger reduced to 250
+Site Created and Managed by hdmi
+Copyright © 2020-2026 Supreme Values
+			
+	
+Privacy Policy
+FAQ
+Terms of Use
+	
+Trading Servers
+Scam Prevention
+Use Guide
+	
+Discord Info
+Discord Invite
+Roblox Group
+Your Inventory Value:
+0 [N/A]
+View Inventory

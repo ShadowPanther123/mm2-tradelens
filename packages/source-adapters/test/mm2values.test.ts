@@ -1,0 +1,60 @@
+import { describe, expect, it } from "vitest";
+import { ItemRarity } from "@tradelens/item-schema";
+import { mm2valuesSnapshot, mm2valuesItems } from "../src/mm2values.js";
+
+const RARITIES = new Set(ItemRarity.options);
+
+describe("mm2values bundled snapshot", () => {
+  it("includes mm2values as a bundled source", () => {
+    expect(mm2valuesSnapshot.sources).toContain("mm2values");
+    expect(mm2valuesSnapshot.schemaVersion).toBe(1);
+    expect(mm2valuesItems.length).toBeGreaterThan(900);
+  });
+
+  it("gives every item a valid rarity and a positive-or-zero value", () => {
+    for (const item of mm2valuesItems) {
+      expect(RARITIES.has(item.rarity)).toBe(true);
+      const reading = item.values.mm2values;
+      expect(reading).toBeDefined();
+      expect(reading!.value).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("uses unique item ids", () => {
+    const ids = mm2valuesItems.map((i) => i.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("keeps ratings within the 0–5 schema range", () => {
+    for (const item of mm2valuesItems) {
+      const reading = item.values.mm2values!;
+      if (reading.demand !== undefined) {
+        expect(reading.demand).toBeGreaterThanOrEqual(0);
+        expect(reading.demand).toBeLessThanOrEqual(5);
+      }
+      if (reading.rarityScore !== undefined) {
+        expect(reading.rarityScore).toBeGreaterThanOrEqual(0);
+        expect(reading.rarityScore).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  it("strips the \"Value: N\" suffix from chroma display names", () => {
+    const chroma = mm2valuesItems.filter((i) => i.chroma);
+    expect(chroma.length).toBeGreaterThan(0);
+    for (const item of chroma) {
+      expect(item.displayName).not.toMatch(/Value:/i);
+    }
+  });
+
+  it("wires bundled item icons to canonical local paths", () => {
+    const withIcon = mm2valuesItems.filter((i) => i.image);
+    // The licensed manifest covers the great majority of items.
+    expect(withIcon.length).toBeGreaterThan(800);
+    for (const item of withIcon) {
+      // Never a hotlink; always the canonical bundled path for this item id.
+      expect(item.image).toBe(`icons/items/${item.id}.png`);
+      expect(item.image).not.toMatch(/^https?:/i);
+    }
+  });
+});
