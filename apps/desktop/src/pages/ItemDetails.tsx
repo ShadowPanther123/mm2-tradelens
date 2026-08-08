@@ -8,6 +8,7 @@ import {
   SourceComparison,
   StatPill,
   EmptyState,
+  ValueHistoryChart,
 } from "@/components";
 import { capitalise, formatValue } from "@/utils/format";
 import { toEngineMode } from "@/utils/sourceMode";
@@ -73,6 +74,8 @@ export function ItemDetails() {
       </div>
 
       <SourceComparison item={item} thresholdPercent={thresholdPercent} />
+
+      <ValueHistoryChart itemId={item.id} />
 
       <div className="card grid grid-cols-3 gap-4 p-5 text-sm">
         <StatPill label="Category" value={capitalise(item.category)} />

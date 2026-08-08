@@ -87,3 +87,15 @@ pub struct SnapshotMeta {
     pub generated_at: String,
     pub cached_at: String,
 }
+
+/// One time-series value reading for an item from a single source, captured
+/// when a snapshot revision is adopted. Drives price-history charts and alerts.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HistoryPoint {
+    pub item_id: String,
+    pub source: String,
+    pub value: f64,
+    pub recorded_at: String,
+    pub revision: i64,
+}

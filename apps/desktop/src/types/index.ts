@@ -79,6 +79,18 @@ export interface SnapshotMeta {
   cachedAt: string;
 }
 
+/**
+ * One time-series value reading for an item from a single source, captured
+ * when a snapshot revision is adopted. Drives price-history charts and alerts.
+ */
+export interface HistoryPoint {
+  itemId: string;
+  source: string;
+  value: number;
+  recordedAt: string;
+  revision: number;
+}
+
 /** Basic app metadata from the Rust `app_info` command. */
 export interface AppInfo {
   name: string;

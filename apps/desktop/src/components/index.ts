@@ -19,4 +19,7 @@ export { TradeSideCard } from "./TradeSideCard";
 export { VerdictCard } from "./VerdictCard";
 export { ToggleSwitch } from "./ToggleSwitch";
 export { Sparkline } from "./Sparkline";
+export { ValueHistoryChart } from "./ValueHistoryChart";
 export { TrendBars } from "./TrendBars";
+export { SupremeImport } from "./SupremeImport";
+export { Onboarding } from "./Onboarding";

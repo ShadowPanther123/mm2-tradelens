@@ -184,6 +184,8 @@ pub fn run() {
             commands::snapshot::get_snapshot_meta,
             commands::snapshot::read_external_snapshot,
             commands::snapshot::save_snapshot,
+            commands::value_history::record_value_history,
+            commands::value_history::get_value_history,
             commands::system::app_info,
             commands::system::set_overlay_size,
             commands::system::set_always_on_top,

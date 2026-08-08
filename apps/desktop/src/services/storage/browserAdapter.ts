@@ -1,6 +1,7 @@
 import type {
   AppInfo,
   Favorite,
+  HistoryPoint,
   Settings,
   SnapshotMeta,
   TradeRecord,
@@ -15,6 +16,7 @@ const KEYS = {
   history: "tradelens:history",
   snapshot: "tradelens:snapshot",
   snapshotMeta: "tradelens:snapshot-meta",
+  valueHistory: "tradelens:value-history",
 } as const;
 
 const DEFAULT_SETTINGS: Settings = {
@@ -120,6 +122,31 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
         generatedAt: snapshot.generatedAt,
         cachedAt: new Date().toISOString(),
       } satisfies SnapshotMeta);
+    },
+
+    async recordValueHistory(points) {
+      if (points.length === 0) return;
+      const existing = read<HistoryPoint[]>(store, KEYS.valueHistory, []);
+      // Dedupe on (itemId, source, revision), mirroring the native INSERT OR IGNORE.
+      const seen = new Set(
+        existing.map((p) => `${p.itemId}\u0000${p.source}\u0000${p.revision}`),
+      );
+      for (const p of points) {
+        const key = `${p.itemId}\u0000${p.source}\u0000${p.revision}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        existing.push(p);
+      }
+      write(store, KEYS.valueHistory, existing);
+    },
+    async getValueHistory(itemId, limit) {
+      const all = read<HistoryPoint[]>(store, KEYS.valueHistory, [])
+        .filter((p) => p.itemId === itemId)
+        .sort((a, b) => a.revision - b.revision);
+      if (limit && limit > 0 && all.length > limit) {
+        return all.slice(all.length - limit);
+      }
+      return all;
     },
 
     async getAppInfo() {

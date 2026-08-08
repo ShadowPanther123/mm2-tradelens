@@ -4,6 +4,17 @@ export function formatValue(value: number): string {
   return Math.round(value).toLocaleString("en-US");
 }
 
+/**
+ * Format an absolute value change with an explicit sign, e.g. `+5`, `+10`,
+ * `-10`. Zero is rendered without a sign. Used by the value-change alerts so a
+ * move reads at a glance.
+ */
+export function formatSignedValue(change: number): string {
+  const rounded = Math.round(change);
+  const sign = rounded > 0 ? "+" : "";
+  return `${sign}${rounded.toLocaleString("en-US")}`;
+}
+
 export function formatPercent(pct: number, withSign = true): string {
   const rounded = pct.toFixed(1);
   if (!withSign) return `${rounded}%`;

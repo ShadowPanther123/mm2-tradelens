@@ -3,6 +3,7 @@ import { safeParseSnapshot } from "@tradelens/item-schema";
 import type {
   AppInfo,
   Favorite,
+  HistoryPoint,
   OverlaySize,
   Settings,
   SnapshotMeta,
@@ -34,6 +35,12 @@ export interface CommandMap {
   save_snapshot: {
     args: { revision: number; generatedAt: string; payload: ValueSnapshot };
     result: void;
+  };
+
+  record_value_history: { args: { points: HistoryPoint[] }; result: number };
+  get_value_history: {
+    args: { itemId: string; limit?: number };
+    result: HistoryPoint[];
   };
 
   app_info: { args: undefined; result: AppInfo };

@@ -31,6 +31,12 @@ export const tauriStorage: StorageAdapter = {
       payload: snapshot,
     }),
 
+  recordValueHistory: async (points) => {
+    await invokeCommand("record_value_history", { points });
+  },
+  getValueHistory: (itemId, limit) =>
+    invokeCommand("get_value_history", { itemId, limit }),
+
   getAppInfo: (): Promise<AppInfo> => invokeCommand("app_info"),
   clearAllData: () => invokeCommand("clear_all_data"),
 };

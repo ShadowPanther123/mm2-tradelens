@@ -1,10 +1,18 @@
 import type { Item, SourceId } from "@/types";
-import { formatValue, formatRelative } from "@/utils/format";
+import { readingConfidence, type Confidence } from "@tradelens/trade-engine";
+import { capitalise, formatDate, formatValue } from "@/utils/format";
 
 const SOURCE_LABELS: Record<SourceId, string> = {
   supreme: "Supreme Values",
   mm2values: "MM2Values",
   community: "Community",
+};
+
+/** Tailwind text colour per confidence level, calm rather than alarming. */
+const CONFIDENCE_TONE: Record<Confidence, string> = {
+  high: "text-win",
+  medium: "text-warn",
+  low: "text-slate-400",
 };
 
 type Reading = { value: number; updatedAt?: string };
@@ -37,21 +45,33 @@ export function SourceComparison({
       </div>
 
       <div className={`grid gap-3 ${entries.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-        {entries.map(([source, v]) => (
-          <div key={source} className="glass-soft rounded-xl p-3 text-center">
-            <div className="text-[11px] uppercase tracking-wide text-slate-500">
-              {SOURCE_LABELS[source]}
-            </div>
-            <div className="mt-1 text-lg font-semibold tabular-nums">
-              {formatValue(v.value)}
-            </div>
-            {v.updatedAt && (
-              <div className="mt-1 text-[11px] text-slate-500">
-                updated {formatRelative(v.updatedAt)}
+        {entries.map(([source, v]) => {
+          const confidence = readingConfidence(v as Reading & { updatedAt: string });
+          return (
+            <div key={source} className="glass-soft rounded-xl p-3 text-center">
+              <div className="text-[11px] uppercase tracking-wide text-slate-500">
+                {SOURCE_LABELS[source]}
               </div>
-            )}
-          </div>
-        ))}
+              <div className="mt-1 text-lg font-semibold tabular-nums">
+                {formatValue(v.value)}
+              </div>
+              <dl className="mt-2 flex flex-col gap-1 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500">Updated</dt>
+                  <dd className="text-slate-400">
+                    {v.updatedAt ? formatDate(v.updatedAt) : "unknown"}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500">Confidence</dt>
+                  <dd className={`font-medium ${CONFIDENCE_TONE[confidence]}`}>
+                    {capitalise(confidence)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          );
+        })}
       </div>
 
       {a && b && (

@@ -19,6 +19,7 @@ const MIGRATIONS: &[Migration] = &[
     Migration { name: "004_alert_absolute_threshold", up: m004_alert_absolute_threshold },
     Migration { name: "005_history_retention_limit", up: m005_history_retention_limit },
     Migration { name: "006_history_calculation", up: m006_history_calculation },
+    Migration { name: "007_value_history", up: m007_value_history },
 ];
 
 /// Total number of migrations this build knows about — the target
@@ -150,6 +151,27 @@ fn m006_history_calculation(tx: &Transaction) -> rusqlite::Result<()> {
     Ok(())
 }
 
+/// v7 — time-series value history: one row per (item, source, revision) so the
+/// app can chart how an item's value has moved over time and drive alerts and
+/// price history. Ignoring duplicates keeps re-adopting the same revision cheap.
+fn m007_value_history(tx: &Transaction) -> rusqlite::Result<()> {
+    tx.execute_batch(
+        r#"
+CREATE TABLE IF NOT EXISTS value_history (
+    item_id     TEXT    NOT NULL,
+    source      TEXT    NOT NULL,
+    value       REAL    NOT NULL,
+    recorded_at TEXT    NOT NULL,
+    revision    INTEGER NOT NULL,
+    PRIMARY KEY (item_id, source, revision)
+);
+
+CREATE INDEX IF NOT EXISTS idx_value_history_item
+    ON value_history (item_id, recorded_at);
+"#,
+    )
+}
+
 /// Return whether `table` has a column named `column`.
 fn column_exists(conn: &Connection, table: &str, column: &str) -> rusqlite::Result<bool> {
     let mut stmt = conn.prepare(&format!("PRAGMA table_info({table})"))?;
@@ -226,7 +248,7 @@ mod tests {
         assert_eq!(version, MIGRATIONS.len() as i64);
 
         // Every expected table exists.
-        for table in ["settings", "favorites", "trade_history", "snapshot_cache"] {
+        for table in ["settings", "favorites", "trade_history", "snapshot_cache", "value_history"] {
             let count: i64 = conn
                 .query_row(
                     "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?1",
@@ -304,7 +326,8 @@ mod tests {
                 "003_algorithm_version",
                 "004_alert_absolute_threshold",
                 "005_history_retention_limit",
-                "006_history_calculation"
+                "006_history_calculation",
+                "007_value_history"
             ]
         );
     }

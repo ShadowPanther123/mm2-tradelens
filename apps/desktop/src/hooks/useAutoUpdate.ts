@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDataStore } from "@/hooks/useDataStore";
 import { useToast } from "@/contexts/ToastContext";
 import { logger } from "@/services/logger";
-import { formatPercent, formatValue } from "@/utils/format";
+import { formatPercent, formatSignedValue, formatValue } from "@/utils/format";
 
 /** How often to look for a fresher snapshot while the app is open. */
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
@@ -81,9 +81,7 @@ export function useAutoUpdate() {
         for (const m of movers.slice(0, 3)) {
           const dropped = m.change < 0;
           notify(
-            `${m.item.displayName} ${dropped ? "dropped" : "rose"} ${formatValue(
-              Math.abs(m.change),
-            )} → ${formatValue(m.to)}`,
+            `${m.item.displayName} ${formatSignedValue(m.change)} → ${formatValue(m.to)}`,
             dropped ? "info" : "success",
           );
         }

@@ -145,7 +145,33 @@ signed feed from an approved source (permission/API/partnership preferred over
 scraping). A separate `sampleSnapshot` of **illustrative placeholder values**
 remains for tests and offline demos.
 
+### Importing Supreme values
+
+You can refresh **Supreme Values** figures from a capture you took in your own
+browser session — TradeLens never scrapes Supreme for you. Open **Settings →
+Import Supreme values** and either:
+
+- **Drag & drop** a saved Supreme page (`.html`), a copied table (`.txt`), or a
+  JSON export (`.json`) onto the drop zone, or
+- **Choose a file** with the picker, or
+- **Paste** the copied text directly and click *Import*.
+
+Only items already in your catalogue are updated — the importer reports how many
+values changed and how many rows were unmatched, and it **never invents items**.
+This keeps the import aligned with Supreme's terms: it processes data you
+already have access to, in one click, on your own device.
+
+### Price history & value alerts
+
+Every time TradeLens adopts a newer snapshot — from a sync, a Supreme import, or
+a bundled update — it records each item's per-source value as a point in a local
+time series. Open any item to see its **Price history** chart (low / high /
+latest), and enable notifications in **Settings** to get gentle alerts when a
+favourite moves beyond your chosen threshold. History stays entirely on your
+device.
+
 ## Install (Windows)
+
 
 - **Per-user install.** The installer runs without administrator rights and
   installs for the current user only (no system-wide changes). Choose a

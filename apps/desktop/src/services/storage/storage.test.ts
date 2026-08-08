@@ -110,6 +110,27 @@ describe("browser storage adapter", () => {
     expect((await store.getCachedSnapshot())?.revision).toBe(3);
   });
 
+  it("records value history, dedupes revisions and reads it back oldest-first", async () => {
+    const store = createBrowserStorage(memoryStorage());
+    await store.recordValueHistory([
+      { itemId: "seer", source: "supreme", value: 320, recordedAt: "2024-08-01T00:00:00Z", revision: 5 },
+      { itemId: "seer", source: "supreme", value: 315, recordedAt: "2024-08-02T00:00:00Z", revision: 6 },
+    ]);
+    // Re-recording the same revision is ignored; a new revision is appended.
+    await store.recordValueHistory([
+      { itemId: "seer", source: "supreme", value: 999, recordedAt: "2024-08-02T00:00:00Z", revision: 6 },
+      { itemId: "seer", source: "supreme", value: 330, recordedAt: "2024-08-03T00:00:00Z", revision: 7 },
+    ]);
+
+    const history = await store.getValueHistory("seer");
+    expect(history.map((p) => p.revision)).toEqual([5, 6, 7]);
+    expect(history.map((p) => p.value)).toEqual([320, 315, 330]);
+    expect(await store.getValueHistory("nope")).toHaveLength(0);
+
+    const capped = await store.getValueHistory("seer", 2);
+    expect(capped.map((p) => p.revision)).toEqual([6, 7]);
+  });
+
   it("clears all data", async () => {
     const backing = memoryStorage();
     const store = createBrowserStorage(backing);

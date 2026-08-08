@@ -1,0 +1,57 @@
+name: publish-values
+
+# Publishes the bundled MM2Values snapshot to GitHub Pages as a free, static
+# HTTPS values feed. Installed apps read this every ~15 minutes (and when the
+# user presses "Check for updates"), so merging a daily value sync reaches
+# users automatically — no installer rebuild required.
+#
+# It serves two extension-less files the desktop app derives from its base URL:
+#   /v1/snapshot  -> the full ValueSnapshot JSON
+#   /v1/revision  -> { "revision": N } (a lightweight pre-check)
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/source-adapters/src/mm2values-snapshot.json
+      - .github/workflows/publish-values.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment; don't cancel an in-progress publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish values feed
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble the feed
+        run: |
+          set -euo pipefail
+          snapshot=packages/source-adapters/src/mm2values-snapshot.json
+          mkdir -p _site/v1
+          # Validate it is parseable JSON with a numeric revision before publishing.
+          revision=$(node -p "JSON.parse(require('fs').readFileSync('$snapshot','utf8')).revision")
+          cp "$snapshot" _site/v1/snapshot
+          printf '{"revision":%s}\n' "$revision" > _site/v1/revision
+          echo "Published revision $revision"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { TitleBar, Sidebar, ToastViewport } from "@/components";
+import { TitleBar, Sidebar, ToastViewport, Onboarding } from "@/components";
 import { Dashboard } from "@/pages";
 import { useDataStore } from "@/hooks/useDataStore";
 import { useAutoUpdate } from "@/hooks/useAutoUpdate";
@@ -120,6 +120,7 @@ export function App() {
         </main>
       </div>
       <ToastViewport />
+      {ready && <Onboarding />}
     </div>
   );
 }

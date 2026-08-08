@@ -8,6 +8,7 @@ pub mod models;
 pub mod schema;
 pub mod settings;
 pub mod snapshot;
+pub mod value_history;
 
 /// Open (creating if needed) the SQLite database at `path` and run migrations.
 ///
@@ -92,6 +93,7 @@ pub fn clear_all(conn: &Connection) -> rusqlite::Result<()> {
         "DELETE FROM favorites;
          DELETE FROM trade_history;
          DELETE FROM snapshot_cache;
+         DELETE FROM value_history;
          UPDATE settings SET
             source_mode = 'consensus',
             overlay_size = 'trade',

@@ -1,6 +1,7 @@
 import type {
   AppInfo,
   Favorite,
+  HistoryPoint,
   Settings,
   SnapshotMeta,
   TradeRecord,
@@ -38,6 +39,15 @@ export interface StorageAdapter {
    * no such channel (browser fallback).
    */
   readExternalSnapshot(): Promise<ValueSnapshot | null>;
+
+  /**
+   * Persist value-history points captured when a snapshot revision is adopted.
+   * Duplicate (item, source, revision) points are ignored by the backend.
+   */
+  recordValueHistory(points: HistoryPoint[]): Promise<void>;
+
+  /** Read the recorded value history for one item, oldest first. */
+  getValueHistory(itemId: string, limit?: number): Promise<HistoryPoint[]>;
 
   getAppInfo(): Promise<AppInfo>;
   clearAllData(): Promise<void>;

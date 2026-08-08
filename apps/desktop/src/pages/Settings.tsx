@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDataStore } from "@/hooks/useDataStore";
 import { useToast } from "@/contexts/ToastContext";
-import { ToggleSwitch, ConfirmDialog } from "@/components";
+import { ToggleSwitch, ConfirmDialog, SupremeImport } from "@/components";
 import { setAlwaysOnTop, setOverlaySize } from "@/services/tauri";
 import {
   updateStatusMessage,
@@ -218,6 +218,8 @@ export function Settings() {
           </p>
         )}
       </section>
+
+      <SupremeImport />
 
       <section className="card flex flex-col gap-4 p-5">
         <h2 className="text-sm font-semibold">Window</h2>

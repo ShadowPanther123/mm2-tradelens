@@ -8,8 +8,13 @@ import {
 import { safeParseSnapshot } from "@tradelens/item-schema";
 import { sampleSnapshot } from "@tradelens/source-adapters/sample";
 import { mm2valuesSnapshot } from "@tradelens/source-adapters/mm2values";
+import {
+  mergeSupremeCapture,
+  type SupremeMergeReport,
+} from "@tradelens/source-adapters/supreme-import";
 import type {
   Favorite,
+  HistoryPoint,
   Item,
   Settings,
   SnapshotMeta,
@@ -98,6 +103,7 @@ interface DataState {
   resetData: () => Promise<void>;
 
   checkForUpdates: () => Promise<UpdateResult>;
+  importSupreme: (capture: string) => Promise<SupremeMergeReport>;
 }
 
 function buildIndex(items: Item[]): { index: SearchIndex; itemMap: Map<string, Item> } {
@@ -129,6 +135,44 @@ function indexForSnapshot(
   const built = buildIndex(items);
   indexCache = { revision, ...built };
   return built;
+}
+
+/**
+ * Derive the per-source value readings for a snapshot revision so they can be
+ * appended to the time-series value history. One point is emitted per item per
+ * source that carries a finite value; the shared `recordedAt` timestamp lets a
+ * whole revision be charted as a single moment in time.
+ */
+function historyPointsFor(snapshot: ValueSnapshot, recordedAt: string): HistoryPoint[] {
+  const points: HistoryPoint[] = [];
+  for (const item of snapshot.items) {
+    const values = item.values ?? {};
+    for (const [source, reading] of Object.entries(values)) {
+      const value = reading?.value;
+      if (typeof value !== "number" || !Number.isFinite(value)) continue;
+      points.push({
+        itemId: item.id,
+        source,
+        value,
+        recordedAt,
+        revision: snapshot.revision,
+      });
+    }
+  }
+  return points;
+}
+
+/**
+ * Append a snapshot's per-source values to the time-series history. Best-effort:
+ * a failure here never blocks adopting the snapshot itself.
+ */
+async function recordSnapshotHistory(snapshot: ValueSnapshot): Promise<void> {
+  try {
+    const points = historyPointsFor(snapshot, new Date().toISOString());
+    if (points.length > 0) await db.recordValueHistory(points);
+  } catch (err) {
+    logger.warn("history", "could not record value history", describeError(err));
+  }
 }
 
 /**
@@ -321,6 +365,8 @@ export const useDataStore = create<DataState>((set, get) => ({
       }
       const meta = await db.getSnapshotMeta().catch(() => null);
 
+      await recordSnapshotHistory(snapshot);
+
       set({
         settings,
         favorites,
@@ -452,6 +498,35 @@ export const useDataStore = create<DataState>((set, get) => ({
     });
   },
 
+  async importSupreme(capture) {
+    // Merge a Supreme Values capture the user saved from their own browser
+    // session into the current snapshot. Only items already in the snapshot are
+    // updated; unmatched rows are reported, never invented. When nothing
+    // changed the revision is preserved and no write occurs.
+    const current = get().snapshot ?? bundledSnapshot;
+    const { snapshot: merged, report } = mergeSupremeCapture(current, capture);
+    if (report.changed + report.added === 0) {
+      return report;
+    }
+    await db.saveSnapshot(merged);
+    await recordSnapshotHistory(merged);
+    const meta = await db.getSnapshotMeta().catch(() => get().snapshotMeta);
+    const stamp = new Date().toISOString();
+    set({
+      snapshot: merged,
+      snapshotMeta: meta,
+      items: merged.items,
+      ...indexForSnapshot(merged, merged.items),
+      isSampleData: isSample(merged),
+      lastUpdatedAt: stamp,
+    });
+    logger.info(
+      "supreme-import",
+      `applied revision ${merged.revision} (${report.changed} changed, ${report.added} added, ${report.unmatched} unmatched)`,
+    );
+    return report;
+  },
+
   async checkForUpdates() {
     const { settings, checking } = get();
     if (settings.offlineMode) {
@@ -506,6 +581,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       }
 
       const meta = await db.getSnapshotMeta();
+      await recordSnapshotHistory(remote);
       const { index, itemMap } = indexForSnapshot(remote, remote.items);
       const stamp = now();
       set({

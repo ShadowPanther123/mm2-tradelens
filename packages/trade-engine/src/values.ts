@@ -129,6 +129,27 @@ function deriveConfidence(
 }
 
 /**
+ * Confidence in a single source's reading, judged on its own merits so each
+ * source can be shown with its own trust level. A reading is downgraded when it
+ * is stale, flagged during import, or reported as unsteady — otherwise it is
+ * treated as high confidence.
+ */
+export function readingConfidence(
+  reading: SourceValue,
+  now: number = Date.now(),
+): Confidence {
+  if (isStale(reading, now) || reading.validation === "stale") return "low";
+  let score = 2; // start at "high"
+  if (reading.validation === "suspect") score -= 1;
+  if (reading.reviewStatus === "rejected") score -= 2;
+  if (reading.stability === "volatile") score -= 2;
+  else if (reading.stability === "fluctuating") score -= 1;
+  if (score >= 2) return "high";
+  if (score >= 1) return "medium";
+  return "low";
+}
+
+/**
  * Resolve an item's value under a given source mode.
  *
  * The "Combined estimate" (internally `"consensus"`) is the arithmetic mean of

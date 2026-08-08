@@ -7,6 +7,7 @@ export * from "./settings";
 export * from "./favorites";
 export * from "./history";
 export * from "./snapshot";
+export * from "./valueHistory";
 
 /** Read basic app metadata. */
 export function getAppInfo(): Promise<AppInfo> {
