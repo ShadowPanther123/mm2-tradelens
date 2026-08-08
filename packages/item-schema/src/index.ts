@@ -74,8 +74,10 @@ export const SourceValue = z.object({
   valueRange: z
     .object({ low: z.number().nonnegative(), high: z.number().nonnegative() })
     .optional(),
-  /** Recent price stability. */
+  /** Recent price stability, bucketed to the calculator's enum. */
   stability: Stability.optional(),
+  /** Exact stability label as published by the source (e.g. "Overpaid For"). */
+  stabilityLabel: z.string().max(64).optional(),
   /** Percentage trend over the source's recent window. */
   trendPercent: z.number().optional(),
   /** Previous value, used to compute change deltas. */

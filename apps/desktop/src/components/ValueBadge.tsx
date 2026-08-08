@@ -4,11 +4,27 @@ import { capitalise, formatRating, formatValue } from "@/utils/format";
 import { toEngineMode } from "@/utils/sourceMode";
 import { cn } from "@/utils/cn";
 
-const STABILITY_STYLES = {
-  stable: "bg-win/15 text-win",
-  fluctuating: "bg-warn/15 text-warn",
-  volatile: "bg-loss/15 text-loss",
-} as const;
+/**
+ * Colour a stability label by sentiment. The source publishes free-form text
+ * (e.g. "Overpaid For", "Underpaid For", "Rising") beyond the three-way enum,
+ * so we classify by keyword and fall back to a neutral warn tone.
+ */
+function stabilityStyle(label: string): string {
+  const t = label.toLowerCase();
+  if (t.includes("stable") && !t.includes("unstable")) return "bg-win/15 text-win";
+  if (
+    t.includes("overpaid") ||
+    t.includes("volatile") ||
+    t.includes("unstable") ||
+    t.includes("hard") ||
+    t.includes("lower") ||
+    t.includes("drop") ||
+    t.includes("crash")
+  ) {
+    return "bg-loss/15 text-loss";
+  }
+  return "bg-warn/15 text-warn";
+}
 
 /**
  * Resolved value figure with the source's own trading signals: Demand and
@@ -30,6 +46,9 @@ export function ValueBadge({
   const range = resolved.valueRange
     ? `${formatValue(resolved.valueRange.low)}–${formatValue(resolved.valueRange.high)}`
     : "N/A";
+  const stabilityText =
+    resolved.stabilityLabel ??
+    (resolved.stability ? capitalise(resolved.stability) : undefined);
   return (
     <div className="flex flex-wrap items-center justify-end gap-1.5">
       <span
@@ -50,12 +69,12 @@ export function ValueBadge({
           Rarity {formatRating(resolved.rarityRating)}
         </span>
       )}
-      {resolved.stability && (
+      {stabilityText && (
         <span
-          className={cn("chip", STABILITY_STYLES[resolved.stability])}
+          className={cn("chip", stabilityStyle(stabilityText))}
           title="Recent price stability"
         >
-          {capitalise(resolved.stability)}
+          {stabilityText}
         </span>
       )}
       <span className="chip bg-slate-500/15 text-slate-400" title="Published value range">

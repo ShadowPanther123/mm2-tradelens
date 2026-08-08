@@ -69,7 +69,10 @@ export function ItemDetails() {
         />
         <StatPill
           label="Stability"
-          value={resolved?.stability ? capitalise(resolved.stability) : "—"}
+          value={
+            resolved?.stabilityLabel ??
+            (resolved?.stability ? capitalise(resolved.stability) : "—")
+          }
         />
         <StatPill
           label="Range"

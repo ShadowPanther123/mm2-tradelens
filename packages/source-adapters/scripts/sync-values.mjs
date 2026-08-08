@@ -105,6 +105,16 @@ export function mapStability(raw) {
   return "fluctuating";
 }
 
+/**
+ * Keep the exact stability label the source published (e.g. "Overpaid For",
+ * "Underpaid For", "Rising") for display, dropping only blank/N/A values.
+ */
+export function cleanStabilityLabel(raw) {
+  const t = (raw ?? "").replace(/\s+/g, " ").trim();
+  if (t === "" || t.toLowerCase() === "n/a") return undefined;
+  return t.slice(0, 64);
+}
+
 export function mapRarity(category) {
   return RARITY_BY_CATEGORY[category] ?? "misc";
 }
@@ -376,6 +386,7 @@ function buildReading(row, source, now, previous) {
     rarityRating: row.rarity,
     valueRange: row.valueRange,
     stability: mapStability(row.stability),
+    stabilityLabel: cleanStabilityLabel(row.stability),
     trendPercent,
     previousValue: previousValue !== value ? previousValue : undefined,
     updatedAt: now,
@@ -401,7 +412,8 @@ function readingChanged(prev, next) {
     near(prev.demandRating, next.demandRating) ||
     near(prev.rarityRating, next.rarityRating) ||
     rangeChanged(prev.valueRange, next.valueRange) ||
-    (prev.stability ?? "") !== (next.stability ?? "")
+    (prev.stability ?? "") !== (next.stability ?? "") ||
+    (prev.stabilityLabel ?? "") !== (next.stabilityLabel ?? "")
   );
 }
 

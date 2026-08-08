@@ -9,6 +9,8 @@ import {
   parseValueToken,
   reconcile,
   slugify,
+  mapStability,
+  cleanStabilityLabel,
 } from "../scripts/sync-values.mjs";
 
 const MM2_BLOCK = `
@@ -51,6 +53,17 @@ describe("parseMm2Html", () => {
     const rows = parseMm2Html(MM2_BLOCK, "ancient");
     expect(rows[0].valueRange).toBeUndefined();
     expect(rows[1].valueRange).toEqual({ low: 2175, high: 2225 });
+  });
+
+  it("preserves free-form stability labels while bucketing the enum", () => {
+    // mm2values uses labels beyond the three-way enum (e.g. "Overpaid For").
+    expect(cleanStabilityLabel("Overpaid For")).toBe("Overpaid For");
+    expect(mapStability("Overpaid For")).toBe("fluctuating");
+    expect(cleanStabilityLabel("Stable")).toBe("Stable");
+    expect(mapStability("Stable")).toBe("stable");
+    // Blank / N/A carry no label.
+    expect(cleanStabilityLabel("  ")).toBeUndefined();
+    expect(cleanStabilityLabel("N/A")).toBeUndefined();
   });
 
   it("ignores markup that is not an item block", () => {

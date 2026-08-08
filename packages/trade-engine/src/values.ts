@@ -70,6 +70,8 @@ export interface ResolvedValue {
   valueRange?: { low: number; high: number };
   /** Worst (least steady) stability reported across sources. */
   stability?: SourceValue["stability"];
+  /** Exact stability label as published by the source (e.g. "Overpaid For"). */
+  stabilityLabel?: string;
   /** True when a contributing reading is flagged stale. */
   stale: boolean;
 }
@@ -207,6 +209,9 @@ export function resolveValue(
   const modeReading = mode !== "consensus" ? item.values[mode] : undefined;
   const valueRange =
     modeReading?.valueRange ?? allReadings.find((r) => r.valueRange)?.valueRange;
+  const stabilityLabel =
+    modeReading?.stabilityLabel ??
+    allReadings.find((r) => r.stabilityLabel)?.stabilityLabel;
 
   let value: number;
   if (mode === "consensus") {
@@ -235,6 +240,7 @@ export function resolveValue(
     rarityRating,
     valueRange,
     stability,
+    stabilityLabel,
     stale,
   };
 }
