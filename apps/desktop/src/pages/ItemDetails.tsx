@@ -10,7 +10,7 @@ import {
   EmptyState,
   ValueHistoryChart,
 } from "@/components";
-import { capitalise, formatValue } from "@/utils/format";
+import { capitalise, formatRating, formatValue } from "@/utils/format";
 import { toEngineMode } from "@/utils/sourceMode";
 
 export function ItemDetails() {
@@ -57,19 +57,27 @@ export function ItemDetails() {
         </button>
       </div>
 
-      <div className="card grid grid-cols-4 gap-4 p-5">
+      <div className="card grid grid-cols-5 gap-4 p-5">
         <StatPill label="Value" value={resolved ? formatValue(resolved.value) : "—"} />
         <StatPill
           label="Demand"
-          value={resolved?.demand !== undefined ? `${resolved.demand.toFixed(1)}/5` : "—"}
+          value={resolved?.demandRating !== undefined ? formatRating(resolved.demandRating) : "—"}
+        />
+        <StatPill
+          label="Rarity"
+          value={resolved?.rarityRating !== undefined ? formatRating(resolved.rarityRating) : "—"}
         />
         <StatPill
           label="Stability"
           value={resolved?.stability ? capitalise(resolved.stability) : "—"}
         />
         <StatPill
-          label="Confidence"
-          value={resolved ? capitalise(resolved.confidence) : "—"}
+          label="Range"
+          value={
+            resolved?.valueRange
+              ? `${formatValue(resolved.valueRange.low)}–${formatValue(resolved.valueRange.high)}`
+              : "N/A"
+          }
         />
       </div>
 

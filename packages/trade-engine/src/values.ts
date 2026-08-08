@@ -62,6 +62,12 @@ export interface ResolvedValue {
   confidence: Confidence;
   /** Averaged demand across available sources, if any. */
   demand?: number;
+  /** Raw source demand rating (0–11), averaged across sources, for display. */
+  demandRating?: number;
+  /** Raw source rarity rating (0–11), averaged across sources, for display. */
+  rarityRating?: number;
+  /** Published value range (low–high) where a source reports one. */
+  valueRange?: { low: number; high: number };
   /** Worst (least steady) stability reported across sources. */
   stability?: SourceValue["stability"];
   /** True when a contributing reading is flagged stale. */
@@ -184,6 +190,24 @@ export function resolveValue(
       ? demandValues.reduce((a, b) => a + b, 0) / demandValues.length
       : undefined;
 
+  const average = (nums: number[]): number | undefined =>
+    nums.length > 0 ? nums.reduce((a, b) => a + b, 0) / nums.length : undefined;
+  const demandRating = average(
+    allReadings
+      .map((r) => r.demandRating)
+      .filter((d): d is number => typeof d === "number"),
+  );
+  const rarityRating = average(
+    allReadings
+      .map((r) => r.rarityRating)
+      .filter((d): d is number => typeof d === "number"),
+  );
+  // Prefer the selected source's range; for the combined estimate use the first
+  // source that publishes one.
+  const modeReading = mode !== "consensus" ? item.values[mode] : undefined;
+  const valueRange =
+    modeReading?.valueRange ?? allReadings.find((r) => r.valueRange)?.valueRange;
+
   let value: number;
   if (mode === "consensus") {
     value = readings.reduce((a, r) => a + r.value, 0) / readings.length;
@@ -207,6 +231,9 @@ export function resolveValue(
     disagreement,
     confidence,
     demand,
+    demandRating,
+    rarityRating,
+    valueRange,
     stability,
     stale,
   };

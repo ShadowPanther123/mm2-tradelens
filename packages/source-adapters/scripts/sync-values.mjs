@@ -164,11 +164,22 @@ export function parseMm2Html(html, category) {
     const sourceItemId = block.match(/stackValue\([^,]+,\s*'[\d.]+'\s*,\s*'(\d+)'\)/i)?.[1];
     const imageFile = block.match(/<img\s+src=['"]?img\/([^'"\s>]+)/i)?.[1];
 
+    // "Range: 2,425-2,475" → { low, high }. "Range: N/A" carries no digits and
+    // is left undefined.
+    let valueRange;
+    const rangeMatch = block.match(/Range:\s*([\d,]+)\s*-\s*([\d,]+)/i);
+    if (rangeMatch) {
+      const low = toNumber(rangeMatch[1]);
+      const high = toNumber(rangeMatch[2]);
+      if (low !== undefined && high !== undefined) valueRange = { low, high };
+    }
+
     rows.push({
       name: cleanName(name),
       value,
       demand: dr ? toNumber(dr[1]) : undefined,
       rarity: dr ? toNumber(dr[2]) : undefined,
+      valueRange,
       stability,
       sourceItemId,
       imageUrl: imageFile ? `${MM2_BASE}/img/${imageFile}` : undefined,
@@ -361,6 +372,9 @@ function buildReading(row, source, now, previous) {
     value,
     demand: scale05(row.demand),
     rarityScore: scale05(row.rarity),
+    demandRating: row.demand,
+    rarityRating: row.rarity,
+    valueRange: row.valueRange,
     stability: mapStability(row.stability),
     trendPercent,
     previousValue: previousValue !== value ? previousValue : undefined,
@@ -378,10 +392,15 @@ function buildReading(row, source, now, previous) {
 function readingChanged(prev, next) {
   if (!prev) return true;
   const near = (a, b) => Math.abs((a ?? 0) - (b ?? 0)) > 1e-9;
+  const rangeChanged = (a, b) =>
+    (a?.low ?? -1) !== (b?.low ?? -1) || (a?.high ?? -1) !== (b?.high ?? -1);
   return (
     prev.value !== next.value ||
     near(prev.demand, next.demand) ||
     near(prev.rarityScore, next.rarityScore) ||
+    near(prev.demandRating, next.demandRating) ||
+    near(prev.rarityRating, next.rarityRating) ||
+    rangeChanged(prev.valueRange, next.valueRange) ||
     (prev.stability ?? "") !== (next.stability ?? "")
   );
 }

@@ -62,10 +62,18 @@ export type ExtractionMethod = z.infer<typeof ExtractionMethod>;
 export const SourceValue = z.object({
   /** Headline value in the game's trading unit. */
   value: z.number().nonnegative(),
-  /** Demand rating, 0–5. */
+  /** Demand rating, 0–5 (calibrated for the trade calculator). */
   demand: z.number().min(0).max(5).optional(),
-  /** Rarity/desirability score, 0–5. */
+  /** Rarity/desirability score, 0–5 (calibrated for the trade calculator). */
   rarityScore: z.number().min(0).max(5).optional(),
+  /** Raw source demand rating on the source's own 0–11 scale, for display. */
+  demandRating: z.number().min(0).max(11).optional(),
+  /** Raw source rarity rating on the source's own 0–11 scale, for display. */
+  rarityRating: z.number().min(0).max(11).optional(),
+  /** Published value range (low–high), where the source reports one. */
+  valueRange: z
+    .object({ low: z.number().nonnegative(), high: z.number().nonnegative() })
+    .optional(),
   /** Recent price stability. */
   stability: Stability.optional(),
   /** Percentage trend over the source's recent window. */

@@ -40,9 +40,17 @@ describe("parseMm2Html", () => {
       category: "ancient",
       imageUrl: "https://www.mm2values.com/img/BatwingUpdated.png",
     });
+    // "Range: N/A" carries no digits, so no range is recorded.
+    expect(batwing.valueRange).toBeUndefined();
 
     // Comma-grouped values are parsed as numbers.
     expect(rows[1]).toMatchObject({ name: "Celestial", value: 2175, sourceItemId: "860" });
+  });
+
+  it("parses a published value range and leaves N/A undefined", () => {
+    const rows = parseMm2Html(MM2_BLOCK, "ancient");
+    expect(rows[0].valueRange).toBeUndefined();
+    expect(rows[1].valueRange).toEqual({ low: 2175, high: 2225 });
   });
 
   it("ignores markup that is not an item block", () => {

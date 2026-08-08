@@ -5,6 +5,14 @@ export function formatValue(value: number): string {
 }
 
 /**
+ * Format a demand/rarity rating on the source's own 0–11 scale. Whole numbers
+ * render without a decimal (e.g. `11`), half-steps keep one place (e.g. `6.5`).
+ */
+export function formatRating(rating: number): string {
+  return Number.isInteger(rating) ? String(rating) : rating.toFixed(1);
+}
+
+/**
  * Format an absolute value change with an explicit sign, e.g. `+5`, `+10`,
  * `-10`. Zero is rendered without a sign. Used by the value-change alerts so a
  * move reads at a glance.
