@@ -1,27 +1,32 @@
 name: sync-values
 
 # Daily automated MM2Values refresh. Runs the collector, bundles any changed
-# values into the snapshot, and commits straight to main. Pushing the snapshot
-# triggers publish-values.yml, which redeploys the GitHub Pages feed — so new
-# values reach installed apps with zero manual work.
+# values into the snapshot, commits straight to main, and redeploys the GitHub
+# Pages feed — so new values reach installed apps with zero manual work.
 on:
   schedule:
-    # Every day at 07:00 UTC. Runs are cheap and only open a PR when the
+    # Every day at 07:00 UTC. Runs are cheap and only commit + deploy when the
     # snapshot actually changes, so daily polling keeps values fresh.
     - cron: "0 7 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
+# Serialise this job and don't clash with a manual publish-values run.
 concurrency:
-  group: sync-values
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   sync:
     name: refresh MM2Values snapshot
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -60,3 +65,32 @@ jobs:
           git add packages/source-adapters/src/mm2values-snapshot.json
           git commit -m "chore(values): daily MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
           git push origin HEAD:main
+
+      # Publish the feed directly. A push made with GITHUB_TOKEN does not trigger
+      # publish-values.yml (GitHub's anti-recursion rule), so this job deploys
+      # the Pages feed itself whenever the snapshot changed.
+      - name: Assemble the feed
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          snapshot=packages/source-adapters/src/mm2values-snapshot.json
+          mkdir -p _site/v1
+          revision=$(node -p "JSON.parse(require('fs').readFileSync('$snapshot','utf8')).revision")
+          cp "$snapshot" _site/v1/snapshot
+          printf '{"revision":%s}\n' "$revision" > _site/v1/revision
+          echo "Published revision $revision"
+
+      - name: Configure Pages
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/deploy-pages@v4
