@@ -150,7 +150,11 @@ export function parseMm2Html(html, category) {
   const rows = [];
   const blocks = html.split(/<div\s+class=stackable\b/i).slice(1);
   for (const block of blocks) {
-    const name = block.match(/<b>([^<]+)<\/b>/i)?.[1]?.trim();
+    // The name sits in the first <b>…</b>. On chroma pages it is wrapped in an
+    // inner element (e.g. <b><div class='chroma-text'>Chroma Evergreen</div></b>),
+    // so capture the full inner markup and strip any tags before trimming.
+    const nameInner = block.match(/<b>([\s\S]*?)<\/b>/i)?.[1];
+    const name = nameInner?.replace(/<[^>]+>/g, "").trim();
     if (!name) continue;
     const value = toNumber(block.match(/Value:\s*([\d,]+)/i)?.[1]);
     if (value === undefined) continue;

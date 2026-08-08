@@ -48,6 +48,24 @@ describe("parseMm2Html", () => {
   it("ignores markup that is not an item block", () => {
     expect(parseMm2Html("<div>no items here</div>", "misc")).toEqual([]);
   });
+
+  it("extracts chroma names wrapped in an inner element", () => {
+    // Chroma pages nest the name inside a <div> within the <b> tag.
+    const html = `
+<div class=stackable>
+  <img src='img/Chroma_Evergreen.png' width=100 height=100>
+  <b><div id='chromas' class='chroma-text'>Chroma Evergreen</div></b> Value: 48,000<br>Range: N/A <br>Demand: 6 - Rarity: 7<br>Stability: Stable<hr>
+  <input type=button value="SV" onclick="stackValue(i773.value,'48000','773');">
+</div>`;
+    const rows = parseMm2Html(html, "chroma");
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      name: "Chroma Evergreen",
+      value: 48000,
+      sourceItemId: "773",
+      category: "chroma",
+    });
+  });
 });
 
 describe("parseSupremePayload", () => {
