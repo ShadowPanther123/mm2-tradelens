@@ -1,7 +1,9 @@
 name: sync-values
 
 # Daily automated MM2Values refresh. Runs the collector, bundles any changed
-# values into the snapshot, and opens a pull request. No manual work required.
+# values into the snapshot, and commits straight to main. Pushing the snapshot
+# triggers publish-values.yml, which redeploys the GitHub Pages feed — so new
+# values reach installed apps with zero manual work.
 on:
   schedule:
     # Every day at 07:00 UTC. Runs are cheap and only open a PR when the
@@ -11,7 +13,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: sync-values
@@ -51,25 +52,11 @@ jobs:
             echo "generated=$generated" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create pull request
+      - name: Commit updated snapshot to main
         if: steps.diff.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: "chore(values): daily MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
-          branch: bot/sync-values
-          delete-branch: true
-          title: "chore(values): daily MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
-          body: |
-            Automated daily MM2Values refresh.
-
-            - **Revision:** ${{ steps.diff.outputs.revision }}
-            - **Generated:** ${{ steps.diff.outputs.generated }}
-            - **Source:** mm2values.com (collector `scripts/sync-values.mjs`)
-
-            Snapshot validated by `@tradelens/source-adapters` tests. Merge to
-            bundle the latest values into the next build.
-          labels: |
-            values
-            automated
-          add-paths: |
-            packages/source-adapters/src/mm2values-snapshot.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/source-adapters/src/mm2values-snapshot.json
+          git commit -m "chore(values): daily MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
+          git push origin HEAD:main
