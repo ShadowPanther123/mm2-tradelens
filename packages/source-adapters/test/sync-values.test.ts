@@ -57,10 +57,16 @@ describe("parseMm2Html", () => {
 
   it("preserves free-form stability labels while bucketing the enum", () => {
     // mm2values uses labels beyond the three-way enum (e.g. "Overpaid For").
+    // Valuation judgements read as steady; only real movement is "fluctuating".
     expect(cleanStabilityLabel("Overpaid For")).toBe("Overpaid For");
-    expect(mapStability("Overpaid For")).toBe("fluctuating");
+    expect(mapStability("Overpaid For")).toBe("stable");
+    expect(mapStability("Underpaid For")).toBe("stable");
+    expect(mapStability("Doing Well")).toBe("stable");
     expect(cleanStabilityLabel("Stable")).toBe("Stable");
     expect(mapStability("Stable")).toBe("stable");
+    // Genuine price movement still maps to the moving enum.
+    expect(mapStability("Fluctuating")).toBe("fluctuating");
+    expect(mapStability("Receding")).toBe("fluctuating");
     // Blank / N/A carry no label.
     expect(cleanStabilityLabel("  ")).toBeUndefined();
     expect(cleanStabilityLabel("N/A")).toBeUndefined();

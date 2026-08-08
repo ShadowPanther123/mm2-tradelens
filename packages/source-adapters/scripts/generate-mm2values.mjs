@@ -116,11 +116,27 @@ function scale05(raw) {
 function mapStability(raw) {
   const t = (raw ?? "").trim().toLowerCase();
   if (t === "" || t === "n/a") return undefined;
-  if (t.includes("fluctuat")) return "fluctuating";
-  if (t === "stable") return "stable";
-  // "doing well", "peaking", "receding", "overpaid for", "underpaid for":
-  // all denote a value that is currently moving rather than settled.
-  return "fluctuating";
+  if (t.includes("volatile")) return "volatile";
+  // Labels that describe a value actively on the move.
+  if (
+    t.includes("fluctuat") ||
+    t.includes("unstable") ||
+    t.includes("receding") ||
+    t.includes("recede") ||
+    t.includes("peaking") ||
+    t.includes("rising") ||
+    t.includes("rise") ||
+    t.includes("lower") ||
+    t.includes("drop") ||
+    t.includes("fall") ||
+    t.includes("climb") ||
+    t.includes("hard to")
+  ) {
+    return "fluctuating";
+  }
+  // "stable", "doing well", "overpaid for", "underpaid for": a value sitting
+  // steady against its worth rather than moving.
+  return "stable";
 }
 
 /** Drop undefined-valued keys so the emitted JSON stays compact. */

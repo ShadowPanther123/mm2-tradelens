@@ -70,13 +70,32 @@ function scale05(raw: number | undefined): number | undefined {
   return Math.round(scaled * 100) / 100;
 }
 
-/** Normalise a source stability label to the schema's enum. */
+/**
+ * Normalise a source stability label to the schema's enum. Only labels that
+ * describe a value actively on the move count as moving; valuation judgements
+ * like "Overpaid For" or "Doing Well" read as steady.
+ */
 function mapStability(raw: string | undefined): Stability | undefined {
   const t = (raw ?? "").trim().toLowerCase();
   if (t === "" || t === "n/a") return undefined;
-  if (t.includes("fluctuat")) return "fluctuating";
-  if (t === "stable") return "stable";
-  return "fluctuating";
+  if (t.includes("volatile")) return "volatile";
+  if (
+    t.includes("fluctuat") ||
+    t.includes("unstable") ||
+    t.includes("receding") ||
+    t.includes("recede") ||
+    t.includes("peaking") ||
+    t.includes("rising") ||
+    t.includes("rise") ||
+    t.includes("lower") ||
+    t.includes("drop") ||
+    t.includes("fall") ||
+    t.includes("climb") ||
+    t.includes("hard to")
+  ) {
+    return "fluctuating";
+  }
+  return "stable";
 }
 
 /** Parse a possibly comma-grouped number ("2,175" → 2175). */

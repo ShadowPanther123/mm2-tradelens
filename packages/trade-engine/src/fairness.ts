@@ -122,6 +122,22 @@ function demandMultiplier(demand: number | undefined): number {
   return 1 + (demand - neutral) * perPoint;
 }
 
+/**
+ * Stability acts as a gentle nudge on practical worth. A price flagged as
+ * "Overpaid For" tends to trade a little below its list value, while
+ * "Underpaid For" tends to trade a little above it; "Doing Well" holds firm.
+ * Everything else (including steady or genuinely moving prices) stays neutral.
+ * Bounded so it never overrides the raw value.
+ */
+function stabilityMultiplier(resolved: ResolvedValue | undefined): number {
+  const label = resolved?.stabilityLabel?.toLowerCase();
+  if (!label) return 1;
+  if (label.includes("overpaid")) return 0.95;
+  if (label.includes("underpaid")) return 1.05;
+  if (label.includes("doing well")) return 1.02;
+  return 1;
+}
+
 function valueSide(lines: TradeLine[], mode: SourceMode, now: number): SideTotal {
   const valued: ValuedLine[] = [];
   let total = 0;
@@ -134,7 +150,8 @@ function valueSide(lines: TradeLine[], mode: SourceMode, now: number): SideTotal
     const lineValue = unitValue * line.quantity;
     if (!resolved) hasUnvalued = true;
     total += lineValue;
-    adjustedTotal += lineValue * demandMultiplier(resolved?.demand);
+    adjustedTotal +=
+      lineValue * demandMultiplier(resolved?.demand) * stabilityMultiplier(resolved);
     valued.push({
       id: line.item.id,
       displayName: line.item.displayName,
@@ -215,7 +232,7 @@ function collectWarnings(
     warnings.push({
       kind: "low-confidence",
       message:
-        "Confidence in this result is low. The underlying values are uncertain, so treat it as a rough guide only.",
+        "Confidence in this result is limited — for example only one source lists an item, or a price is on the move. Treat it as a helpful guide.",
     });
   }
 
@@ -401,9 +418,9 @@ function buildExplanation(
       ? theirDemand < yourDemand
         ? "The items you receive have lower demand, so the practical result is softer than the raw numbers suggest."
         : "The items you receive have higher demand, which improves the practical result."
-      : "Demand differences shift the practical result.";
+      : "Demand and stability differences shift the practical result.";
 
-  return `Raw: ${verdictLabel(raw)}. ${dir} Demand-adjusted: ${verdictLabel(
+  return `Raw: ${verdictLabel(raw)}. ${dir} Adjusted for demand and stability: ${verdictLabel(
     adjusted,
   )}. ${demandNote}`;
 }

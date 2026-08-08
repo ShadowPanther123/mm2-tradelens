@@ -96,13 +96,34 @@ export function scale05(raw) {
   return Math.round(scaled * 100) / 100;
 }
 
-/** Normalise a source stability label to the schema's enum. */
+/**
+ * Normalise a source stability label to the schema's enum. Only labels that
+ * describe a value actively on the move count as "fluctuating"/"volatile".
+ * Valuation judgements like "Overpaid For", "Underpaid For" or "Doing Well"
+ * describe how a price sits against its worth, not movement, so they read as
+ * steady. The exact label is kept separately (see cleanStabilityLabel).
+ */
 export function mapStability(raw) {
   const t = (raw ?? "").trim().toLowerCase();
   if (t === "" || t === "n/a") return undefined;
-  if (t.includes("fluctuat")) return "fluctuating";
-  if (t === "stable") return "stable";
-  return "fluctuating";
+  if (t.includes("volatile")) return "volatile";
+  if (
+    t.includes("fluctuat") ||
+    t.includes("unstable") ||
+    t.includes("receding") ||
+    t.includes("recede") ||
+    t.includes("peaking") ||
+    t.includes("rising") ||
+    t.includes("rise") ||
+    t.includes("lower") ||
+    t.includes("drop") ||
+    t.includes("fall") ||
+    t.includes("climb") ||
+    t.includes("hard to")
+  ) {
+    return "fluctuating";
+  }
+  return "stable";
 }
 
 /**
