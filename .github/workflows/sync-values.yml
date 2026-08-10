@@ -1,13 +1,16 @@
 name: sync-values
 
-# Daily automated MM2Values refresh. Runs the collector, bundles any changed
+# Automated MM2Values refresh. Runs the collector, bundles any changed
 # values into the snapshot, commits straight to main, and redeploys the GitHub
 # Pages feed — so new values reach installed apps with zero manual work.
 on:
   schedule:
-    # Every day at 07:00 UTC. Runs are cheap and only commit + deploy when the
-    # snapshot actually changes, so daily polling keeps values fresh.
-    - cron: "0 7 * * *"
+    # Every 6 hours (00:00, 06:00, 12:00, 18:00 UTC). Runs are cheap and only
+    # commit + deploy when the snapshot actually changes. Polling several times a
+    # day means a value change is picked up within hours no matter when MM2Values
+    # updates, and a single skipped/delayed cron slot (GitHub schedules are
+    # best-effort) no longer costs a whole day of freshness.
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 permissions:
