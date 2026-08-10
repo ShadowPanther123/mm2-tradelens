@@ -72,16 +72,33 @@ jobs:
       # Publish the feed directly. A push made with GITHUB_TOKEN does not trigger
       # publish-values.yml (GitHub's anti-recursion rule), so this job deploys
       # the Pages feed itself whenever the snapshot changed.
-      - name: Assemble the feed
+      - name: Build the updater (signer)
         if: steps.diff.outputs.changed == 'true'
+        run: npm run build --workspace @tradelens/updater
+
+      - name: Sign and assemble the feed
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          SNAPSHOT_SIGNING_KEY: ${{ secrets.SNAPSHOT_SIGNING_KEY }}
+          SNAPSHOT_KEY_ID: mm2-tradelens-2026-08
         run: |
           set -euo pipefail
+          if [ -z "${SNAPSHOT_SIGNING_KEY:-}" ]; then
+            echo "SNAPSHOT_SIGNING_KEY secret is not set; refusing to build an unsigned feed." >&2
+            exit 1
+          fi
           snapshot=packages/source-adapters/src/mm2values-snapshot.json
-          mkdir -p _site/v1
+          mkdir -p _site/v1 feed-out
+          umask 077
+          printf '%s' "$SNAPSHOT_SIGNING_KEY" > signing.pem
+          node services/updater/dist/updater.js \
+            --key signing.pem --key-id "$SNAPSHOT_KEY_ID" --out feed-out --fail-on-audit
+          rm -f signing.pem
           revision=$(node -p "JSON.parse(require('fs').readFileSync('$snapshot','utf8')).revision")
-          cp "$snapshot" _site/v1/snapshot
+          cp feed-out/snapshot.json _site/v1/snapshot
+          cp feed-out/signed-snapshot.json _site/v1/signed-snapshot
           printf '{"revision":%s}\n' "$revision" > _site/v1/revision
-          echo "Published revision $revision"
+          echo "Published signed revision $revision"
 
       - name: Configure Pages
         if: steps.diff.outputs.changed == 'true'

@@ -5,9 +5,14 @@ name: publish-values
 # user presses "Check for updates"), so merging a daily value sync reaches
 # users automatically — no installer rebuild required.
 #
-# It serves two extension-less files the desktop app derives from its base URL:
-#   /v1/snapshot  -> the full ValueSnapshot JSON
-#   /v1/revision  -> { "revision": N } (a lightweight pre-check)
+# It serves three extension-less files the desktop app derives from its base URL:
+#   /v1/snapshot         -> the full ValueSnapshot JSON
+#   /v1/revision         -> { "revision": N } (a lightweight pre-check)
+#   /v1/signed-snapshot  -> Ed25519-signed envelope the client verifies
+#
+# The signing private key lives in the SNAPSHOT_SIGNING_KEY repository secret
+# (PKCS#8 PEM). Its public half is baked into the desktop build, so installed
+# apps only apply values that carry a valid signature.
 on:
   push:
     branches: [main]
@@ -36,16 +41,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Assemble the feed
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build the updater (signer)
+        run: npm run build --workspace @tradelens/updater
+
+      - name: Sign and assemble the feed
+        env:
+          SNAPSHOT_SIGNING_KEY: ${{ secrets.SNAPSHOT_SIGNING_KEY }}
+          SNAPSHOT_KEY_ID: mm2-tradelens-2026-08
         run: |
           set -euo pipefail
+          if [ -z "${SNAPSHOT_SIGNING_KEY:-}" ]; then
+            echo "SNAPSHOT_SIGNING_KEY secret is not set; refusing to build an unsigned feed." >&2
+            exit 1
+          fi
           snapshot=packages/source-adapters/src/mm2values-snapshot.json
-          mkdir -p _site/v1
-          # Validate it is parseable JSON with a numeric revision before publishing.
+          mkdir -p _site/v1 feed-out
+          umask 077
+          printf '%s' "$SNAPSHOT_SIGNING_KEY" > signing.pem
+          node services/updater/dist/updater.js \
+            --key signing.pem --key-id "$SNAPSHOT_KEY_ID" --out feed-out --fail-on-audit
+          rm -f signing.pem
           revision=$(node -p "JSON.parse(require('fs').readFileSync('$snapshot','utf8')).revision")
-          cp "$snapshot" _site/v1/snapshot
+          cp feed-out/snapshot.json _site/v1/snapshot
+          cp feed-out/signed-snapshot.json _site/v1/signed-snapshot
           printf '{"revision":%s}\n' "$revision" > _site/v1/revision
-          echo "Published revision $revision"
+          echo "Published signed revision $revision"
 
       - uses: actions/configure-pages@v5
 
