@@ -33,6 +33,8 @@ jobs:
         run: npm run typecheck
       - name: Lint all workspaces
         run: npm run lint
+      - name: Validate bundled assets
+        run: npm run assets:validate
       - name: Unit tests (all workspaces)
         run: npm test
 

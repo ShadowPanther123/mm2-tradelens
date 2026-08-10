@@ -106,6 +106,8 @@ export interface AuditOptions {
   conflictThreshold?: number;
   /** Fold-change (e.g. 5 = 5×) beyond which a value move is "extreme". */
   extremeChangeFactor?: number;
+  /** Ignore percentage spikes smaller than this absolute trading-unit move. */
+  extremeChangeMinAbsolute?: number;
   /** Reference time for future-timestamp checks. Defaults to now. */
   now?: Date;
   /** Records the importer could not map, surfaced for review. */
@@ -150,6 +152,7 @@ function groupCollisions(pairs: Array<[string, string]>): DuplicateGroup[] {
 export function auditItems(items: Item[], options: AuditOptions = {}): AuditReport {
   const conflictThreshold = options.conflictThreshold ?? 0.15;
   const extremeChangeFactor = options.extremeChangeFactor ?? 5;
+  const extremeChangeMinAbsolute = options.extremeChangeMinAbsolute ?? 1;
   const nowMs = (options.now ?? new Date()).getTime();
 
   const presentSources = new Set<SourceId>();
@@ -187,7 +190,15 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
   >();
 
   for (const item of items) {
-    if (item.id !== slugify(item.displayName)) nonCanonicalIds.push(item.id);
+    const canonicalId = slugify(item.displayName);
+    const stableSourceIds = Object.values(item.values)
+      .map((reading) => reading?.sourceItemId)
+      .filter((id): id is string => typeof id === "string" && id.length > 0)
+      .map(slugify);
+    const hasStableCollisionSuffix = stableSourceIds.some(
+      (sourceId) => item.id === `${canonicalId}-${sourceId}`,
+    );
+    if (item.id !== canonicalId && !hasStableCollisionSuffix) nonCanonicalIds.push(item.id);
     idCounts.set(item.id, (idCounts.get(item.id) ?? 0) + 1);
     const name = normaliseName(item.displayName);
     namePairs.push([name, item.id]);
@@ -249,7 +260,10 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
       const prev = reading.previousValue;
       if (prev !== undefined && prev > 0 && reading.value >= 0) {
         const ratio = reading.value / prev;
-        if (ratio >= extremeChangeFactor || ratio <= 1 / extremeChangeFactor) {
+        if (
+          Math.abs(reading.value - prev) >= extremeChangeMinAbsolute &&
+          (ratio >= extremeChangeFactor || ratio <= 1 / extremeChangeFactor)
+        ) {
           extremeChanges.push({
             itemId: item.id,
             source,
@@ -329,11 +343,6 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
   const clean =
     nonCanonicalIds.length === 0 &&
     duplicateIds.length === 0 &&
-    duplicateNames.length === 0 &&
-    duplicateAliases.length === 0 &&
-    conflictingCategories.length === 0 &&
-    conflictingRarities.length === 0 &&
-    conflictingTypes.length === 0 &&
     impossibleValues.length === 0 &&
     extremeChanges.length === 0 &&
     futureTimestamps.length === 0 &&

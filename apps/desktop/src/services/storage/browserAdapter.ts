@@ -7,6 +7,7 @@ import type {
   TradeRecord,
   ValueSnapshot,
 } from "@/types";
+import { safeParseSnapshot } from "@tradelens/item-schema";
 import type { StorageAdapter } from "./types";
 
 /** Keys used inside the backing `Storage`. Namespaced to avoid collisions. */
@@ -22,6 +23,7 @@ const KEYS = {
 const DEFAULT_SETTINGS: Settings = {
   sourceMode: "consensus",
   overlaySize: "trade",
+  alwaysOnTop: true,
   theme: "dark",
   notificationsEnabled: false,
   notifyThresholdPercent: 5,
@@ -33,11 +35,52 @@ const DEFAULT_SETTINGS: Settings = {
 
 const APP_INFO: AppInfo = { name: "MM2 TradeLens", version: "0.1.0" };
 
-function read<T>(store: Storage, key: string, fallback: T): T {
+type Validator<T> = (value: unknown) => value is T;
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value);
+const isSettings = (value: unknown): value is Partial<Settings> => isObject(value);
+const isFavorite = (value: unknown): value is Favorite =>
+  isObject(value) &&
+  typeof value.itemId === "string" &&
+  isFiniteNumber(value.baselineValue) &&
+  typeof value.createdAt === "string";
+const isTradeSlot = (value: unknown): boolean =>
+  isObject(value) && typeof value.itemId === "string" && isFiniteNumber(value.quantity);
+const isTradeRecord = (value: unknown): value is TradeRecord =>
+  isObject(value) &&
+  typeof value.id === "string" &&
+  typeof value.date === "string" &&
+  typeof value.mode === "string" &&
+  isFiniteNumber(value.resultPercent) &&
+  Array.isArray(value.gave) &&
+  value.gave.every(isTradeSlot) &&
+  Array.isArray(value.received) &&
+  value.received.every(isTradeSlot);
+const isSnapshot = (value: unknown): value is ValueSnapshot => safeParseSnapshot(value).success;
+const isSnapshotMeta = (value: unknown): value is SnapshotMeta =>
+  isObject(value) &&
+  isFiniteNumber(value.revision) &&
+  typeof value.generatedAt === "string" &&
+  typeof value.cachedAt === "string";
+const isHistoryPoint = (value: unknown): value is HistoryPoint =>
+  isObject(value) &&
+  typeof value.itemId === "string" &&
+  typeof value.source === "string" &&
+  isFiniteNumber(value.value) &&
+  typeof value.recordedAt === "string" &&
+  isFiniteNumber(value.revision);
+const arrayOf = <T>(validator: Validator<T>): Validator<T[]> =>
+  (value: unknown): value is T[] => Array.isArray(value) && value.every(validator);
+
+function read<T>(store: Storage, key: string, fallback: T, validate: Validator<T>): T {
   const raw = store.getItem(key);
   if (raw === null) return fallback;
   try {
-    return JSON.parse(raw) as T;
+    const parsed = JSON.parse(raw) as unknown;
+    return validate(parsed) ? parsed : fallback;
   } catch {
     return fallback;
   }
@@ -61,56 +104,61 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
     kind: "browser",
 
     async getSettings() {
-      return { ...DEFAULT_SETTINGS, ...read<Partial<Settings>>(store, KEYS.settings, {}) };
+      return { ...DEFAULT_SETTINGS, ...read(store, KEYS.settings, {}, isSettings) };
     },
     async updateSettings(settings) {
       write(store, KEYS.settings, settings);
     },
 
     async listFavorites() {
-      return read<Favorite[]>(store, KEYS.favorites, []);
+      return read(store, KEYS.favorites, [], arrayOf(isFavorite));
     },
     async addFavorite(itemId, baselineValue) {
-      const favorites = read<Favorite[]>(store, KEYS.favorites, []).filter(
+      const favorites = read(store, KEYS.favorites, [], arrayOf(isFavorite)).filter(
         (f) => f.itemId !== itemId,
       );
       favorites.unshift({ itemId, baselineValue, createdAt: new Date().toISOString() });
       write(store, KEYS.favorites, favorites);
     },
     async removeFavorite(itemId) {
-      const favorites = read<Favorite[]>(store, KEYS.favorites, []).filter(
+      const favorites = read(store, KEYS.favorites, [], arrayOf(isFavorite)).filter(
         (f) => f.itemId !== itemId,
       );
       write(store, KEYS.favorites, favorites);
     },
 
     async listHistory() {
-      return read<TradeRecord[]>(store, KEYS.history, []);
+      return read(store, KEYS.history, [], arrayOf(isTradeRecord));
     },
     async addHistoryRecord(record) {
-      const history = read<TradeRecord[]>(store, KEYS.history, []).filter(
+      const history = read(store, KEYS.history, [], arrayOf(isTradeRecord)).filter(
         (r) => r.id !== record.id,
       );
       history.unshift(record);
       write(store, KEYS.history, history);
     },
     async removeHistoryRecord(id) {
-      const history = read<TradeRecord[]>(store, KEYS.history, []).filter((r) => r.id !== id);
+      const history = read(store, KEYS.history, [], arrayOf(isTradeRecord)).filter(
+        (r) => r.id !== id,
+      );
       write(store, KEYS.history, history);
     },
 
     async getCachedSnapshot() {
-      return read<ValueSnapshot | null>(store, KEYS.snapshot, null);
+      return read(store, KEYS.snapshot, null, (value): value is ValueSnapshot | null =>
+        value === null || isSnapshot(value));
     },
     async getSnapshotMeta() {
-      return read<SnapshotMeta | null>(store, KEYS.snapshotMeta, null);
+      return read(store, KEYS.snapshotMeta, null, (value): value is SnapshotMeta | null =>
+        value === null || isSnapshotMeta(value));
     },
     async readExternalSnapshot() {
       // The browser fallback has no local publish channel.
       return null;
     },
     async saveSnapshot(snapshot: ValueSnapshot) {
-      const existing = read<SnapshotMeta | null>(store, KEYS.snapshotMeta, null);
+      const existing = read(store, KEYS.snapshotMeta, null, (value): value is SnapshotMeta | null =>
+        value === null || isSnapshotMeta(value));
       if (existing && snapshot.revision <= existing.revision) {
         throw new Error(
           `refusing to cache revision ${snapshot.revision} at or below current ${existing.revision}`,
@@ -126,7 +174,7 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
 
     async recordValueHistory(points) {
       if (points.length === 0) return;
-      const existing = read<HistoryPoint[]>(store, KEYS.valueHistory, []);
+      const existing = read(store, KEYS.valueHistory, [], arrayOf(isHistoryPoint));
       // Dedupe on (itemId, source, revision), mirroring the native INSERT OR IGNORE.
       const seen = new Set(
         existing.map((p) => `${p.itemId}\u0000${p.source}\u0000${p.revision}`),
@@ -140,7 +188,7 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
       write(store, KEYS.valueHistory, existing);
     },
     async getValueHistory(itemId, limit) {
-      const all = read<HistoryPoint[]>(store, KEYS.valueHistory, [])
+      const all = read(store, KEYS.valueHistory, [], arrayOf(isHistoryPoint))
         .filter((p) => p.itemId === itemId)
         .sort((a, b) => a.revision - b.revision);
       if (limit && limit > 0 && all.length > limit) {

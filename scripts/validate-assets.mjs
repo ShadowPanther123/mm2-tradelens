@@ -19,6 +19,13 @@ const ALLOWED_ICON_FORMATS = ["png", "webp", "svg"];
 const ITEM_ICON_MAX_BYTES = 64 * 1024;
 const LARGE_ASSET_BYTES = 512 * 1024;
 const PLACEHOLDER = join(desktop, "public", "icons", "placeholder.svg");
+const EXPECTED_LARGE_ASSETS = new Set([
+  "public/tessdata/eng.traineddata.gz",
+  "public/tesseract/tesseract-core-simd.wasm",
+  "public/tesseract/tesseract-core-simd.wasm.js",
+  "public/tesseract/tesseract-core.wasm",
+  "public/tesseract/tesseract-core.wasm.js",
+]);
 
 const errors = [];
 const warnings = [];
@@ -63,6 +70,18 @@ if (!existsSync(PLACEHOLDER)) {
   errors.push("Missing shared placeholder: apps/desktop/public/icons/placeholder.svg");
 }
 
+// Browser-extension manifest icons must exist in the packaged public tree.
+const extensionDir = join(root, "apps", "browser-extension");
+const extensionManifestPath = join(extensionDir, "public", "manifest.json");
+if (existsSync(extensionManifestPath)) {
+  const manifest = JSON.parse(readFileSync(extensionManifestPath, "utf8"));
+  for (const icon of Object.values(manifest.icons ?? {})) {
+    if (typeof icon !== "string" || !existsSync(join(extensionDir, "public", icon))) {
+      errors.push(`Missing browser-extension icon: ${String(icon)}`);
+    }
+  }
+}
+
 // 3. Item icons --------------------------------------------------------------
 const itemIconDir = join(desktop, "public", "icons", "items");
 const seenHashes = new Map();
@@ -91,8 +110,9 @@ if (existsSync(itemIconDir)) {
 // 4. Large public assets -----------------------------------------------------
 for (const file of walk(join(desktop, "public"))) {
   const { size } = statSync(file);
-  if (size > LARGE_ASSET_BYTES) {
-    warnings.push(`Large asset (consider compressing): ${relative(desktop, file)} (${fmtBytes(size)})`);
+  const rel = relative(desktop, file).replaceAll("\\", "/");
+  if (size > LARGE_ASSET_BYTES && !EXPECTED_LARGE_ASSETS.has(rel)) {
+    warnings.push(`Large asset (consider compressing): ${rel} (${fmtBytes(size)})`);
   }
 }
 

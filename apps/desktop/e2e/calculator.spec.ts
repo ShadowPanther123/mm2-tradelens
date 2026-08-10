@@ -1,7 +1,8 @@
 import { test, expect, bootApp, navTo } from "./helpers";
+import type { Page } from "@playwright/test";
 
 /** Add the first live result from a side's inline "Add an item…" search bar. */
-async function addToSide(page: import("@playwright/test").Page, side: "Your offer" | "Their offer") {
+async function addToSide(page: Page, side: "Your offer" | "Their offer") {
   const card = page.getByRole("heading", { name: side }).locator("xpath=ancestor::div[1]/..");
   const input = card.getByLabel("Add an item…");
   await input.click();

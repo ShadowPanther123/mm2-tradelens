@@ -12,6 +12,10 @@ export async function bootApp(page: Page): Promise<void> {
   await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
   // Wait for the values to finish loading (the loader disappears).
   await expect(page.getByText("Loading values…")).toHaveCount(0);
+  const onboarding = page.getByRole("dialog", { name: "Welcome to MM2 TradeLens" });
+  await expect(onboarding).toBeVisible();
+  await onboarding.getByRole("button", { name: "Got it" }).click();
+  await expect(onboarding).toHaveCount(0);
 }
 
 /** Click a sidebar entry by its visible label. */

@@ -58,6 +58,15 @@ describe("auditItems", () => {
     expect(report.clean).toBe(false);
   });
 
+  it("accepts a stable source-id suffix used to distinguish same-named items", () => {
+    const sourceReading = { ...reading(100), sourceItemId: "567" };
+    const report = auditItems([
+      item({ id: "aurora-gun-567", displayName: "Aurora Gun", values: { mm2values: sourceReading } }),
+    ]);
+    expect(report.nonCanonicalIds).toEqual([]);
+    expect(report.clean).toBe(true);
+  });
+
   it("detects duplicate ids", () => {
     const items: Item[] = [
       item({ id: "seer", displayName: "Seer", values: { supreme: reading(40) } }),
@@ -69,11 +78,20 @@ describe("auditItems", () => {
 
   it("detects duplicate names across distinct items", () => {
     const items: Item[] = [
-      item({ id: "seer", displayName: "Seer", values: { supreme: reading(40) } }),
-      item({ id: "seer-alt", displayName: "Seer", values: { mm2values: reading(41) } }),
+      item({
+        id: "seer-40",
+        displayName: "Seer",
+        values: { supreme: { ...reading(40), sourceItemId: "40" } },
+      }),
+      item({
+        id: "seer-41",
+        displayName: "Seer",
+        values: { mm2values: { ...reading(41), sourceItemId: "41" } },
+      }),
     ];
-    const report = auditItems(items);
+    const report = auditItems(items, { requiredSources: [] });
     expect(report.duplicateNames.some((g) => g.key === "seer")).toBe(true);
+    expect(report.clean).toBe(true);
   });
 
   it("flags an alias that collides with another item's name", () => {
@@ -186,6 +204,18 @@ describe("auditItems — additional checks", () => {
     expect(report.extremeChanges).toHaveLength(1);
     expect(report.extremeChanges[0]!.from).toBe(40);
     expect(report.extremeChanges[0]!.to).toBe(500);
+  });
+
+  it("ignores extreme percentages caused by sub-unit rounding noise", () => {
+    const report = auditItems([
+      item({
+        id: "plaid-gun",
+        displayName: "Plaid Gun",
+        values: { supreme: { value: 0, previousValue: 0.02, updatedAt: NOW } },
+      }),
+    ]);
+    expect(report.extremeChanges).toEqual([]);
+    expect(report.clean).toBe(true);
   });
 
   it("detects future and missing timestamps", () => {

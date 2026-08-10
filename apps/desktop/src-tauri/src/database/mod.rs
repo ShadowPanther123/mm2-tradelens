@@ -97,9 +97,13 @@ pub fn clear_all(conn: &Connection) -> rusqlite::Result<()> {
          UPDATE settings SET
             source_mode = 'consensus',
             overlay_size = 'trade',
+            always_on_top = 1,
             theme = 'dark',
             notifications_enabled = 0,
             notify_threshold_percent = 5,
+            alert_absolute_threshold = 5,
+            disagreement_threshold_percent = 5,
+            history_retention_limit = 0,
             offline_mode = 0
          WHERE id = 1;",
     )?;
@@ -115,6 +119,7 @@ pub fn reset(conn: &mut Connection) -> rusqlite::Result<()> {
          DROP TABLE IF EXISTS favorites;
          DROP TABLE IF EXISTS trade_history;
          DROP TABLE IF EXISTS snapshot_cache;
+         DROP TABLE IF EXISTS value_history;
          DROP TABLE IF EXISTS settings;
          DROP TABLE IF EXISTS schema_migrations;
          PRAGMA user_version = 0;",
@@ -136,6 +141,12 @@ mod tests {
             [],
         )
         .unwrap();
+        conn.execute(
+            "INSERT INTO value_history (item_id, source, value, recorded_at, revision)
+             VALUES ('seer', 'mm2values', 40, '2026-01-01T00:00:00Z', 1)",
+            [],
+        )
+        .unwrap();
 
         reset(&mut conn).unwrap();
 
@@ -148,11 +159,49 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM favorites", [], |row| row.get(0))
             .unwrap();
         assert_eq!(favorites, 0);
+        let value_history: i64 = conn
+            .query_row("SELECT COUNT(*) FROM value_history", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(value_history, 0);
         // The default settings row is seeded again.
         let settings: i64 = conn
             .query_row("SELECT COUNT(*) FROM settings", [], |row| row.get(0))
             .unwrap();
         assert_eq!(settings, 1);
+    }
+
+    #[test]
+    fn clear_all_resets_every_setting() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        schema::migrate(&mut conn).unwrap();
+        let mut changed = settings::get(&conn).unwrap();
+        changed.source_mode = "supreme".into();
+        changed.overlay_size = "expanded".into();
+        changed.always_on_top = false;
+        changed.alert_absolute_threshold = 99.0;
+        changed.disagreement_threshold_percent = 17.0;
+        changed.history_retention_limit = 25;
+        settings::update(&conn, &changed).unwrap();
+
+        clear_all(&conn).unwrap();
+
+        let reset = settings::get(&conn).unwrap();
+        let defaults = models::Settings::default();
+        assert_eq!(reset.source_mode, defaults.source_mode);
+        assert_eq!(reset.overlay_size, defaults.overlay_size);
+        assert_eq!(reset.always_on_top, defaults.always_on_top);
+        assert_eq!(
+            reset.alert_absolute_threshold,
+            defaults.alert_absolute_threshold
+        );
+        assert_eq!(
+            reset.disagreement_threshold_percent,
+            defaults.disagreement_threshold_percent
+        );
+        assert_eq!(
+            reset.history_retention_limit,
+            defaults.history_retention_limit
+        );
     }
 
     #[test]
@@ -173,7 +222,10 @@ mod tests {
         // Opening now should upgrade and leave a v1 backup behind.
         let _conn = open(&path).unwrap();
         let backup = path.with_extension("v1.bak");
-        assert!(backup.exists(), "expected a pre-upgrade backup at {backup:?}");
+        assert!(
+            backup.exists(),
+            "expected a pre-upgrade backup at {backup:?}"
+        );
 
         let _ = std::fs::remove_dir_all(&dir);
     }
@@ -202,13 +254,13 @@ mod tests {
         let quarantined: Vec<_> = std::fs::read_dir(&dir)
             .unwrap()
             .filter_map(|e| e.ok())
-            .filter(|e| {
-                e.file_name()
-                    .to_string_lossy()
-                    .contains("corrupt-")
-            })
+            .filter(|e| e.file_name().to_string_lossy().contains("corrupt-"))
             .collect();
-        assert_eq!(quarantined.len(), 1, "expected one quarantined corrupt file");
+        assert_eq!(
+            quarantined.len(),
+            1,
+            "expected one quarantined corrupt file"
+        );
 
         let _ = std::fs::remove_dir_all(&dir);
     }

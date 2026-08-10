@@ -48,6 +48,7 @@ describe("browser storage adapter", () => {
     const next: Settings = {
       sourceMode: "compare-both",
       overlaySize: "expanded",
+      alwaysOnTop: false,
       theme: "light",
       notificationsEnabled: true,
       notifyThresholdPercent: 12,
@@ -64,6 +65,21 @@ describe("browser storage adapter", () => {
     const settings = await createBrowserStorage(memoryStorage()).getSettings();
     expect(settings.sourceMode).toBe("consensus");
     expect(settings.theme).toBe("dark");
+  });
+
+  it("falls back safely when stored JSON has the wrong shape", async () => {
+    const backing = memoryStorage();
+    backing.setItem("tradelens:settings", "[]");
+    backing.setItem("tradelens:favorites", '{"not":"an array"}');
+    backing.setItem("tradelens:history", '[{"id":3}]');
+    backing.setItem("tradelens:snapshot-meta", '{"revision":"new"}');
+    const store = createBrowserStorage(backing);
+
+    expect((await store.getSettings()).sourceMode).toBe("consensus");
+    expect(await store.listFavorites()).toEqual([]);
+    expect(await store.listHistory()).toEqual([]);
+    expect(await store.getSnapshotMeta()).toBeNull();
+    await expect(store.addFavorite("seer", 40)).resolves.toBeUndefined();
   });
 
   it("adds, dedupes and removes favorites", async () => {

@@ -69,7 +69,20 @@ pub fn reset_database(state: State<AppState>) -> AppResult<()> {
 pub fn focus_window(app: tauri::AppHandle) -> AppResult<()> {
     if let Some(win) = app.get_webview_window("main") {
         win.show().map_err(|e| AppError::Other(e.to_string()))?;
-        win.set_focus().map_err(|e| AppError::Other(e.to_string()))?;
+        win.set_focus()
+            .map_err(|e| AppError::Other(e.to_string()))?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::size_for;
+
+    #[test]
+    fn overlay_presets_have_expected_dimensions() {
+        assert_eq!(size_for("mini"), (380.0, 260.0));
+        assert_eq!(size_for("trade"), (820.0, 620.0));
+        assert_eq!(size_for("expanded"), (1100.0, 760.0));
+    }
 }

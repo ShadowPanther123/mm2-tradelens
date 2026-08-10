@@ -6,7 +6,7 @@ import { setAlwaysOnTop, setOverlaySize } from "@/services/tauri";
 import {
   updateStatusMessage,
   signaturesEnforced,
-  isValuesServiceConfigured,
+  isUnverifiedDevelopmentFeed,
 } from "@/services/updates";
 import { snapshotIsStale } from "@/hooks/useDataStore";
 import { describeError, downloadDiagnostics, logger } from "@/services/logger";
@@ -27,6 +27,11 @@ const OVERLAY_SIZES: Array<{ id: OverlaySize; label: string }> = [
   { id: "trade", label: "Trade" },
   { id: "expanded", label: "Expanded" },
 ];
+
+const THEMES = [
+  { id: "dark", label: "Dark" },
+  { id: "light", label: "Light" },
+] as const;
 
 export function Settings() {
   const settings = useDataStore((s) => s.settings);
@@ -69,14 +74,21 @@ export function Settings() {
   }
 
   async function toggleAlwaysOnTop(value: boolean) {
-    await setAlwaysOnTop(value).catch((err) =>
-      logger.warn("settings", "could not set always-on-top", describeError(err)),
-    );
-    notify(value ? "Window will stay on top" : "Window can go behind others", "info");
+    try {
+      await setAlwaysOnTop(value);
+      await updateSettings({ alwaysOnTop: value });
+      notify(value ? "Window will stay on top" : "Window can go behind others", "info");
+    } catch (err) {
+      logger.warn("settings", "could not set always-on-top", describeError(err));
+      notify("Could not change the window setting", "error");
+    }
   }
 
   async function doClear() {
     await clearAll();
+    await Promise.all([setAlwaysOnTop(true), setOverlaySize("trade")]).catch((err) =>
+      logger.warn("settings", "could not apply reset window settings", describeError(err)),
+    );
     setConfirmClear(false);
     notify("All local data cleared", "success");
   }
@@ -84,6 +96,9 @@ export function Settings() {
   async function doReset() {
     try {
       await resetData();
+      await Promise.all([setAlwaysOnTop(true), setOverlaySize("trade")]).catch((err) =>
+        logger.warn("settings", "could not apply rebuilt window settings", describeError(err)),
+      );
       setConfirmReset(false);
       notify("Database rebuilt and reset", "success");
     } catch (err) {
@@ -94,6 +109,31 @@ export function Settings() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Settings</h1>
+
+      <section className="card flex flex-col gap-3 p-5">
+        <h2 className="text-sm font-semibold">Appearance</h2>
+        <div>
+          <div className="mb-2 text-sm text-slate-300">Theme</div>
+          <div className="inline-flex rounded-lg border border-line bg-base-800/60 p-1">
+            {THEMES.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                aria-pressed={settings.theme === theme.id}
+                onClick={() => updateSettings({ theme: theme.id })}
+                className={cn(
+                  "min-w-20 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  settings.theme === theme.id
+                    ? "bg-accent text-base-900 shadow-sm"
+                    : "text-slate-400 hover:text-slate-200",
+                )}
+              >
+                {theme.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="card flex flex-col gap-4 p-5">
         <h2 className="text-sm font-semibold">Values</h2>
@@ -193,9 +233,9 @@ export function Settings() {
             <span className="text-slate-300">
               {signaturesEnforced
                 ? "Signature-verified"
-                : isValuesServiceConfigured
-                  ? "Unverified feed"
-                  : "Offline — no remote feed"}
+                : isUnverifiedDevelopmentFeed
+                  ? "Development feed — unverified"
+                  : "Offline — signed feed not configured"}
             </span>
           </span>
         </div>
@@ -247,7 +287,7 @@ export function Settings() {
         <ToggleSwitch
           label="Always on top"
           hint="Keep the window above other apps for quick reference."
-          checked={true}
+          checked={settings.alwaysOnTop}
           onChange={toggleAlwaysOnTop}
         />
       </section>

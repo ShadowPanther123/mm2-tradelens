@@ -10,7 +10,7 @@ import type { Item, TradeRecord } from "@/types";
  */
 
 /** Coarse verdict bucket derived from a stored result percentage. */
-export type HistoryVerdict = "big-win" | "win" | "fair" | "loss" | "big-loss";
+export type HistoryVerdict = "big-win" | "win" | "fair" | "loss" | "big-loss" | "unknown";
 
 /** Map a stored result percentage to a verdict bucket. */
 export function verdictFromPercent(pct: number): HistoryVerdict {
@@ -19,6 +19,11 @@ export function verdictFromPercent(pct: number): HistoryVerdict {
   if (pct > -5) return "fair";
   if (pct > -15) return "loss";
   return "big-loss";
+}
+
+/** Use the exact verdict shown when saved; legacy records use the old summary. */
+export function verdictForRecord(record: TradeRecord): HistoryVerdict {
+  return record.calculation?.adjustedVerdict ?? verdictFromPercent(record.resultPercent);
 }
 
 /** Outcome filter for the history view. */
@@ -33,8 +38,8 @@ export interface HistoryFilter {
   mode?: string;
 }
 
-function matchesOutcome(pct: number, outcome: OutcomeFilter): boolean {
-  const verdict = verdictFromPercent(pct);
+function matchesOutcome(record: TradeRecord, outcome: OutcomeFilter): boolean {
+  const verdict = verdictForRecord(record);
   switch (outcome) {
     case "wins":
       return verdict === "win" || verdict === "big-win";
@@ -65,7 +70,7 @@ export function filterHistory(
   const query = filter.query?.trim().toLowerCase() ?? "";
   return history.filter((record) => {
     if (filter.mode && filter.mode !== "all" && record.mode !== filter.mode) return false;
-    if (filter.outcome && !matchesOutcome(record.resultPercent, filter.outcome)) return false;
+    if (filter.outcome && !matchesOutcome(record, filter.outcome)) return false;
     if (query) {
       const haystack = recordItemIds(record)
         .map((id) => `${id} ${nameOf(id)?.displayName ?? ""}`.toLowerCase())

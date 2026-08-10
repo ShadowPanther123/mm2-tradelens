@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseSnapshot, safeParseSignedSnapshot } from "@tradelens/item-schema";
 import { auditItems, formatAuditReport } from "@tradelens/source-adapters";
 import { mm2valuesSnapshot } from "@tradelens/source-adapters/mm2values";
@@ -39,24 +41,32 @@ interface Options {
   signFilePath?: string;
 }
 
-function parseArgs(argv: string[]): Options {
+export function parseArgs(argv: string[]): Options {
   const opts: Options = {
     outDir: "out",
     keyId: "default",
     keygen: false,
     failOnAudit: false,
   };
+  const valueAfter = (name: string, index: number): string => {
+    const value = argv[index + 1];
+    if (!value || value.startsWith("--")) {
+      throw new Error(`${name} requires a value`);
+    }
+    return value;
+  };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === "--source") opts.source = argv[++i];
-    else if (arg === "--out") opts.outDir = argv[++i] ?? "out";
-    else if (arg === "--key") opts.keyPath = argv[++i];
-    else if (arg === "--key-id") opts.keyId = argv[++i] ?? "default";
+    if (arg === "--source") opts.source = valueAfter(arg, i++);
+    else if (arg === "--out") opts.outDir = valueAfter(arg, i++);
+    else if (arg === "--key") opts.keyPath = valueAfter(arg, i++);
+    else if (arg === "--key-id") opts.keyId = valueAfter(arg, i++);
     else if (arg === "--keygen") opts.keygen = true;
     else if (arg === "--fail-on-audit") opts.failOnAudit = true;
-    else if (arg === "--verify") opts.verifyPath = argv[++i];
-    else if (arg === "--public-key") opts.publicKey = argv[++i];
-    else if (arg === "--sign-file") opts.signFilePath = argv[++i];
+    else if (arg === "--verify") opts.verifyPath = valueAfter(arg, i++);
+    else if (arg === "--public-key") opts.publicKey = valueAfter(arg, i++);
+    else if (arg === "--sign-file") opts.signFilePath = valueAfter(arg, i++);
+    else throw new Error(`unknown option: ${arg}`);
   }
   return opts;
 }
@@ -108,6 +118,9 @@ function runVerify(opts: Options): void {
   const report = auditItems(snapshot.items, { requiredSources: snapshot.sources });
   // eslint-disable-next-line no-console
   console.log(formatAuditReport(report));
+  if (!report.clean) {
+    throw new Error("signed snapshot has unresolved data-audit issues");
+  }
 }
 
 async function main(): Promise<void> {
@@ -176,8 +189,10 @@ async function main(): Promise<void> {
   console.log(`sha256: ${checksum}`);
 }
 
-main().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error("updater failed:", (err as Error).message);
-  process.exit(1);
-});
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("updater failed:", (err as Error).message);
+    process.exit(1);
+  });
+}

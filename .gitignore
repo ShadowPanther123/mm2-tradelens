@@ -17,6 +17,11 @@ apps/desktop/src-tauri/gen/
 # Vite
 apps/desktop/.vite/
 
+# Playwright transient output (visual baselines remain tracked)
+apps/desktop/test-results/
+apps/desktop/playwright-report/
+apps/desktop/blob-report/
+
 # Env & secrets
 .env
 .env.local

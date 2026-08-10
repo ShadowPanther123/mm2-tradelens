@@ -1,5 +1,9 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { describe, it, expect } from "vitest";
-import { store } from "../src/store.js";
+import { mm2valuesSnapshot } from "@tradelens/source-adapters/mm2values";
+import { SnapshotStore, store } from "../src/store.js";
 
 describe("values-api snapshot store", () => {
   it("serves the current snapshot with a checksum", () => {
@@ -78,8 +82,33 @@ describe("values-api snapshot store", () => {
 
     expect(store.canRollback()).toBe(true);
     const restored = store.rollback();
-    expect(restored.revision).toBe(before.revision);
+    expect(restored.revision).toBe(published.revision + 1);
     expect(restored.items.some((i) => i.id === "reviewed-item")).toBe(false);
+  });
+
+  it("persists published state and rollback history across restarts", () => {
+    const dir = mkdtempSync(join(tmpdir(), "tradelens-values-"));
+    const file = join(dir, "state.json");
+    try {
+      const first = new SnapshotStore(mm2valuesSnapshot, undefined, file);
+      const initialRevision = first.get().snapshot.revision;
+      first.importRows({
+        supreme: [{
+          name: "Durable Item",
+          category: "gun",
+          rarity: "godly",
+          value: 42,
+          updatedAt: new Date().toISOString(),
+        }],
+      });
+
+      const restarted = new SnapshotStore(mm2valuesSnapshot, undefined, file);
+      expect(restarted.get().snapshot.revision).toBe(initialRevision + 1);
+      expect(restarted.getItem("durable-item")?.values.supreme?.value).toBe(42);
+      expect(restarted.canRollback()).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("refuses to publish nothing, and refuses rollback with no history", () => {

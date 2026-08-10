@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct Settings {
     pub source_mode: String,
     pub overlay_size: String,
+    pub always_on_top: bool,
     pub theme: String,
     pub notifications_enabled: bool,
     pub notify_threshold_percent: f64,
@@ -23,6 +24,7 @@ impl Default for Settings {
         Self {
             source_mode: "consensus".into(),
             overlay_size: "trade".into(),
+            always_on_top: true,
             theme: "dark".into(),
             notifications_enabled: false,
             notify_threshold_percent: 5.0,

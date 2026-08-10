@@ -49,6 +49,7 @@ export interface UpdateResult {
 const DEFAULT_SETTINGS: Settings = {
   sourceMode: "consensus",
   overlaySize: "trade",
+  alwaysOnTop: true,
   theme: "dark",
   notificationsEnabled: false,
   notifyThresholdPercent: 5,
@@ -200,18 +201,11 @@ async function loadValidSnapshot(): Promise<ValueSnapshot | null> {
 }
 
 /**
- * Whether the bundled snapshot is newer than a cached one and should replace
- * it. This lets an app update ship fresh data to users whose local database
- * still holds an older seed (e.g. the previous sample), without waiting for a
- * remote update check. A cached snapshot that is the same age or newer — such
- * as one downloaded from the values feed — is always kept.
+ * Whether the bundled snapshot has a higher monotonic revision than a cached
+ * one. Revision is authoritative; timestamps must never cause a downgrade.
  */
 function bundledIsNewer(cached: ValueSnapshot): boolean {
-  const cachedAt = Date.parse(cached.generatedAt);
-  const bundledAt = Date.parse(bundledSnapshot.generatedAt);
-  if (Number.isNaN(bundledAt)) return false;
-  if (Number.isNaN(cachedAt)) return true;
-  return bundledAt > cachedAt;
+  return bundledSnapshot.revision > cached.revision;
 }
 
 /** True when the active snapshot is the bundled demonstration data, not live values. */
@@ -286,6 +280,7 @@ function sanitizeSettings(raw: unknown): Settings {
       ["mini", "trade", "expanded"] as const,
       DEFAULT_SETTINGS.overlaySize,
     ),
+    alwaysOnTop: bool(s.alwaysOnTop, DEFAULT_SETTINGS.alwaysOnTop),
     theme: oneOf(s.theme, ["dark", "light"] as const, DEFAULT_SETTINGS.theme),
     notificationsEnabled: bool(s.notificationsEnabled, DEFAULT_SETTINGS.notificationsEnabled),
     notifyThresholdPercent: num(s.notifyThresholdPercent, DEFAULT_SETTINGS.notifyThresholdPercent, 1, 100),

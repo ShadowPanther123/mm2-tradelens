@@ -25,6 +25,7 @@ export type OverlaySize = "mini" | "trade" | "expanded";
 export interface Settings {
   sourceMode: SourceMode;
   overlaySize: OverlaySize;
+  alwaysOnTop: boolean;
   theme: "dark" | "light";
   notificationsEnabled: boolean;
   notifyThresholdPercent: number;

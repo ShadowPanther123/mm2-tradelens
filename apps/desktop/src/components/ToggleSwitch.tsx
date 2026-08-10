@@ -28,7 +28,7 @@ export function ToggleSwitch({ checked, onChange, label, hint }: ToggleSwitchPro
       >
         <span
           className={cn(
-            "absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform",
+            "absolute top-0.5 h-5 w-5 rounded-full bg-toggle shadow-sm transition-transform",
             checked ? "translate-x-5" : "translate-x-0.5",
           )}
         />

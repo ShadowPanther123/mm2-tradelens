@@ -71,12 +71,20 @@ export function App() {
   const loading = useDataStore((s) => s.loading);
   const error = useDataStore((s) => s.error);
   const init = useDataStore((s) => s.init);
+  const theme = useDataStore((s) => s.settings.theme);
 
   useAutoUpdate();
 
   useEffect(() => {
     void init();
   }, [init]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("light", theme === "light");
+    root.classList.toggle("dark", theme === "dark");
+    root.dataset.theme = theme;
+  }, [theme]);
 
   // Global hotkey (Ctrl+Shift+M) brings the window forward.
   useEffect(() => {
@@ -96,7 +104,7 @@ export function App() {
       <TitleBar />
       <div className="flex min-h-0 flex-1">
         <Sidebar />
-        <main className="min-w-0 flex-1 overflow-y-auto p-5">
+        <main className="min-w-0 flex-1 overflow-y-auto p-3 sm:p-5">
           {error ? (
             <StartupError />
           ) : !ready && loading ? (

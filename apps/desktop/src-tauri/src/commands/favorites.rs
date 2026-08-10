@@ -94,4 +94,3 @@ mod tests {
         assert!(validate_baseline(MAX_BASELINE_VALUE * 10.0).is_err());
     }
 }
-

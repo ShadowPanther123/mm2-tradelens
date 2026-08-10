@@ -46,9 +46,7 @@ pub fn run() {
     // Global hotkey: Ctrl+Shift+M brings the overlay forward and toggles it.
     #[cfg(desktop)]
     {
-        use tauri_plugin_global_shortcut::{
-            Code, Modifiers, Shortcut, ShortcutState,
-        };
+        use tauri_plugin_global_shortcut::{Code, Modifiers, Shortcut, ShortcutState};
 
         let toggle = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyM);
         let toggle_for_handler = toggle;
@@ -83,14 +81,17 @@ pub fn run() {
         ))
         .setup(|app| {
             let app_state = init_state(app)?;
+            #[cfg(desktop)]
+            let always_on_top = app_state
+                .with_db(|conn| Ok(database::settings::get(conn)?.always_on_top))
+                .unwrap_or(true);
             app.manage(app_state);
 
             #[cfg(desktop)]
             {
                 use tauri_plugin_autostart::ManagerExt;
                 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
-                let toggle =
-                    Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyM);
+                let toggle = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyM);
                 // Registering the hotkey must never be fatal: another app (or a
                 // lingering instance) may already own Ctrl+Shift+M. If it can't
                 // be claimed the overlay still opens and stays usable via the
@@ -110,6 +111,7 @@ pub fn run() {
                 // hotkey appears "broken". The user quits explicitly from the
                 // tray icon instead.
                 if let Some(win) = app.get_webview_window("main") {
+                    let _ = win.set_always_on_top(always_on_top);
                     let win_for_close = win.clone();
                     win.on_window_event(move |event| {
                         if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -123,12 +125,9 @@ pub fn run() {
                 // background: left-click (or "Show overlay") brings it forward,
                 // "Quit" fully exits.
                 use tauri::menu::{Menu, MenuItem};
-                use tauri::tray::{
-                    MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent,
-                };
+                use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
-                let show_item =
-                    MenuItem::with_id(app, "show", "Show overlay", true, None::<&str>)?;
+                let show_item = MenuItem::with_id(app, "show", "Show overlay", true, None::<&str>)?;
                 let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
                 let tray_menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 

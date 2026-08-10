@@ -26,17 +26,17 @@ displays community value estimates.
 | Area | Path | Status |
 | --- | --- | --- |
 | Shared data model + validation | [packages/item-schema](packages/item-schema) | ✅ built & type-checked |
-| Trading engine (values, fairness, confidence, search, trends) | [packages/trade-engine](packages/trade-engine) | ✅ 16 tests passing |
-| Source normalisation + bundled sample data | [packages/source-adapters](packages/source-adapters) | ✅ 6 tests passing |
+| Trading engine (values, fairness, confidence, search, trends) | [packages/trade-engine](packages/trade-engine) | ✅ test suite passing |
+| Source normalisation + bundled sample data | [packages/source-adapters](packages/source-adapters) | ✅ test suite passing |
 | Desktop overlay (React + Vite, Tauri shell) | [apps/desktop](apps/desktop) | ✅ builds; Rust shell needs Rust toolchain |
 | Browser extension (MV3 popup) | [apps/browser-extension](apps/browser-extension) | ✅ builds via esbuild |
 | Values API (normalise / validate / version / serve) | [services/values-api](services/values-api) | ✅ runs, endpoints verified |
-| Snapshot updater (signed-style artefact + checksum) | [services/updater](services/updater) | ✅ produces validated snapshot |
+| Snapshot updater (signed artefact + checksum) | [services/updater](services/updater) | ✅ produces validated snapshot |
 | Admin dashboard (static review UI) | [services/admin-dashboard](services/admin-dashboard) | ✅ static server |
 
 ## Requirements
 
-- **Node.js 18+** (developed on Node 26)
+- **Node.js 20+** (developed on Node 26)
 - **Rust + Tauri CLI** *(only needed to produce the native Windows build)* —
   install from <https://rustup.rs> then `cargo install tauri-cli`
 
@@ -94,6 +94,14 @@ npm run run:sample --workspace services/updater    # writes out/snapshot.json (+
 npm run start --workspace services/admin-dashboard  # http://localhost:8080
 ```
 
+The values API persists its current snapshot, staged candidate, and rollback
+history atomically in `data/local/values-api-state.json`. Set
+`TRADELENS_DATA_FILE` to use another path, or set it to an empty string only for
+an intentionally ephemeral development instance. Production deployments should
+also set `TRADELENS_SIGNING_KEY`, `TRADELENS_KEY_ID`, and a strong
+`TRADELENS_ADMIN_TOKEN`. Client IP headers are ignored unless
+`TRADELENS_TRUST_PROXY=1` is explicitly enabled behind a trusted proxy.
+
 ### Build the browser extension
 
 ```powershell
@@ -113,15 +121,16 @@ packages/
   source-adapters/    normalise sources -> one schema, bundled sample data
 services/
   values-api/         serves a validated, versioned snapshot (+ checksum)
-  updater/            builds the signed-style snapshot the app caches offline
+  updater/            builds the signed snapshot the app caches offline
   admin-dashboard/    static review UI over the values-api
 ```
 
 The desktop app downloads a JSON value snapshot and keeps the latest valid copy
-offline. When the client is built with a trusted public key the snapshot is
-cryptographically verified before use; otherwise it is treated as an unverified
-feed. When data is stale or unavailable the app says so plainly rather than
-showing silent guesses.
+offline. Production builds enable remote updates only when both an HTTPS feed
+URL and a trusted public key are configured; every adopted snapshot is then
+cryptographically verified. Development builds may use an explicitly labelled
+unverified feed. When data is stale or unavailable the app says so plainly
+rather than showing silent guesses.
 
 ## Design notes
 
@@ -131,8 +140,9 @@ showing silent guesses.
 - **Guidance, not guarantees.** Verdicts (Big Win / Win / Fair / Loss / Big Loss)
   are framed as gentle guidance, with a separate demand-adjusted result and
   clear warnings for duplicates, collectibles, and stale data.
-- **Local-first & private.** Favorites, history and settings live on your
-  device via `localStorage`; a one-click action deletes all local data.
+- **Local-first & private.** Favorites, history and settings live in native
+  SQLite or, for browser previews, `localStorage`; a one-click action deletes
+  all local data.
 
 ## Data
 
@@ -200,9 +210,10 @@ Get-FileHash .\MM2-TradeLens_x64-setup.exe -Algorithm SHA256
 ```
 
 Value snapshots are **only** treated as signed when the client is built with a
-trusted public key (`VITE_SNAPSHOT_PUBLIC_KEY`); otherwise the app runs offline
-from cached/bundled data and shows an *Unverified feed* / *Offline* status in
-Settings rather than claiming verified updates.
+trusted public key (`VITE_SNAPSHOT_PUBLIC_KEY`) and HTTPS endpoint
+(`VITE_SNAPSHOT_URL`). A production build missing either value stays offline
+from cached/bundled data. Development-only unsigned endpoints are labelled
+*Development feed - unverified* in Settings rather than claiming verification.
 
 ## Privacy
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ItemRarity } from "@tradelens/item-schema";
 import { mm2valuesSnapshot, mm2valuesItems } from "../src/mm2values.js";
+import { auditItems, formatAuditReport } from "../src/audit.js";
 
 const RARITIES = new Set(ItemRarity.options);
 
@@ -45,6 +46,21 @@ describe("mm2values bundled snapshot", () => {
     for (const item of chroma) {
       expect(item.displayName).not.toMatch(/Value:/i);
     }
+  });
+
+  it("does not include source-page controls as catalogue items", () => {
+    expect(
+      mm2valuesItems.some((item) =>
+        /^(add|choose|select)\s+(item|weapon)$/i.test(item.displayName),
+      ),
+    ).toBe(false);
+  });
+
+  it("passes the production catalogue audit", () => {
+    const report = auditItems(mm2valuesItems, {
+      requiredSources: mm2valuesSnapshot.sources,
+    });
+    expect(report.clean, formatAuditReport(report)).toBe(true);
   });
 
   it("wires bundled item icons to canonical local paths", () => {

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { Item, TradeRecord } from "@/types";
 import {
   verdictFromPercent,
+  verdictForRecord,
   filterHistory,
   exportHistory,
   applyRetention,
@@ -36,6 +37,16 @@ describe("verdictFromPercent", () => {
   });
 });
 
+describe("verdictForRecord", () => {
+  it("prefers the frozen adjusted verdict over percentage rebucketing", () => {
+    const saved = record("20", 12, {
+      calculation: { adjustedVerdict: "loss" } as TradeRecord["calculation"],
+    });
+    expect(verdictFromPercent(saved.resultPercent)).toBe("win");
+    expect(verdictForRecord(saved)).toBe("loss");
+  });
+});
+
 describe("filterHistory", () => {
   const history = [
     record("10", 20, { mode: "consensus" }),
@@ -51,6 +62,14 @@ describe("filterHistory", () => {
     expect(filterHistory(history, { outcome: "wins" }, nameOf).map((r) => r.id)).toEqual(["10"]);
     expect(filterHistory(history, { outcome: "losses" }, nameOf).map((r) => r.id)).toEqual(["12"]);
     expect(filterHistory(history, { outcome: "fair" }, nameOf).map((r) => r.id)).toEqual(["11"]);
+  });
+
+  it("filters using the frozen verdict when available", () => {
+    const frozenLoss = record("14", 20, {
+      calculation: { adjustedVerdict: "loss" } as TradeRecord["calculation"],
+    });
+    expect(filterHistory([frozenLoss], { outcome: "wins" }, nameOf)).toEqual([]);
+    expect(filterHistory([frozenLoss], { outcome: "losses" }, nameOf)).toEqual([frozenLoss]);
   });
 
   it("filters by source mode", () => {

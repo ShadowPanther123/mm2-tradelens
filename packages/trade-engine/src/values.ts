@@ -180,11 +180,16 @@ export function resolveValue(
 
   const readings = entries.map(([source, v]) => ({ source, value: v.value }));
   const allReadings = entries.map(([, v]) => v);
-  const disagreement = computeDisagreement(readings.map((r) => r.value));
-  const stale = allReadings.some((r) => isStale(r, now));
-  const stability = worstStability(allReadings);
+  const modeReading = mode !== "consensus" ? item.values[mode] : undefined;
+  if (mode !== "consensus" && !modeReading) return undefined;
+  const effectiveReadings = modeReading ? [modeReading] : allReadings;
+  const disagreement = mode === "consensus"
+    ? computeDisagreement(readings.map((r) => r.value))
+    : 0;
+  const stale = effectiveReadings.some((r) => isStale(r, now));
+  const stability = worstStability(effectiveReadings);
 
-  const demandValues = allReadings
+  const demandValues = effectiveReadings
     .map((r) => r.demand)
     .filter((d): d is number => typeof d === "number");
   const demand =
@@ -195,18 +200,17 @@ export function resolveValue(
   const average = (nums: number[]): number | undefined =>
     nums.length > 0 ? nums.reduce((a, b) => a + b, 0) / nums.length : undefined;
   const demandRating = average(
-    allReadings
+    effectiveReadings
       .map((r) => r.demandRating)
       .filter((d): d is number => typeof d === "number"),
   );
   const rarityRating = average(
-    allReadings
+    effectiveReadings
       .map((r) => r.rarityRating)
       .filter((d): d is number => typeof d === "number"),
   );
   // Prefer the selected source's range; for the combined estimate use the first
   // source that publishes one.
-  const modeReading = mode !== "consensus" ? item.values[mode] : undefined;
   const valueRange =
     modeReading?.valueRange ?? allReadings.find((r) => r.valueRange)?.valueRange;
   const stabilityLabel =
@@ -217,17 +221,12 @@ export function resolveValue(
   if (mode === "consensus") {
     value = readings.reduce((a, r) => a + r.value, 0) / readings.length;
   } else {
-    const picked = item.values[mode];
-    if (!picked) return undefined;
-    value = picked.value;
+    value = modeReading!.value;
   }
 
-  const confidence = deriveConfidence(
-    disagreement,
-    stability,
-    stale,
-    readings.length,
-  );
+  const confidence = modeReading
+    ? readingConfidence(modeReading, now)
+    : deriveConfidence(disagreement, stability, stale, readings.length);
 
   return {
     value,

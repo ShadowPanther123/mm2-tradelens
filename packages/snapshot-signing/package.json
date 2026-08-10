@@ -20,6 +20,6 @@
     "@tradelens/source-adapters": "0.1.0",
     "@types/node": "^20.14.0",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
+    "vitest": "^3.2.6"
   }
 }

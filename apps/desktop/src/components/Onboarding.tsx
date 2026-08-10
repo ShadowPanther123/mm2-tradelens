@@ -101,16 +101,17 @@ export function Onboarding() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] grid place-items-center bg-base-900/70 p-4 backdrop-blur-sm">
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="onboarding-title"
-        aria-describedby="onboarding-intro"
-        onKeyDown={handleKeyDown}
-        className="card w-full max-w-md p-6"
-      >
+    <div className="fixed inset-0 z-[70] overflow-y-auto bg-base-900/70 p-4 backdrop-blur-sm">
+      <div className="grid min-h-full place-items-center">
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="onboarding-title"
+          aria-describedby="onboarding-intro"
+          onKeyDown={handleKeyDown}
+          className="card w-full max-w-md p-6"
+        >
         <h2 id="onboarding-title" className="text-lg font-semibold text-white">
           Welcome to MM2 TradeLens
         </h2>
@@ -135,15 +136,16 @@ export function Onboarding() {
           ))}
         </ul>
 
-        <div className="mt-6 flex justify-end">
-          <button
-            ref={dismissRef}
-            type="button"
-            className="btn btn-primary"
-            onClick={close}
-          >
-            Got it
-          </button>
+          <div className="mt-6 flex justify-end">
+            <button
+              ref={dismissRef}
+              type="button"
+              className="btn btn-primary"
+              onClick={close}
+            >
+              Got it
+            </button>
+          </div>
         </div>
       </div>
     </div>

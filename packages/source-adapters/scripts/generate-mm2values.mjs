@@ -13,7 +13,7 @@
  *
  * Run: node packages/source-adapters/scripts/generate-mm2values.mjs
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -212,7 +212,6 @@ function main() {
   const prepared = [];
   const baseCount = new Map();
   let skipped = 0;
-  let latest = "";
 
   for (const record of rows) {
     if (record.length === 1 && record[0].trim() === "") continue;
@@ -221,14 +220,14 @@ function main() {
     const displayName = cleanName(get("name"));
     const base = slugify(displayName);
     const value = Number.parseFloat(get("value"));
-    if (!displayName || !base || !Number.isFinite(value) || value < 0) {
+    const isControlLabel = /^(add|choose|select)\s+(item|weapon)$/i.test(displayName);
+    if (!displayName || !base || isControlLabel || !Number.isFinite(value) || value < 0) {
       skipped++;
       continue;
     }
 
     const category = get("source_category").toLowerCase();
     const updatedAt = new Date(get("fetched_at")).toISOString();
-    if (updatedAt > latest) latest = updatedAt;
 
     prepared.push({
       base,
@@ -246,7 +245,7 @@ function main() {
     baseCount.set(base, (baseCount.get(base) ?? 0) + 1);
   }
 
-  const generatedAt = latest || new Date().toISOString();
+  const generatedAt = new Date().toISOString();
 
   const iconManifest = loadIconManifest();
 
@@ -310,9 +309,21 @@ function main() {
     );
   }
 
+  let previousRevision = 0;
+  if (existsSync(OUT_PATH)) {
+    try {
+      const previous = JSON.parse(readFileSync(OUT_PATH, "utf8"));
+      if (Number.isInteger(previous.revision) && previous.revision >= 0) {
+        previousRevision = previous.revision;
+      }
+    } catch {
+      throw new Error(`existing snapshot is not valid JSON: ${OUT_PATH}`);
+    }
+  }
+
   const snapshot = {
     schemaVersion: 1,
-    revision: 1,
+    revision: previousRevision + 1,
     generatedAt,
     sources: [SOURCE],
     items,

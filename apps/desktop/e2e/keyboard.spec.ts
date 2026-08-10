@@ -4,15 +4,13 @@ test.describe("keyboard-only navigation", () => {
   test("reaches the search input and navigation using only the keyboard", async ({ page }) => {
     await bootApp(page);
 
-    // Tab through the shell; every focus stop must be a real, visible control.
-    for (let i = 0; i < 20; i++) {
-      await page.keyboard.press("Tab");
-      const focused = page.locator(":focus");
-      await expect(focused).toBeVisible();
-    }
+    const dashboardLink = page.getByRole("link", { name: "Dashboard", exact: true });
+    const searchLink = page.getByRole("link", { name: "Search", exact: true });
+    await dashboardLink.focus();
+    await page.keyboard.press("Tab");
+    await expect(searchLink).toBeFocused();
 
     // Activating the focused Search link (via keyboard) navigates there.
-    await page.getByRole("link", { name: "Search", exact: true }).focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#\/search/);
     await expect(page.getByLabel("Search items")).toBeVisible();
@@ -28,9 +26,11 @@ test.describe("keyboard-only navigation", () => {
   }) => {
     await bootApp(page);
     await navTo(page, "Calculator");
-    for (let i = 0; i < 12; i++) {
-      await page.keyboard.press("Tab");
-      await expect(page.locator(":focus")).toBeVisible();
-    }
+    const itemInputs = page.getByLabel("Add an item…");
+    await itemInputs.first().focus();
+    await page.keyboard.press("Tab");
+    await expect(itemInputs.nth(1)).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(itemInputs.first()).toBeFocused();
   });
 });

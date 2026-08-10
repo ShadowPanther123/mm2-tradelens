@@ -1,35 +1,47 @@
 /** @type {import('tailwindcss').Config} */
+const themed = (name) => `rgb(var(--color-${name}) / <alpha-value>)`;
+
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   darkMode: "class",
   theme: {
     extend: {
       colors: {
+        white: themed("white"),
+        slate: {
+          100: themed("slate-100"),
+          200: themed("slate-200"),
+          300: themed("slate-300"),
+          400: themed("slate-400"),
+          500: themed("slate-500"),
+          600: themed("slate-600"),
+        },
         base: {
-          900: "#0c0e14",
-          800: "#12141c",
-          700: "#171a24",
-          600: "#1e2230",
-          500: "#272c3d",
+          900: themed("base-900"),
+          800: themed("base-800"),
+          700: themed("base-700"),
+          600: themed("base-600"),
+          500: themed("base-500"),
         },
-        line: "#2c313f",
+        line: themed("line"),
         accent: {
-          DEFAULT: "#6ea8fe",
-          soft: "#8fbcff",
+          DEFAULT: themed("accent"),
+          soft: themed("accent-soft"),
         },
-        win: "#6fcf97",
-        fair: "#6ea8fe",
-        loss: "#e79a9a",
-        warn: "#e6c07b",
-        yourside: "#7bd3a0",
-        theirside: "#f0b37e",
+        win: themed("win"),
+        fair: themed("fair"),
+        loss: themed("loss"),
+        warn: themed("warn"),
+        yourside: themed("yourside"),
+        theirside: themed("theirside"),
+        toggle: themed("toggle"),
       },
       fontFamily: {
         sans: ["Segoe UI", "system-ui", "-apple-system", "sans-serif"],
       },
       boxShadow: {
-        glass: "0 8px 32px rgba(0, 0, 0, 0.36)",
-        glow: "0 0 0 1px rgba(110, 168, 254, 0.35)",
+        glass: "var(--shadow-glass)",
+        glow: "0 0 0 1px rgb(var(--color-accent) / 0.35)",
       },
       backdropBlur: {
         xs: "2px",

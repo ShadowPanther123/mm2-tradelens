@@ -44,4 +44,28 @@ test.describe("visual regression", () => {
       mask: [page.locator("nav")],
     });
   });
+
+  test("light settings page", async ({ page }) => {
+    await navTo(page, "Settings");
+    await page.getByRole("button", { name: "Light", exact: true }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page).toHaveScreenshot("settings-light.png", {
+      animations: "disabled",
+      mask: [page.locator("nav")],
+    });
+  });
+
+  test("compact overlay", async ({ page }) => {
+    await page.setViewportSize({ width: 380, height: 260 });
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Search", exact: true })).toBeVisible();
+    const pageOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(pageOverflow).toBeLessThanOrEqual(1);
+    await expect(page).toHaveScreenshot("dashboard-compact.png", {
+      animations: "disabled",
+      mask: [page.locator("nav")],
+    });
+  });
 });

@@ -8,7 +8,7 @@ import { downloadTextFile } from "@/utils/download";
 import {
   filterHistory,
   exportHistory,
-  verdictFromPercent,
+  verdictForRecord,
   type OutcomeFilter,
 } from "@/utils/history";
 import type { Item, TradeRecord, TradeSlot } from "@/types";
@@ -136,7 +136,7 @@ function HistoryRow({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const verdict = verdictFromPercent(rec.resultPercent);
+  const verdict = verdictForRecord(rec);
   const calc = rec.calculation;
 
   return (
@@ -164,7 +164,11 @@ function HistoryRow({
         <div className="text-right">
           <div
             className={
-              rec.resultPercent >= 0 ? "font-semibold text-win" : "font-semibold text-loss"
+              verdict === "win" || verdict === "big-win"
+                ? "font-semibold text-win"
+                : verdict === "loss" || verdict === "big-loss"
+                  ? "font-semibold text-loss"
+                  : "font-semibold text-slate-200"
             }
           >
             {verdictLabel(verdict)}

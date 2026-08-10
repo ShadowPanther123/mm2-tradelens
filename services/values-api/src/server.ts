@@ -27,6 +27,7 @@ import { store } from "./store.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const ADMIN_TOKEN = process.env.TRADELENS_ADMIN_TOKEN ?? "";
+const TRUST_PROXY = process.env.TRADELENS_TRUST_PROXY === "1";
 
 /**
  * Security headers applied to every response. The API serves JSON/CSV only and
@@ -55,11 +56,20 @@ const RATE_LIMITS = {
 } as const;
 
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+const MAX_RATE_BUCKETS = 10_000;
+let nextRatePrune = 0;
 
 function rateLimited(key: string, limit: { windowMs: number; max: number }): boolean {
   const now = Date.now();
+  if (now >= nextRatePrune) {
+    for (const [bucketKey, bucket] of rateBuckets) {
+      if (now >= bucket.resetAt) rateBuckets.delete(bucketKey);
+    }
+    nextRatePrune = now + 60_000;
+  }
   const bucket = rateBuckets.get(key);
   if (!bucket || now >= bucket.resetAt) {
+    if (!bucket && rateBuckets.size >= MAX_RATE_BUCKETS) return true;
     rateBuckets.set(key, { count: 1, resetAt: now + limit.windowMs });
     return false;
   }
@@ -67,11 +77,14 @@ function rateLimited(key: string, limit: { windowMs: number; max: number }): boo
   return bucket.count > limit.max;
 }
 
-/** Best-effort client identifier for rate limiting (proxy-aware). */
+/** Client identifier for rate limiting; proxy headers are opt-in. */
 function clientId(req: IncomingMessage): string {
-  const fwd = req.headers["x-forwarded-for"];
-  const first = Array.isArray(fwd) ? fwd[0] : fwd?.split(",")[0];
-  return (first?.trim() || req.socket.remoteAddress || "unknown").toString();
+  if (TRUST_PROXY) {
+    const fwd = req.headers["x-forwarded-for"];
+    const first = Array.isArray(fwd) ? fwd[0] : fwd?.split(",")[0];
+    if (first?.trim()) return first.trim();
+  }
+  return (req.socket.remoteAddress || "unknown").toString();
 }
 
 function json(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {

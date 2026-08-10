@@ -52,15 +52,16 @@ function SourceIndicator() {
 /** Left navigation rail. */
 export function Sidebar() {
   return (
-    <nav className="flex w-52 shrink-0 flex-col gap-1 border-r border-white/5 bg-base-800/40 p-3">
+    <nav className="flex w-14 shrink-0 flex-col gap-1 border-r border-white/5 bg-base-800/40 p-2 sm:w-52 sm:p-3">
       {NAV.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
           end={item.to === "/"}
+          title={item.label}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+              "flex items-center justify-center gap-3 rounded-xl px-2 py-2.5 text-sm transition-colors sm:justify-start sm:px-3",
               isActive
                 ? "bg-accent/15 text-white shadow-glow"
                 : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
@@ -70,10 +71,10 @@ export function Sidebar() {
           <span className="w-4 text-center text-base leading-none" aria-hidden="true">
             {item.icon}
           </span>
-          {item.label}
+          <span className="sr-only sm:not-sr-only">{item.label}</span>
         </NavLink>
       ))}
-      <div className="mt-auto border-t border-white/5">
+      <div className="mt-auto hidden border-t border-white/5 sm:block">
         <SourceIndicator />
         <div className="px-2 pt-2 text-[10px] leading-relaxed text-slate-600">
           Independent fan project. Not affiliated with Roblox, Nikilis, MM2Values or

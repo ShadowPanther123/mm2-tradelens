@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import type {
   Item,
   SignedSnapshot,
@@ -22,10 +24,17 @@ import { publicKeyFromPrivate, signSnapshot } from "@tradelens/snapshot-signing/
  *   TRADELENS_KEY_ID       — identifier published alongside the signature
  * When absent the store serves unsigned snapshots (development only).
  */
-interface SigningConfig {
+export interface SigningConfig {
   privateKeyPem: string;
   keyId: string;
   publicKeyBase64: string;
+}
+
+interface PersistedState {
+  version: 1;
+  snapshot: ValueSnapshot;
+  history: ValueSnapshot[];
+  staged?: ValueSnapshot;
 }
 
 function loadSigningConfig(): SigningConfig | undefined {
@@ -40,12 +49,10 @@ function loadSigningConfig(): SigningConfig | undefined {
 }
 
 /**
- * In-memory snapshot store. A production deployment would back this with a
- * database; here it keeps the current normalised snapshot, its revision, an
- * integrity checksum, and — when a signing key is configured — a cached
- * Ed25519-signed envelope.
+ * Snapshot store with atomic JSON persistence. The state file retains the
+ * current snapshot, staged candidate and rollback history across restarts.
  */
-class SnapshotStore {
+export class SnapshotStore {
   private snapshot: ValueSnapshot;
   private checksum: string;
   private signing?: SigningConfig;
@@ -54,12 +61,39 @@ class SnapshotStore {
   private history: ValueSnapshot[] = [];
   /** A candidate snapshot awaiting explicit review before publishing. */
   private staged?: ValueSnapshot;
+  private persistenceFile?: string;
 
-  constructor(initial: ValueSnapshot, signing?: SigningConfig) {
+  constructor(initial: ValueSnapshot, signing?: SigningConfig, persistenceFile?: string) {
     this.signing = signing;
-    this.snapshot = parseSnapshot(initial);
+    this.persistenceFile = persistenceFile;
+    const persisted = this.loadPersisted();
+    this.snapshot = parseSnapshot(persisted?.snapshot ?? initial);
+    this.history = (persisted?.history ?? []).map((entry) => parseSnapshot(entry));
+    this.staged = persisted?.staged ? parseSnapshot(persisted.staged) : undefined;
     this.checksum = SnapshotStore.hash(this.snapshot);
     this.sign();
+  }
+
+  private loadPersisted(): PersistedState | undefined {
+    if (!this.persistenceFile || !existsSync(this.persistenceFile)) return undefined;
+    const raw = JSON.parse(readFileSync(this.persistenceFile, "utf8")) as PersistedState;
+    if (raw.version !== 1 || !Array.isArray(raw.history)) {
+      throw new Error(`unsupported values-api state file: ${this.persistenceFile}`);
+    }
+    return raw;
+  }
+
+  private persist(
+    snapshot: ValueSnapshot,
+    history: ValueSnapshot[],
+    staged: ValueSnapshot | undefined,
+  ): void {
+    if (!this.persistenceFile) return;
+    mkdirSync(dirname(this.persistenceFile), { recursive: true });
+    const temp = `${this.persistenceFile}.${process.pid}.tmp`;
+    const state: PersistedState = { version: 1, snapshot, history, staged };
+    writeFileSync(temp, `${JSON.stringify(state)}\n`, "utf8");
+    renameSync(temp, this.persistenceFile);
   }
 
   private static hash(snapshot: ValueSnapshot): string {
@@ -75,9 +109,17 @@ class SnapshotStore {
   }
 
   /** Make a snapshot the current one and refresh its checksum and signature. */
-  private commit(snapshot: ValueSnapshot): void {
-    this.snapshot = snapshot;
-    this.checksum = SnapshotStore.hash(snapshot);
+  private commit(
+    snapshot: ValueSnapshot,
+    history: ValueSnapshot[],
+    staged: ValueSnapshot | undefined,
+  ): void {
+    const parsed = parseSnapshot(snapshot);
+    this.persist(parsed, history, staged);
+    this.snapshot = parsed;
+    this.history = history;
+    this.staged = staged;
+    this.checksum = SnapshotStore.hash(parsed);
     this.sign();
   }
 
@@ -132,8 +174,10 @@ class SnapshotStore {
     revision: number;
     audit: AuditReport;
   } {
-    this.staged = this.buildNext(bySource);
-    return { revision: this.staged.revision, audit: auditItems(this.staged.items) };
+    const staged = this.buildNext(bySource);
+    this.persist(this.snapshot, this.history, staged);
+    this.staged = staged;
+    return { revision: staged.revision, audit: auditItems(staged.items) };
   }
 
   getStaged(): ValueSnapshot | undefined {
@@ -145,6 +189,7 @@ class SnapshotStore {
   }
 
   discardStaged(): void {
+    this.persist(this.snapshot, this.history, undefined);
     this.staged = undefined;
   }
 
@@ -158,18 +203,22 @@ class SnapshotStore {
     if (options.requireClean && !auditItems(this.staged.items).clean) {
       throw new Error("staged snapshot has unresolved audit issues");
     }
-    this.history.push(this.snapshot);
     const next = this.staged;
-    this.staged = undefined;
-    this.commit(next);
+    this.commit(next, [...this.history, this.snapshot], undefined);
     return this.snapshot;
   }
 
-  /** Restore the most recent previous revision. */
+  /** Restore previous content under a new revision so clients can adopt it. */
   rollback(): ValueSnapshot {
-    const prev = this.history.pop();
+    const prev = this.history.at(-1);
     if (!prev) throw new Error("no previous revision to roll back to");
-    this.commit(prev);
+    const remaining = this.history.slice(0, -1);
+    const restored = parseSnapshot({
+      ...prev,
+      revision: this.snapshot.revision + 1,
+      generatedAt: new Date().toISOString(),
+    });
+    this.commit(restored, remaining, undefined);
     return this.snapshot;
   }
 
@@ -180,10 +229,19 @@ class SnapshotStore {
    */
   importRows(bySource: Partial<Record<SourceId, RawRow[]>>): ValueSnapshot {
     const next = this.buildNext(bySource);
-    this.history.push(this.snapshot);
-    this.commit(next);
+    this.commit(next, [...this.history, this.snapshot], this.staged);
     return this.snapshot;
   }
 }
 
-export const store = new SnapshotStore(mm2valuesSnapshot, loadSigningConfig());
+function defaultPersistenceFile(): string | undefined {
+  if (process.env.NODE_ENV === "test") return undefined;
+  if (process.env.TRADELENS_DATA_FILE === "") return undefined;
+  return resolve(process.env.TRADELENS_DATA_FILE ?? "data/local/values-api-state.json");
+}
+
+export const store = new SnapshotStore(
+  mm2valuesSnapshot,
+  loadSigningConfig(),
+  defaultPersistenceFile(),
+);

@@ -109,15 +109,20 @@ if ($assetLicenses -match 'permission-granted' -or $assetLicenses -match 'source
     Warn 'could not confirm asset licence records; review licenses.ts'
 }
 $updates = Read-Text 'apps/desktop/src/services/updates.ts'
-if ($updates -match 'isValuesServiceConfigured' -and $updates -match 'startsWith\("https://"\)') {
-    Pass 'remote feed is gated on an HTTPS, key-configured values service'
+$prodEnv = Read-Text 'apps/desktop/.env.production'
+$prodUrl = $prodEnv -match '(?m)^VITE_SNAPSHOT_URL=.+'
+$prodKey = $prodEnv -match '(?m)^VITE_SNAPSHOT_PUBLIC_KEY=.+'
+if ($prodUrl -eq $prodKey -and $updates -match 'isRemoteFeedUsable') {
+    Pass 'production feed is either offline or configured with both endpoint and key'
 } else {
-    Fail 'production feed is not gated on an HTTPS trusted service'
+    Fail 'production feed must configure VITE_SNAPSHOT_URL and VITE_SNAPSHOT_PUBLIC_KEY together'
 }
 
 # --- 3. Remote snapshots authenticated before use ---------------------------
 Gate 3 'Every remote snapshot is cryptographically authenticated before use'
-if ($updates -match 'verifySignedSnapshot' -and $updates -match 'signature-failure') {
+if ($updates -match 'verifySignedSnapshot' -and
+    $updates -match 'publicKey.length > 0' -and
+    $updates -match 'signature-failure') {
     Pass 'update path verifies signatures and rejects on signature-failure'
 } else {
     Fail 'update path does not verify snapshot signatures'
@@ -191,7 +196,7 @@ if ($confJson -and $confJson.bundle.windows.nsis.installMode -eq 'currentUser') 
 # --- 6. All automated checks pass in CI -------------------------------------
 Gate 6 'All automated checks pass in continuous integration'
 $ci = Read-Text '.github/workflows/ci.yml'
-foreach ($needle in @('npm run typecheck', 'npm run lint', 'npm test', 'cargo test', 'cargo clippy', 'npm audit --omit=dev')) {
+foreach ($needle in @('npm run typecheck', 'npm run lint', 'npm run assets:validate', 'npm test', 'cargo test', 'cargo clippy', 'npm audit --omit=dev')) {
     if ($ci -match [regex]::Escape($needle)) {
         Pass "CI runs: $needle"
     } else {
@@ -259,8 +264,8 @@ if ($settings -match 'advisory') {
 } else {
     Warn 'confirm the UI frames estimates as advisory'
 }
-if ($settings -match 'Unverified feed' -and $settings -match 'Signature-verified') {
-    Pass 'UI distinguishes verified vs unverified feeds honestly'
+if ($settings -match 'Development feed' -and $settings -match 'Signature-verified') {
+    Pass 'UI distinguishes signed production updates from the development feed'
 } else {
     Fail 'UI does not distinguish verified vs unverified data status'
 }

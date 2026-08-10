@@ -86,6 +86,24 @@ describe("resolveValue", () => {
     expect(r?.readings.map((x) => x.value).sort((a, b) => a - b)).toEqual([1000, 2000]);
   });
 
+  it("uses only the selected source's metadata for source-specific resolution", () => {
+    const r = resolveValue(
+      item({
+        supreme: reading(100, { demand: 5, updatedAt: recent, stability: "stable" }),
+        mm2values: reading(1000, { demand: 1, updatedAt: old, stability: "volatile" }),
+      }),
+      "supreme",
+      now,
+    );
+    expect(r?.value).toBe(100);
+    expect(r?.demand).toBe(5);
+    expect(r?.stale).toBe(false);
+    expect(r?.stability).toBe("stable");
+    expect(r?.disagreement).toBe(0);
+    expect(r?.confidence).toBe("high");
+    expect(r?.readings).toHaveLength(2);
+  });
+
   it("marks values as stale and drops confidence when data is old", () => {
     const r = resolveValue(
       item({ supreme: reading(1000, { updatedAt: old }), mm2values: reading(1000, { updatedAt: old }) }),

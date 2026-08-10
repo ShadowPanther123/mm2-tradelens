@@ -35,4 +35,18 @@ test.describe("settings and source switching", () => {
     await page.getByRole("button", { name: /delete all local data/i }).click();
     await expect(page.getByText(/delete all local data\?/i)).toBeVisible();
   });
+
+  test("switches to light mode and restores it after reload", async ({ page }) => {
+    await bootApp(page);
+    await navTo(page, "Settings");
+
+    const lightButton = page.getByRole("button", { name: "Light", exact: true });
+    await lightButton.click();
+    await expect(lightButton).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  });
 });

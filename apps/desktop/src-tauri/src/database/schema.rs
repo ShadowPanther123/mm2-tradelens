@@ -13,13 +13,38 @@ struct Migration {
 /// database half-migrated. Add new migrations by appending to this slice —
 /// never edit or reorder an existing entry.
 const MIGRATIONS: &[Migration] = &[
-    Migration { name: "001_base", up: m001_base },
-    Migration { name: "002_disagreement_threshold", up: m002_disagreement_threshold },
-    Migration { name: "003_algorithm_version", up: m003_algorithm_version },
-    Migration { name: "004_alert_absolute_threshold", up: m004_alert_absolute_threshold },
-    Migration { name: "005_history_retention_limit", up: m005_history_retention_limit },
-    Migration { name: "006_history_calculation", up: m006_history_calculation },
-    Migration { name: "007_value_history", up: m007_value_history },
+    Migration {
+        name: "001_base",
+        up: m001_base,
+    },
+    Migration {
+        name: "002_disagreement_threshold",
+        up: m002_disagreement_threshold,
+    },
+    Migration {
+        name: "003_algorithm_version",
+        up: m003_algorithm_version,
+    },
+    Migration {
+        name: "004_alert_absolute_threshold",
+        up: m004_alert_absolute_threshold,
+    },
+    Migration {
+        name: "005_history_retention_limit",
+        up: m005_history_retention_limit,
+    },
+    Migration {
+        name: "006_history_calculation",
+        up: m006_history_calculation,
+    },
+    Migration {
+        name: "007_value_history",
+        up: m007_value_history,
+    },
+    Migration {
+        name: "008_always_on_top",
+        up: m008_always_on_top,
+    },
 ];
 
 /// Total number of migrations this build knows about — the target
@@ -39,7 +64,6 @@ pub(crate) fn migrate_to_for_test(tx: &Transaction, up_to: i64) {
     tx.execute_batch(&format!("PRAGMA user_version = {up_to}"))
         .unwrap();
 }
-
 
 /// v1 — base schema.
 fn m001_base(tx: &Transaction) -> rusqlite::Result<()> {
@@ -172,6 +196,17 @@ CREATE INDEX IF NOT EXISTS idx_value_history_item
     )
 }
 
+/// v8 — persist whether the overlay should remain above other windows.
+fn m008_always_on_top(tx: &Transaction) -> rusqlite::Result<()> {
+    if !column_exists(tx, "settings", "always_on_top")? {
+        tx.execute(
+            "ALTER TABLE settings ADD COLUMN always_on_top INTEGER NOT NULL DEFAULT 1",
+            [],
+        )?;
+    }
+    Ok(())
+}
+
 /// Return whether `table` has a column named `column`.
 fn column_exists(conn: &Connection, table: &str, column: &str) -> rusqlite::Result<bool> {
     let mut stmt = conn.prepare(&format!("PRAGMA table_info({table})"))?;
@@ -248,7 +283,13 @@ mod tests {
         assert_eq!(version, MIGRATIONS.len() as i64);
 
         // Every expected table exists.
-        for table in ["settings", "favorites", "trade_history", "snapshot_cache", "value_history"] {
+        for table in [
+            "settings",
+            "favorites",
+            "trade_history",
+            "snapshot_cache",
+            "value_history",
+        ] {
             let count: i64 = conn
                 .query_row(
                     "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?1",
@@ -269,7 +310,9 @@ mod tests {
 
         // Every migration is recorded in the ledger.
         let migration_rows: i64 = conn
-            .query_row("SELECT COUNT(*) FROM schema_migrations", [], |row| row.get(0))
+            .query_row("SELECT COUNT(*) FROM schema_migrations", [], |row| {
+                row.get(0)
+            })
             .unwrap();
         assert_eq!(migration_rows, target_version());
     }
@@ -327,7 +370,8 @@ mod tests {
                 "004_alert_absolute_threshold",
                 "005_history_retention_limit",
                 "006_history_calculation",
-                "007_value_history"
+                "007_value_history",
+                "008_always_on_top"
             ]
         );
     }
@@ -365,11 +409,9 @@ mod tests {
 
         // User rows survive the upgrade untouched.
         let favorite: (String, f64) = conn
-            .query_row(
-                "SELECT item_id, baseline_value FROM favorites",
-                [],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
+            .query_row("SELECT item_id, baseline_value FROM favorites", [], |row| {
+                Ok((row.get(0)?, row.get(1)?))
+            })
             .unwrap();
         assert_eq!(favorite, ("seer".to_string(), 40.0));
 

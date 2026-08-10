@@ -53,6 +53,8 @@ export type FetchOutcome =
 const MAX_SNAPSHOT_BYTES = 8_000_000;
 /** Reject snapshots generated further than this into the future (clock skew allowance). */
 const MAX_FUTURE_SKEW_MS = 24 * 60 * 60 * 1000;
+/** Remote snapshots older than this are not a credible update. */
+const MAX_SNAPSHOT_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 /**
  * Endpoint configuration. In production the feed must be an HTTPS URL supplied
@@ -88,6 +90,19 @@ export const isValuesServiceConfigured =
  * "signed updates" unless signatures are actually enforced.
  */
 export const signaturesEnforced = TRUSTED_PUBLIC_KEY.length > 0;
+/** True only for the unsigned localhost-style feed used while developing. */
+export const isUnverifiedDevelopmentFeed =
+  !IS_PROD && DEFAULT_SNAPSHOT_URL.length > 0 && !signaturesEnforced;
+
+/** Validate the trust configuration before any remote request is attempted. */
+export function isRemoteFeedUsable(
+  url: string,
+  production = IS_PROD,
+  publicKey = TRUSTED_PUBLIC_KEY,
+): boolean {
+  if (!url) return false;
+  return !production || (url.startsWith("https://") && publicKey.length > 0);
+}
 
 // Surface a one-time, clear warning in production when the values service is
 // not configured, so a misbuilt release is obvious rather than silent.
@@ -154,14 +169,15 @@ export function updateStatusMessage(status: UpdateStatus): string {
 function isFreshTimestamp(generatedAt: string): boolean {
   const t = Date.parse(generatedAt);
   if (Number.isNaN(t)) return false;
-  return t <= Date.now() + MAX_FUTURE_SKEW_MS;
+  const now = Date.now();
+  return t >= now - MAX_SNAPSHOT_AGE_MS && t <= now + MAX_FUTURE_SKEW_MS;
 }
 
 async function readCappedJson(res: Response): Promise<unknown | null> {
   const declared = Number(res.headers.get("content-length") ?? "");
   if (Number.isFinite(declared) && declared > MAX_SNAPSHOT_BYTES) return null;
   const text = await res.text();
-  if (text.length > MAX_SNAPSHOT_BYTES) return null;
+  if (new TextEncoder().encode(text).byteLength > MAX_SNAPSHOT_BYTES) return null;
   try {
     return JSON.parse(text) as unknown;
   } catch {
@@ -187,7 +203,7 @@ export async function fetchRemoteSnapshot(
   currentRevision = -1,
   retries = 3,
 ): Promise<FetchOutcome> {
-  if (!url || (IS_PROD && !url.startsWith("https://"))) {
+  if (!isRemoteFeedUsable(url)) {
     logger.warn("updates", "no usable values endpoint configured; skipping check");
     return { status: "not-configured" };
   }
@@ -277,7 +293,8 @@ async function fetchRevision(url: string, signal: AbortSignal): Promise<number |
 }
 
 function describeOutcome(outcome: FetchOutcome): Record<string, unknown> {
-  const { status, ...rest } = outcome as Record<string, unknown> & { status: string };
+  const rest = { ...outcome } as Record<string, unknown>;
+  delete rest.status;
   return rest;
 }
 

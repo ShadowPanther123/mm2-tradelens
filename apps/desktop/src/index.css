@@ -3,6 +3,60 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+    --color-base-900: 12 14 20;
+    --color-base-800: 18 20 28;
+    --color-base-700: 23 26 36;
+    --color-base-600: 30 34 48;
+    --color-base-500: 39 44 61;
+    --color-line: 44 49 63;
+    --color-white: 255 255 255;
+    --color-slate-100: 241 245 249;
+    --color-slate-200: 226 232 240;
+    --color-slate-300: 203 213 225;
+    --color-slate-400: 148 163 184;
+    --color-slate-500: 100 116 139;
+    --color-slate-600: 71 85 105;
+    --color-accent: 110 168 254;
+    --color-accent-soft: 143 188 255;
+    --color-win: 111 207 151;
+    --color-fair: 110 168 254;
+    --color-loss: 231 154 154;
+    --color-warn: 230 192 123;
+    --color-yourside: 123 211 160;
+    --color-theirside: 240 179 126;
+    --color-toggle: 255 255 255;
+    --shadow-glass: 0 8px 32px rgb(0 0 0 / 0.36);
+  }
+
+  :root.light {
+    color-scheme: light;
+    --color-base-900: 247 249 252;
+    --color-base-800: 237 241 247;
+    --color-base-700: 255 255 255;
+    --color-base-600: 241 244 249;
+    --color-base-500: 218 225 234;
+    --color-line: 199 209 221;
+    --color-white: 15 23 42;
+    --color-slate-100: 15 23 42;
+    --color-slate-200: 30 41 59;
+    --color-slate-300: 51 65 85;
+    --color-slate-400: 71 85 105;
+    --color-slate-500: 92 107 128;
+    --color-slate-600: 112 128 149;
+    --color-accent: 37 99 235;
+    --color-accent-soft: 29 78 216;
+    --color-win: 22 125 75;
+    --color-fair: 37 99 235;
+    --color-loss: 190 55 65;
+    --color-warn: 161 98 7;
+    --color-yourside: 34 135 94;
+    --color-theirside: 194 104 43;
+    --color-toggle: 255 255 255;
+    --shadow-glass: 0 8px 28px rgb(71 85 105 / 0.16);
+  }
+
   html,
   body,
   #root {

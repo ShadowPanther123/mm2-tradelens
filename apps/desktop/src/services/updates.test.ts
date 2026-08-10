@@ -3,6 +3,7 @@ import { sampleSnapshot } from "@tradelens/source-adapters/sample";
 import {
   DEFAULT_SNAPSHOT_URL,
   fetchRemoteSnapshot,
+  isRemoteFeedUsable,
   updateStatusMessage,
   type UpdateStatus,
 } from "./updates";
@@ -17,6 +18,15 @@ function response(
     status,
     headers: { get: (k: string) => headers[k.toLowerCase()] ?? null },
     text: async () => JSON.stringify(body),
+  } as unknown as Response;
+}
+
+function textResponse(text: string): Response {
+  return {
+    ok: true,
+    status: 200,
+    headers: { get: () => null },
+    text: async () => text,
   } as unknown as Response;
 }
 
@@ -46,6 +56,12 @@ afterEach(() => {
 });
 
 describe("fetchRemoteSnapshot outcomes", () => {
+  it("requires both HTTPS and a public key in production", () => {
+    expect(isRemoteFeedUsable("https://values.example/v1/snapshot", true, "")).toBe(false);
+    expect(isRemoteFeedUsable("http://values.example/v1/snapshot", true, "key")).toBe(false);
+    expect(isRemoteFeedUsable("https://values.example/v1/snapshot", true, "key")).toBe(true);
+  });
+
   it("reports offline when the device has no connectivity", async () => {
     vi.stubGlobal("navigator", { onLine: false });
     const fetchMock = routeFetch({});
@@ -93,6 +109,33 @@ describe("fetchRemoteSnapshot outcomes", () => {
 
     const outcome = await fetchRemoteSnapshot(DEFAULT_SNAPSHOT_URL, 1000, 1, 0);
     expect(outcome.status).toBe("schema-failure");
+  });
+
+  it("rejects a newer snapshot with an ancient generatedAt timestamp", async () => {
+    vi.stubGlobal("navigator", { onLine: true });
+    const ancient = {
+      ...freshSnapshot(999),
+      generatedAt: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+    vi.stubGlobal(
+      "fetch",
+      routeFetch({ revision: () => response({ revision: 999 }), snapshot: () => response(ancient) }),
+    );
+
+    const outcome = await fetchRemoteSnapshot(DEFAULT_SNAPSHOT_URL, 1000, 1, 0);
+    expect(outcome.status).toBe("invalid-data");
+  });
+
+  it("enforces the response limit in bytes rather than UTF-16 characters", async () => {
+    vi.stubGlobal("navigator", { onLine: true });
+    const oversized = `"${"\u0800".repeat(3_000_000)}"`;
+    vi.stubGlobal(
+      "fetch",
+      routeFetch({ snapshot: () => textResponse(oversized) }),
+    );
+
+    const outcome = await fetchRemoteSnapshot(DEFAULT_SNAPSHOT_URL, 1000, 1, 0);
+    expect(outcome.status).toBe("invalid-data");
   });
 
   it("reports a 4xx server error distinctly", async () => {

@@ -5,7 +5,7 @@ use super::models::Settings;
 /// Read the single settings row.
 pub fn get(conn: &Connection) -> rusqlite::Result<Settings> {
     conn.query_row(
-        "SELECT source_mode, overlay_size, theme, notifications_enabled,
+        "SELECT source_mode, overlay_size, always_on_top, theme, notifications_enabled,
                 notify_threshold_percent, alert_absolute_threshold,
                 disagreement_threshold_percent, offline_mode, history_retention_limit
          FROM settings WHERE id = 1",
@@ -14,13 +14,14 @@ pub fn get(conn: &Connection) -> rusqlite::Result<Settings> {
             Ok(Settings {
                 source_mode: row.get(0)?,
                 overlay_size: row.get(1)?,
-                theme: row.get(2)?,
-                notifications_enabled: row.get::<_, i64>(3)? != 0,
-                notify_threshold_percent: row.get(4)?,
-                alert_absolute_threshold: row.get(5)?,
-                disagreement_threshold_percent: row.get(6)?,
-                offline_mode: row.get::<_, i64>(7)? != 0,
-                history_retention_limit: row.get(8)?,
+                always_on_top: row.get::<_, i64>(2)? != 0,
+                theme: row.get(3)?,
+                notifications_enabled: row.get::<_, i64>(4)? != 0,
+                notify_threshold_percent: row.get(5)?,
+                alert_absolute_threshold: row.get(6)?,
+                disagreement_threshold_percent: row.get(7)?,
+                offline_mode: row.get::<_, i64>(8)? != 0,
+                history_retention_limit: row.get(9)?,
             })
         },
     )
@@ -32,17 +33,19 @@ pub fn update(conn: &Connection, s: &Settings) -> rusqlite::Result<()> {
         "UPDATE settings SET
             source_mode = ?1,
             overlay_size = ?2,
-            theme = ?3,
-            notifications_enabled = ?4,
-            notify_threshold_percent = ?5,
-            alert_absolute_threshold = ?6,
-            disagreement_threshold_percent = ?7,
-            offline_mode = ?8,
-            history_retention_limit = ?9
+            always_on_top = ?3,
+            theme = ?4,
+            notifications_enabled = ?5,
+            notify_threshold_percent = ?6,
+            alert_absolute_threshold = ?7,
+            disagreement_threshold_percent = ?8,
+            offline_mode = ?9,
+            history_retention_limit = ?10
          WHERE id = 1",
         params![
             s.source_mode,
             s.overlay_size,
+            s.always_on_top as i64,
             s.theme,
             s.notifications_enabled as i64,
             s.notify_threshold_percent,
