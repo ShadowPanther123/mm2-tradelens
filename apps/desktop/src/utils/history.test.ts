@@ -9,7 +9,11 @@ import {
   recordsToPrune,
 } from "./history";
 
-function record(id: string, resultPercent: number, opts: Partial<TradeRecord> = {}): TradeRecord {
+function record(
+  id: string,
+  resultPercent: number,
+  opts: Partial<TradeRecord> = {},
+): TradeRecord {
   return {
     id,
     date: `2026-07-${id.padStart(2, "0")}T00:00:00.000Z`,
@@ -59,9 +63,15 @@ describe("filterHistory", () => {
   });
 
   it("filters by outcome group", () => {
-    expect(filterHistory(history, { outcome: "wins" }, nameOf).map((r) => r.id)).toEqual(["10"]);
-    expect(filterHistory(history, { outcome: "losses" }, nameOf).map((r) => r.id)).toEqual(["12"]);
-    expect(filterHistory(history, { outcome: "fair" }, nameOf).map((r) => r.id)).toEqual(["11"]);
+    expect(
+      filterHistory(history, { outcome: "wins" }, nameOf).map((r) => r.id),
+    ).toEqual(["10"]);
+    expect(
+      filterHistory(history, { outcome: "losses" }, nameOf).map((r) => r.id),
+    ).toEqual(["12"]);
+    expect(
+      filterHistory(history, { outcome: "fair" }, nameOf).map((r) => r.id),
+    ).toEqual(["11"]);
   });
 
   it("filters using the frozen verdict when available", () => {
@@ -69,11 +79,15 @@ describe("filterHistory", () => {
       calculation: { adjustedVerdict: "loss" } as TradeRecord["calculation"],
     });
     expect(filterHistory([frozenLoss], { outcome: "wins" }, nameOf)).toEqual([]);
-    expect(filterHistory([frozenLoss], { outcome: "losses" }, nameOf)).toEqual([frozenLoss]);
+    expect(filterHistory([frozenLoss], { outcome: "losses" }, nameOf)).toEqual([
+      frozenLoss,
+    ]);
   });
 
   it("filters by source mode", () => {
-    expect(filterHistory(history, { mode: "supreme" }, nameOf).map((r) => r.id)).toEqual(["11"]);
+    expect(
+      filterHistory(history, { mode: "supreme" }, nameOf).map((r) => r.id),
+    ).toEqual(["11"]);
   });
 
   it("matches free-text against item display names", () => {
@@ -82,7 +96,9 @@ describe("filterHistory", () => {
   });
 
   it("matches against the raw id so retired items stay findable", () => {
-    const retired = [record("13", 0, { gave: [{ itemId: "retired-blade", quantity: 1 }] })];
+    const retired = [
+      record("13", 0, { gave: [{ itemId: "retired-blade", quantity: 1 }] }),
+    ];
     expect(filterHistory(retired, { query: "retired-blade" }, nameOf)).toHaveLength(1);
   });
 });

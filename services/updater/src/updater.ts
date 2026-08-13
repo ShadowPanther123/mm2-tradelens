@@ -73,9 +73,7 @@ export function parseArgs(argv: string[]): Options {
 
 async function fetchSnapshot(source: string): Promise<unknown> {
   if (!source.startsWith("https://") && !source.startsWith("http://localhost")) {
-    throw new Error(
-      `refusing to fetch snapshot over an insecure URL: ${source} (use HTTPS)`,
-    );
+    throw new Error(`refusing to fetch snapshot over an insecure URL: ${source} (use HTTPS)`);
   }
   const res = await fetch(source);
   if (!res.ok) throw new Error(`source responded ${res.status}`);
@@ -142,7 +140,9 @@ async function main(): Promise<void> {
     const detached = signBytes(bytes, readFileSync(opts.keyPath, "utf8"), opts.keyId);
     writeFileSync(`${opts.signFilePath}.sig.json`, `${JSON.stringify(detached, null, 2)}\n`);
     // eslint-disable-next-line no-console
-    console.log(`Signed ${opts.signFilePath} → ${opts.signFilePath}.sig.json (key "${opts.keyId}").`);
+    console.log(
+      `Signed ${opts.signFilePath} → ${opts.signFilePath}.sig.json (key "${opts.keyId}").`,
+    );
     return;
   }
 
@@ -155,9 +155,7 @@ async function main(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(formatAuditReport(report));
   if (opts.failOnAudit && !report.clean) {
-    throw new Error(
-      "data audit reported issues; refusing to publish (--fail-on-audit)",
-    );
+    throw new Error("data audit reported issues; refusing to publish (--fail-on-audit)");
   }
 
   mkdirSync(opts.outDir, { recursive: true });
@@ -169,16 +167,14 @@ async function main(): Promise<void> {
   if (opts.keyPath) {
     const privateKeyPem = readFileSync(opts.keyPath, "utf8");
     const signed = signSnapshot(snapshot, privateKeyPem, opts.keyId);
+    const publicKey = publicKeyFromPrivate(privateKeyPem);
     writeFileSync(`${opts.outDir}/signed-snapshot.json`, JSON.stringify(signed));
+    writeFileSync(`${opts.outDir}/public-key.txt`, `${publicKey}\n`);
     // eslint-disable-next-line no-console
-    console.log(
-      `Signed snapshot with key "${opts.keyId}" (public ${publicKeyFromPrivate(privateKeyPem)}).`,
-    );
+    console.log(`Signed snapshot with key "${opts.keyId}" (public ${publicKey}).`);
   } else {
     // eslint-disable-next-line no-console
-    console.warn(
-      "No --key supplied: wrote an UNSIGNED snapshot. Production feeds must be signed.",
-    );
+    console.warn("No --key supplied: wrote an UNSIGNED snapshot. Production feeds must be signed.");
   }
 
   // eslint-disable-next-line no-console

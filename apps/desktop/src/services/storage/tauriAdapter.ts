@@ -17,6 +17,14 @@ export const tauriStorage: StorageAdapter = {
     invokeCommand("add_favorite", { itemId, baselineValue }),
   removeFavorite: (itemId) => invokeCommand("remove_favorite", { itemId }),
 
+  listPortfolio: () => invokeCommand("list_portfolio"),
+  upsertPortfolioEntry: (itemId, quantity, baselineValue) =>
+    invokeCommand("upsert_portfolio_entry", { itemId, quantity, baselineValue }),
+  removePortfolioEntry: (itemId) => invokeCommand("remove_portfolio_entry", { itemId }),
+
+  listSearchStats: () => invokeCommand("list_search_stats"),
+  recordSearch: (itemId) => invokeCommand("record_search", { itemId }),
+
   listHistory: () => invokeCommand("list_history"),
   addHistoryRecord: (record) => invokeCommand("add_history_record", { record }),
   removeHistoryRecord: (id) => invokeCommand("remove_history_record", { id }),
@@ -36,6 +44,7 @@ export const tauriStorage: StorageAdapter = {
   },
   getValueHistory: (itemId, limit) =>
     invokeCommand("get_value_history", { itemId, limit }),
+  getAllValueHistory: (limit) => invokeCommand("get_all_value_history", { limit }),
 
   getAppInfo: (): Promise<AppInfo> => invokeCommand("app_info"),
   clearAllData: () => invokeCommand("clear_all_data"),

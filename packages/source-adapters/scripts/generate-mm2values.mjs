@@ -16,6 +16,12 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import {
+  cleanName,
+  deriveCatalogueMetadata,
+  disambiguateCatalogueRows,
+  slugify,
+} from "./catalogue-metadata.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const CSV_PATH = resolve(here, "../data/mm2values.csv");
@@ -69,20 +75,6 @@ function parseCsv(text) {
   return rows;
 }
 
-/** Turn a display name into a stable slug id (mirrors source-adapters slugify). */
-function slugify(name) {
-  return name
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-/** Strip a trailing " Value: 12,345" suffix some chroma names carry. */
-function cleanName(name) {
-  return name.replace(/\s*Value:\s*[\d,]+\s*$/i, "").trim();
-}
-
 const RARITY_BY_CATEGORY = {
   common: "common",
   uncommon: "uncommon",
@@ -99,10 +91,6 @@ const RARITY_BY_CATEGORY = {
 
 function mapRarity(category) {
   return RARITY_BY_CATEGORY[category] ?? "misc";
-}
-
-function mapCategory(category) {
-  return category === "pets" ? "pet" : "other";
 }
 
 /** Rescale a source 0–11 rating onto the schema's 0–5 range. */
@@ -179,11 +167,22 @@ function loadIconManifest() {
     const url = normaliseUrl(record[col.source_url]);
     if (!url) continue;
     byUrl.set(url, {
+      image: (record[col.file] ?? "").trim() || undefined,
       sha256: (record[col.sha256] ?? "").trim() || undefined,
       bytes: Number.parseInt((record[col.bytes] ?? "").trim(), 10) || undefined,
     });
   }
   return byUrl;
+}
+
+/** Preserve already-registered local icons when regenerating the snapshot. */
+function loadExistingIconMap() {
+  try {
+    const entries = JSON.parse(readFileSync(ICON_MAP_PATH, "utf8"));
+    return new Map(entries.map((entry) => [entry.id, entry]));
+  } catch {
+    return new Map();
+  }
 }
 
 function main() {
@@ -226,15 +225,25 @@ function main() {
       continue;
     }
 
-    const category = get("source_category").toLowerCase();
+    const sourceCategory = get("source_category").toLowerCase();
     const updatedAt = new Date(get("fetched_at")).toISOString();
+    const metadata = deriveCatalogueMetadata({
+      displayName,
+      sourceCategory,
+      imageUrl: get("image_url"),
+      wikiUrl: get("wiki_url"),
+    });
 
     prepared.push({
       base,
       displayName,
       value,
-      category,
-      chroma: category === "chroma",
+      sourceCategory,
+      category: metadata.category,
+      rarity: mapRarity(sourceCategory),
+      year: metadata.year,
+      origin: get("origin") || undefined,
+      chroma: sourceCategory === "chroma",
       demand: scale05(get("demand")),
       rarityScore: scale05(get("rarity")),
       stability: mapStability(get("stability")),
@@ -245,9 +254,12 @@ function main() {
     baseCount.set(base, (baseCount.get(base) ?? 0) + 1);
   }
 
+  disambiguateCatalogueRows(prepared);
+
   const generatedAt = new Date().toISOString();
 
   const iconManifest = loadIconManifest();
+  const existingIcons = loadExistingIconMap();
 
   // Second pass: assign unique ids and assemble items.
   const usedIds = new Set();
@@ -280,14 +292,17 @@ function main() {
     // Wire the canonical local icon when the manifest has one for this item's
     // source image. We never store the external URL on the item (no hotlinking)
     // — the icon is addressed by the bundled `icons/items/<id>.png` convention.
-    const icon = p.imageUrl ? iconManifest.get(normaliseUrl(p.imageUrl)) : undefined;
-    const image = icon ? `${ITEM_ICON_DIR}/${unique}.png` : undefined;
+    const manifestIcon = p.imageUrl ? iconManifest.get(normaliseUrl(p.imageUrl)) : undefined;
+    const existingIcon = existingIcons.get(unique);
+    const icon = existingIcon ?? manifestIcon;
+    const format = icon?.image?.split(".").at(-1)?.toLowerCase() ?? "png";
+    const image = icon ? `${ITEM_ICON_DIR}/${unique}.${format}` : undefined;
     if (icon) {
       iconMap.push(
         compact({
           id: unique,
           image,
-          sourceUrl: p.imageUrl,
+          sourceUrl: p.imageUrl ?? existingIcon?.sourceUrl,
           sha256: icon.sha256,
           bytes: icon.bytes,
         }),
@@ -297,10 +312,12 @@ function main() {
     items.push(
       compact({
         id: unique,
-        displayName: p.displayName,
+        displayName: p.catalogueName,
         aliases: [],
-        category: mapCategory(p.category),
-        rarity: mapRarity(p.category),
+        category: p.category,
+        rarity: p.rarity,
+        origin: p.origin,
+        year: p.year,
         chroma: p.chroma,
         image,
         verified: true,

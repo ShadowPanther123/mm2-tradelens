@@ -57,6 +57,23 @@ describe("schema constants", () => {
   });
 });
 
+describe("source history invariants", () => {
+  it("rejects history that is not ordered oldest first", () => {
+    const invalid = structuredClone(base);
+    invalid.items[0]!.values.supreme!.history = [
+      { value: 35, at: "2026-01-02T00:00:00.000Z" },
+      { value: 40, at: "2026-01-01T00:00:00.000Z" },
+    ];
+    expect(() => parseSnapshot(invalid)).toThrow(/history must be ordered oldest first/);
+  });
+
+  it("rejects history whose final value differs from the current reading", () => {
+    const invalid = structuredClone(base);
+    invalid.items[0]!.values.supreme!.history = [{ value: 35, at: "2025-12-31T00:00:00.000Z" }];
+    expect(() => parseSnapshot(invalid)).toThrow(/history must end at the current value/);
+  });
+});
+
 describe("safeParseSignedSnapshot", () => {
   it("accepts a well-formed envelope", () => {
     const signed: SignedSnapshot = {

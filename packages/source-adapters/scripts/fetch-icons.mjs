@@ -3,7 +3,7 @@
  * Download the bundled per-item icons referenced by the generated icon map.
  *
  * Input : packages/source-adapters/data/icon-map.json  (from generate-mm2values)
- * Output: apps/desktop/public/icons/items/<id>.png
+ * Output: apps/desktop/public/icons/items/<id>.<detected-format>
  *
  * Each entry carries the licensed source URL plus the expected sha256 and byte
  * size from the manifest, so every download is content-verified before it is
@@ -30,6 +30,14 @@ function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
 }
 
+function detectedExtension(buffer) {
+  if (buffer.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex"))) return "png";
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "jpg";
+  if (buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP")
+    return "webp";
+  return null;
+}
+
 /** True when the on-disk file already matches the expected hash/size. */
 function alreadyValid(path, entry) {
   if (FORCE || !existsSync(path)) return false;
@@ -45,23 +53,49 @@ function alreadyValid(path, entry) {
 async function download(entry) {
   const filename = entry.image.split("/").pop();
   const path = join(OUT_DIR, filename);
-  if (alreadyValid(path, entry)) return { id: entry.id, status: "skipped" };
+  if (alreadyValid(path, entry)) {
+    const actual = detectedExtension(readFileSync(path));
+    const declared = filename.split(".").at(-1)?.toLowerCase();
+    if (actual && actual === declared) return { id: entry.id, status: "skipped" };
+    return { id: entry.id, status: "error", detail: `content is ${actual ?? "unknown"}, filename is .${declared}` };
+  }
 
   const res = await fetch(entry.sourceUrl);
   if (!res.ok) {
     return { id: entry.id, status: "error", detail: `HTTP ${res.status}` };
   }
   const buffer = Buffer.from(await res.arrayBuffer());
-
-  if (entry.bytes && buffer.length !== entry.bytes) {
+  const actual = detectedExtension(buffer);
+  const declared = filename.split(".").at(-1)?.toLowerCase();
+  if (!actual || actual !== declared) {
     return {
       id: entry.id,
       status: "error",
-      detail: `size ${buffer.length} != expected ${entry.bytes}`,
+      detail: `downloaded content is ${actual ?? "unknown"}, manifest filename is .${declared}`,
     };
   }
-  if (entry.sha256 && sha256(buffer) !== entry.sha256) {
-    return { id: entry.id, status: "error", detail: "sha256 mismatch" };
+
+  const sourceBytes = entry.sourceBytes ?? entry.bytes;
+  const sourceSha256 = entry.sourceSha256 ?? entry.sha256;
+  if (sourceBytes && buffer.length !== sourceBytes) {
+    return {
+      id: entry.id,
+      status: "error",
+      detail: `source size ${buffer.length} != expected ${sourceBytes}`,
+    };
+  }
+  if (sourceSha256 && sha256(buffer) !== sourceSha256) {
+    return { id: entry.id, status: "error", detail: "source sha256 mismatch" };
+  }
+  if (
+    (entry.bytes && buffer.length !== entry.bytes) ||
+    (entry.sha256 && sha256(buffer) !== entry.sha256)
+  ) {
+    return {
+      id: entry.id,
+      status: "error",
+      detail: "bundled icon is a normalized derivative and must be restored from the repository",
+    };
   }
 
   writeFileSync(path, buffer);

@@ -58,11 +58,11 @@ pub fn get_snapshot_meta(state: State<AppState>) -> AppResult<Option<SnapshotMet
 /// as JSON here and re-validated by `save_snapshot` before it is ever cached.
 #[tauri::command]
 pub fn read_external_snapshot(app: tauri::AppHandle) -> AppResult<Option<Value>> {
-    let path = app
-        .path()
-        .app_data_dir()
-        .map_err(|e| AppError::Other(e.to_string()))?
-        .join(EXTERNAL_SNAPSHOT_FILE);
+    let dir = crate::smoke_app_data_dir().map_or_else(
+        || app.path().app_data_dir().map_err(|e| AppError::Other(e.to_string())),
+        Ok,
+    )?;
+    let path = dir.join(EXTERNAL_SNAPSHOT_FILE);
 
     let bytes = match std::fs::read(&path) {
         Ok(bytes) => bytes,
@@ -220,7 +220,11 @@ fn validate_snapshot(payload: &Value, revision: i64, generated_at: &str) -> AppR
                     "item {id} displayName is empty or longer than {MAX_NAME_LEN}"
                 )))
             }
-            None => return Err(AppError::Validation(format!("item {id} missing displayName"))),
+            None => {
+                return Err(AppError::Validation(format!(
+                    "item {id} missing displayName"
+                )))
+            }
         }
         match item.get("values").and_then(Value::as_object) {
             Some(values) if !values.is_empty() => {

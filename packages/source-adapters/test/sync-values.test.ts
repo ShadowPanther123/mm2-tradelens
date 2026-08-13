@@ -4,9 +4,6 @@ import { describe, expect, it } from "vitest";
 import {
   parseMm2Html,
   parseSupremePayload,
-  parseSupremeHtml,
-  parseSupremeText,
-  parseValueToken,
   reconcile,
   slugify,
   mapStability,
@@ -98,7 +95,9 @@ describe("parseMm2Html", () => {
 describe("parseSupremePayload", () => {
   it("accepts an { items: [...] } wrapper and a bare array", () => {
     const wrapped = parseSupremePayload({ items: [{ name: "Seer", value: 100, demand: 5 }] });
-    expect(wrapped).toEqual([{ name: "Seer", value: 100, demand: 5, rarity: undefined, stability: undefined }]);
+    expect(wrapped).toEqual([
+      { name: "Seer", value: 100, demand: 5, rarity: undefined, stability: undefined },
+    ]);
 
     const bare = parseSupremePayload([{ name: "Seer", value: 100 }]);
     expect(bare[0]).toMatchObject({ name: "Seer", value: 100 });
@@ -107,97 +106,6 @@ describe("parseSupremePayload", () => {
   it("skips entries missing a name or numeric value", () => {
     const rows = parseSupremePayload([{ value: 1 }, { name: "X" }, { name: "Y", value: "nope" }]);
     expect(rows).toEqual([]);
-  });
-});
-
-describe("parseSupremeHtml", () => {
-  // Mirrors the real SupremeValues item markup (head + body pair).
-  const SUPREME_HTML = `
-    <div class="itemhead">Chroma Evergun</div>
-    <div class="itembody"> Value -
-      <b class="itemvalue val-top">75,000</b>
-      <span class="inv-calc-hide">x</span>
-      <b class="itemrange">[N/A]</b><br>
-      Stability - <b class="itemstability stable">Stable</b>
-      <img src="../media/stability/Stable.webp" alt="Item stability"><br>
-      Demand - <b>8</b>
-    </div>
-    <div class="itemhead">Seer</div>
-    <div class="itembody"> Value -
-      <b class="itemvalue">1,200</b>
-      <b class="itemrange">[N/A]</b><br>
-      Stability - <b class="itemstability fluctuating">Fluctuating</b><br>
-      Demand - <b>5</b> Rarity - <b>4</b>
-    </div>
-  `;
-
-  it("extracts name, value, stability and demand from item blocks", () => {
-    const rows = parseSupremeHtml(SUPREME_HTML);
-    expect(rows).toHaveLength(2);
-    expect(rows[0]).toMatchObject({
-      name: "Chroma Evergun",
-      value: 75000,
-      stability: "Stable",
-      demand: 8,
-    });
-    expect(rows[1]).toMatchObject({
-      name: "Seer",
-      value: 1200,
-      stability: "Fluctuating",
-      demand: 5,
-      rarity: 4,
-    });
-  });
-
-  it("returns nothing for a bot-protection challenge page", () => {
-    expect(parseSupremeHtml("<html><body>Please enable JavaScript</body></html>")).toEqual([]);
-  });
-});
-
-describe("parseValueToken", () => {
-  it("handles plain, comma-grouped and K/M/B suffixed values", () => {
-    expect(parseValueToken("125")).toBe(125);
-    expect(parseValueToken("36,250")).toBe(36250);
-    expect(parseValueToken("124K")).toBe(124000);
-    expect(parseValueToken("1.2M")).toBe(1200000);
-    expect(parseValueToken("2B")).toBe(2000000000);
-  });
-});
-
-describe("parseSupremeText", () => {
-  // Mirrors a SupremeValues category page copied via document.body.innerText.
-  const SUPREME_TEXT = `
-Chroma Tier
-Chroma Ever Set
-Value - 124K [123K - 124K]
-Stability - Underpaid For 
-Demand - 8Rarity - 8
-Change in Value - (-1,000) -0.8%
-+1 -1 ~
-Chroma Alien Set
-Value - 36,250 [N/A]
-Stability - Stable 
-Demand - 6Rarity - 6
-Change in Value - (+250) +0.7%
-+1 -1 ~
-`;
-
-  it("extracts items with K-suffix values, demand, rarity and stability", () => {
-    const rows = parseSupremeText(SUPREME_TEXT);
-    expect(rows).toHaveLength(2);
-    expect(rows[0]).toEqual({
-      name: "Chroma Ever Set",
-      value: 124000,
-      stability: "Underpaid For",
-      demand: 8,
-      rarity: 8,
-    });
-    expect(rows[1]).toMatchObject({ name: "Chroma Alien Set", value: 36250 });
-  });
-
-  it("skips tier/section headers", () => {
-    const rows = parseSupremeText(SUPREME_TEXT);
-    expect(rows.map((r) => r.name)).not.toContain("Chroma Tier");
   });
 });
 
@@ -236,12 +144,76 @@ describe("reconcile", () => {
     expect(snap.items[0].values.mm2values.previousValue).toBe(45);
   });
 
+  it("matches disambiguated catalogue names by stable source item id", () => {
+    const snap = snapshotWith(45);
+    snap.items[0].displayName = "Batwing (Knife)";
+    snap.items[0].values.mm2values.sourceItemId = "3";
+    const rows = parseMm2Html(MM2_BLOCK, "ancient").slice(0, 1);
+    rows[0].value = 60;
+    const report = reconcile(snap, rows, "mm2values", { now, allowNewItems: true });
+    expect(report.changed).toBe(1);
+    expect(report.newItems).toBe(0);
+    expect(snap.items).toHaveLength(1);
+  });
+
+  it("appends a rolling history point each time the value moves", () => {
+    const snap = snapshotWith(45);
+    const first = [{ name: "Batwing", value: 60, category: "ancient" }];
+    reconcile(snap, first, "mm2values", { now, allowNewItems: true });
+    // Seeds from the prior value then records the move → two points.
+    expect(snap.items[0].values.mm2values.history.map((p) => p.value)).toEqual([45, 60]);
+
+    const later = "2026-08-02T00:00:00.000Z";
+    const second = [{ name: "Batwing", value: 75, category: "ancient" }];
+    reconcile(snap, second, "mm2values", { now: later, allowNewItems: true });
+    expect(snap.items[0].values.mm2values.history.map((p) => p.value)).toEqual([45, 60, 75]);
+  });
+
+  it("records one flat observation per UTC day", () => {
+    const snap = snapshotWith(45);
+    // A demand-only change still rewrites the reading but must not add a point.
+    const demandOnly = [{ name: "Batwing", value: 45, demand: 8, category: "ancient" }];
+    reconcile(snap, demandOnly, "mm2values", { now, allowNewItems: true });
+    const history = snap.items[0].values.mm2values.history ?? [];
+    expect(history.every((p) => p.value === 45)).toBe(true);
+    expect(history).toHaveLength(1);
+
+    const later = "2026-08-02T00:00:00.000Z";
+    reconcile(snap, demandOnly, "mm2values", { now: later, allowNewItems: true });
+    expect(snap.items[0].values.mm2values.history).toHaveLength(2);
+  });
+
+  it("clears previous-sync movement markers on a later flat sync", () => {
+    const snap = snapshotWith(45);
+    reconcile(snap, [{ name: "Batwing", value: 60, category: "ancient" }], "mm2values", {
+      now,
+      allowNewItems: true,
+    });
+    expect(snap.items[0].values.mm2values.previousValue).toBe(45);
+
+    const report = reconcile(
+      snap,
+      [{ name: "Batwing", value: 60, category: "ancient" }],
+      "mm2values",
+      { now: "2026-08-02T00:00:00.000Z", allowNewItems: true },
+    );
+
+    expect(report.refreshed).toBe(1);
+    expect(snap.items[0].values.mm2values.previousValue).toBeUndefined();
+    expect(snap.items[0].values.mm2values.trendPercent).toBeUndefined();
+    expect(snap.items[0].values.mm2values.history.map((point) => point.value)).toEqual([
+      45, 60, 60,
+    ]);
+  });
+
   it("reports no change when the value is identical", () => {
     const snap = snapshotWith(45);
     const rows = [{ name: "Batwing", value: 45, category: "ancient" }]; // same value, no extra fields
     const report = reconcile(snap, rows, "mm2values", { now, allowNewItems: true });
     expect(report.changed).toBe(0);
+    expect(report.refreshed).toBe(1);
     expect(report.newItems).toBe(0);
+    expect(snap.items[0].values.mm2values.retrievedAt).toBe(now);
   });
 
   it("adds a brand-new item for mm2values but not for supreme", () => {

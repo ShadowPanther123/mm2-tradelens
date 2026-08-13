@@ -44,7 +44,9 @@ jobs:
         run: npm run sync:values --workspace @tradelens/source-adapters
 
       - name: Validate snapshot
-        run: npm test --workspace @tradelens/source-adapters
+        run: |
+          npm test --workspace @tradelens/source-adapters
+          npm run assets:validate
 
       - name: Detect snapshot changes
         id: diff
@@ -72,11 +74,7 @@ jobs:
       # Publish the feed directly. A push made with GITHUB_TOKEN does not trigger
       # publish-values.yml (GitHub's anti-recursion rule), so this job deploys
       # the Pages feed itself whenever the snapshot changed.
-      - name: Build the updater (signer)
-        if: steps.diff.outputs.changed == 'true'
-        run: npm run build --workspace @tradelens/updater
-
-      - name: Sign and assemble the feed
+      - name: Assemble signed snapshot release atomically
         if: steps.diff.outputs.changed == 'true'
         env:
           SNAPSHOT_SIGNING_KEY: ${{ secrets.SNAPSHOT_SIGNING_KEY }}
@@ -87,18 +85,21 @@ jobs:
             echo "SNAPSHOT_SIGNING_KEY secret is not set; refusing to build an unsigned feed." >&2
             exit 1
           fi
-          snapshot=packages/source-adapters/src/mm2values-snapshot.json
-          mkdir -p _site/v1 feed-out
           umask 077
           printf '%s' "$SNAPSHOT_SIGNING_KEY" > signing.pem
-          node services/updater/dist/updater.js \
-            --key signing.pem --key-id "$SNAPSHOT_KEY_ID" --out feed-out --fail-on-audit
+          node scripts/assemble-snapshot-release.mjs \
+            --key signing.pem --key-id "$SNAPSHOT_KEY_ID" \
+            --minimum-revision 17 --out _site
           rm -f signing.pem
-          revision=$(node -p "JSON.parse(require('fs').readFileSync('$snapshot','utf8')).revision")
-          cp feed-out/snapshot.json _site/v1/snapshot
-          cp feed-out/signed-snapshot.json _site/v1/signed-snapshot
-          printf '{"revision":%s}\n' "$revision" > _site/v1/revision
-          echo "Published signed revision $revision"
+
+      - name: Upload complete snapshot release
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-release-${{ steps.diff.outputs.revision }}
+          path: _site
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Configure Pages
         if: steps.diff.outputs.changed == 'true'

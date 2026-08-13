@@ -54,6 +54,14 @@ export const ASSET_LICENSES: AssetLicenseRegistry = [
     notes: "Original missing-icon placeholder authored for TradeLens.",
   },
   {
+    asset: "icons/items/",
+    source: "MM2Values licensed export",
+    license: "Source-owner permission",
+    permission: "permission-granted",
+    notes:
+      "Bundled item artwork is restricted to files recorded by source URL, SHA-256, and byte size in data/icons-manifest.csv.",
+  },
+  {
     asset: "emoji:category",
     source: "System font / Unicode",
     license: "system",
@@ -66,8 +74,7 @@ export const ASSET_LICENSES: AssetLicenseRegistry = [
     source: "User-supplied",
     license: "N/A",
     permission: "owned",
-    notes:
-      "In-memory images the user provides (e.g. an OCR screenshot) are never redistributed.",
+    notes: "In-memory images the user provides (e.g. an OCR screenshot) are never redistributed.",
   },
 ];
 
@@ -89,7 +96,9 @@ export function licenseFor(
   const index = indexLicenses(registry);
   if (index.has(ref)) return index.get(ref);
   for (const record of registry) {
-    if (record.asset.endsWith(":") && ref.startsWith(record.asset)) return record;
+    if ((record.asset.endsWith(":") || record.asset.endsWith("/")) && ref.startsWith(record.asset)) {
+      return record;
+    }
   }
   return undefined;
 }

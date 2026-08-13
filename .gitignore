@@ -16,6 +16,7 @@ apps/desktop/src-tauri/gen/
 
 # Vite
 apps/desktop/.vite/
+apps/desktop/public/data/
 
 # Playwright transient output (visual baselines remain tracked)
 apps/desktop/test-results/

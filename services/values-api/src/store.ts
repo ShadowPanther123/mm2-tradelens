@@ -1,12 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import type {
-  Item,
-  SignedSnapshot,
-  SourceId,
-  ValueSnapshot,
-} from "@tradelens/item-schema";
+import type { Item, SignedSnapshot, SourceId, ValueSnapshot } from "@tradelens/item-schema";
 import { parseSnapshot } from "@tradelens/item-schema";
 import {
   buildSnapshot,
@@ -97,9 +92,7 @@ export class SnapshotStore {
   }
 
   private static hash(snapshot: ValueSnapshot): string {
-    return createHash("sha256")
-      .update(JSON.stringify(snapshot))
-      .digest("hex");
+    return createHash("sha256").update(JSON.stringify(snapshot)).digest("hex");
   }
 
   private sign(): void {

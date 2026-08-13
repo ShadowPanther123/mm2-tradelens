@@ -62,6 +62,8 @@ export interface ResolvedValue {
   confidence: Confidence;
   /** Averaged demand across available sources, if any. */
   demand?: number;
+  /** Recent value momentum, averaged across contributing sources. */
+  trendPercent?: number;
   /** Raw source demand rating (0–11), averaged across sources, for display. */
   demandRating?: number;
   /** Raw source rarity rating (0–11), averaged across sources, for display. */
@@ -77,12 +79,30 @@ export interface ResolvedValue {
 }
 
 const STALE_AFTER_MS = 48 * 60 * 60 * 1000;
+const FRESH_WITHIN_MS = 12 * 60 * 60 * 1000;
 
 function isStale(reading: SourceValue, now: number): boolean {
   if (reading.validation === "stale") return true;
-  const updated = Date.parse(reading.updatedAt);
-  if (Number.isNaN(updated)) return false;
+  const updated = Date.parse(reading.retrievedAt ?? reading.updatedAt);
+  if (Number.isNaN(updated) || updated > now) return true;
   return now - updated > STALE_AFTER_MS;
+}
+
+/**
+ * A reading counts as "fresh" when it was updated within the last 12 hours or
+ * earlier the same calendar day — recent enough to trust its figure fully.
+ */
+function isFresh(reading: SourceValue, now: number): boolean {
+  const updated = Date.parse(reading.retrievedAt ?? reading.updatedAt);
+  if (Number.isNaN(updated) || updated > now) return false;
+  if (now - updated <= FRESH_WITHIN_MS) return true;
+  const u = new Date(updated);
+  const n = new Date(now);
+  return (
+    u.getUTCFullYear() === n.getUTCFullYear() &&
+    u.getUTCMonth() === n.getUTCMonth() &&
+    u.getUTCDate() === n.getUTCDate()
+  );
 }
 
 /** Worst-case stability ordering (higher = less steady). */
@@ -92,9 +112,7 @@ const STABILITY_RANK: Record<NonNullable<SourceValue["stability"]>, number> = {
   volatile: 2,
 };
 
-function worstStability(
-  readings: SourceValue[],
-): SourceValue["stability"] | undefined {
+function worstStability(readings: SourceValue[]): SourceValue["stability"] | undefined {
   let worst: SourceValue["stability"] | undefined;
   for (const r of readings) {
     if (!r.stability) continue;
@@ -142,10 +160,7 @@ function deriveConfidence(
  * is stale, flagged during import, or reported as unsteady — otherwise it is
  * treated as high confidence.
  */
-export function readingConfidence(
-  reading: SourceValue,
-  now: number = Date.now(),
-): Confidence {
+export function readingConfidence(reading: SourceValue, now: number = Date.now()): Confidence {
   if (isStale(reading, now) || reading.validation === "stale") return "low";
   let score = 2; // start at "high"
   if (reading.validation === "suspect") score -= 1;
@@ -153,7 +168,12 @@ export function readingConfidence(
   if (reading.stability === "volatile") score -= 2;
   else if (reading.stability === "fluctuating") score -= 1;
   if (score >= 2) return "high";
-  if (score >= 1) return "medium";
+  // A value refreshed today (within 12 hours, or earlier the same calendar day)
+  // is recent enough to trust fully, so an otherwise-medium reading reads high.
+  if (score >= 1) {
+    if (reading.validation === "suspect") return "medium";
+    return isFresh(reading, now) ? "high" : "medium";
+  }
   return "low";
 }
 
@@ -183,9 +203,7 @@ export function resolveValue(
   const modeReading = mode !== "consensus" ? item.values[mode] : undefined;
   if (mode !== "consensus" && !modeReading) return undefined;
   const effectiveReadings = modeReading ? [modeReading] : allReadings;
-  const disagreement = mode === "consensus"
-    ? computeDisagreement(readings.map((r) => r.value))
-    : 0;
+  const disagreement = mode === "consensus" ? computeDisagreement(readings.map((r) => r.value)) : 0;
   const stale = effectiveReadings.some((r) => isStale(r, now));
   const stability = worstStability(effectiveReadings);
 
@@ -197,25 +215,33 @@ export function resolveValue(
       ? demandValues.reduce((a, b) => a + b, 0) / demandValues.length
       : undefined;
 
+  const trendValues = effectiveReadings
+    .map((r) =>
+      typeof r.trendPercent === "number"
+        ? r.trendPercent
+        : typeof r.previousValue === "number" && r.previousValue > 0
+          ? ((r.value - r.previousValue) / r.previousValue) * 100
+          : undefined,
+    )
+    .filter((trend): trend is number => typeof trend === "number");
+  const trendPercent =
+    trendValues.length > 0
+      ? trendValues.reduce((a, b) => a + b, 0) / trendValues.length
+      : undefined;
+
   const average = (nums: number[]): number | undefined =>
     nums.length > 0 ? nums.reduce((a, b) => a + b, 0) / nums.length : undefined;
   const demandRating = average(
-    effectiveReadings
-      .map((r) => r.demandRating)
-      .filter((d): d is number => typeof d === "number"),
+    effectiveReadings.map((r) => r.demandRating).filter((d): d is number => typeof d === "number"),
   );
   const rarityRating = average(
-    effectiveReadings
-      .map((r) => r.rarityRating)
-      .filter((d): d is number => typeof d === "number"),
+    effectiveReadings.map((r) => r.rarityRating).filter((d): d is number => typeof d === "number"),
   );
   // Prefer the selected source's range; for the combined estimate use the first
   // source that publishes one.
-  const valueRange =
-    modeReading?.valueRange ?? allReadings.find((r) => r.valueRange)?.valueRange;
+  const valueRange = modeReading?.valueRange ?? allReadings.find((r) => r.valueRange)?.valueRange;
   const stabilityLabel =
-    modeReading?.stabilityLabel ??
-    allReadings.find((r) => r.stabilityLabel)?.stabilityLabel;
+    modeReading?.stabilityLabel ?? allReadings.find((r) => r.stabilityLabel)?.stabilityLabel;
 
   let value: number;
   if (mode === "consensus") {
@@ -235,6 +261,7 @@ export function resolveValue(
     disagreement,
     confidence,
     demand,
+    trendPercent,
     demandRating,
     rarityRating,
     valueRange,

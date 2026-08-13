@@ -18,6 +18,8 @@ on:
     branches: [main]
     paths:
       - packages/source-adapters/src/mm2values-snapshot.json
+      - apps/desktop/public/icons/items/**
+      - scripts/assemble-snapshot-release.mjs
       - .github/workflows/publish-values.yml
   workflow_dispatch:
 
@@ -48,10 +50,12 @@ jobs:
 
       - run: npm ci
 
-      - name: Build the updater (signer)
-        run: npm run build --workspace @tradelens/updater
+      - name: Validate snapshot and assets
+        run: |
+          npm test --workspace @tradelens/source-adapters
+          npm run assets:validate
 
-      - name: Sign and assemble the feed
+      - name: Assemble signed snapshot release atomically
         env:
           SNAPSHOT_SIGNING_KEY: ${{ secrets.SNAPSHOT_SIGNING_KEY }}
           SNAPSHOT_KEY_ID: mm2-tradelens-2026-08
@@ -61,18 +65,20 @@ jobs:
             echo "SNAPSHOT_SIGNING_KEY secret is not set; refusing to build an unsigned feed." >&2
             exit 1
           fi
-          snapshot=packages/source-adapters/src/mm2values-snapshot.json
-          mkdir -p _site/v1 feed-out
           umask 077
           printf '%s' "$SNAPSHOT_SIGNING_KEY" > signing.pem
-          node services/updater/dist/updater.js \
-            --key signing.pem --key-id "$SNAPSHOT_KEY_ID" --out feed-out --fail-on-audit
+          node scripts/assemble-snapshot-release.mjs \
+            --key signing.pem --key-id "$SNAPSHOT_KEY_ID" \
+            --minimum-revision 17 --out _site
           rm -f signing.pem
-          revision=$(node -p "JSON.parse(require('fs').readFileSync('$snapshot','utf8')).revision")
-          cp feed-out/snapshot.json _site/v1/snapshot
-          cp feed-out/signed-snapshot.json _site/v1/signed-snapshot
-          printf '{"revision":%s}\n' "$revision" > _site/v1/revision
-          echo "Published signed revision $revision"
+
+      - name: Upload complete snapshot release
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-release
+          path: _site
+          if-no-files-found: error
+          retention-days: 30
 
       - uses: actions/configure-pages@v5
 

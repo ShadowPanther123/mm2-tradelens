@@ -40,6 +40,7 @@ describe("toTradeCalculation", () => {
     expect(calc.thresholds.fairBand).toBe(result.fairBand);
     expect(calc.thresholds.bigBand).toBeGreaterThan(0);
     expect(calc.explanation).toBe(result.explanation);
+    expect(calc.insights).toEqual(result.insights);
   });
 
   it("freezes exact per-source readings and resolved values", () => {
@@ -73,9 +74,7 @@ describe("toTradeCalculation", () => {
       now,
     );
     const calc = toTradeCalculation(result);
-    expect(calc.warnings.map((w) => w.kind)).toEqual(
-      result.warnings.map((w) => w.kind),
-    );
+    expect(calc.warnings.map((w) => w.kind)).toEqual(result.warnings.map((w) => w.kind));
   });
 
   it("marks a line as unvalued when the source has no reading", () => {

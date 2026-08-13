@@ -22,6 +22,8 @@
     "release:validate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-release.ps1",
     "release:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/acceptance-gate.ps1",
     "assets:validate": "node scripts/validate-assets.mjs",
+    "assets:normalize": "node scripts/normalize-icon-formats.mjs",
+    "changes:classify": "node scripts/classify-changes.mjs",
     "clean": "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true})\""
   },
   "devDependencies": {

@@ -3,6 +3,8 @@ import { timingSafeEqual } from "node:crypto";
 import type { SourceId } from "@tradelens/item-schema";
 import { type RawRow, auditReportToCsv } from "@tradelens/source-adapters";
 import { store } from "./store.js";
+import { CommunityTradeStore } from "./community.js";
+import { resolve } from "node:path";
 
 /**
  * Minimal dependency-free HTTP API for TradeLens value snapshots.
@@ -15,6 +17,8 @@ import { store } from "./store.js";
  *   GET  /v1/signed-snapshot    — Ed25519-signed snapshot envelope (if configured)
  *   GET  /v1/public-key         — signing key id + raw public key (base64)
  *   GET  /v1/items/:id          — single item
+ *   GET  /v1/community/trades   — recent anonymous completed trades
+ *   POST /v1/community/trades   — share a completed trade without identity data
  *   GET  /v1/admin/audit        — audit report for the current snapshot (token-gated)
  *   GET  /v1/admin/audit.csv    — audit report as CSV (token-gated)
  *   GET  /v1/admin/staged       — staged candidate snapshot + audit (token-gated)
@@ -28,6 +32,11 @@ import { store } from "./store.js";
 const PORT = Number(process.env.PORT ?? 8787);
 const ADMIN_TOKEN = process.env.TRADELENS_ADMIN_TOKEN ?? "";
 const TRUST_PROXY = process.env.TRADELENS_TRUST_PROXY === "1";
+const community = new CommunityTradeStore(
+  process.env.NODE_ENV === "test"
+    ? undefined
+    : resolve(process.env.TRADELENS_COMMUNITY_FILE ?? "data/local/community-trades.json"),
+);
 
 /**
  * Security headers applied to every response. The API serves JSON/CSV only and
@@ -87,7 +96,12 @@ function clientId(req: IncomingMessage): string {
   return (req.socket.remoteAddress || "unknown").toString();
 }
 
-function json(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
+function json(
+  res: ServerResponse,
+  status: number,
+  body: unknown,
+  headers: Record<string, string> = {},
+) {
   const payload = JSON.stringify(body);
   res.writeHead(status, {
     "content-type": "application/json",
@@ -130,8 +144,7 @@ async function readSources(
   req: IncomingMessage,
 ): Promise<Partial<Record<SourceId, RawRow[]>> | undefined> {
   const body = (await readBody(req).catch(() => undefined)) as
-    | { sources?: Partial<Record<SourceId, RawRow[]>> }
-    | undefined;
+    { sources?: Partial<Record<SourceId, RawRow[]>> } | undefined;
   if (!body || typeof body !== "object" || !body.sources) return undefined;
   return body.sources;
 }
@@ -161,9 +174,14 @@ const server = createServer(async (req, res) => {
     const isAdmin = pathname.startsWith("/v1/admin/");
     const limit = isAdmin ? RATE_LIMITS.admin : RATE_LIMITS.read;
     if (rateLimited(`${isAdmin ? "admin" : "read"}:${clientId(req)}`, limit)) {
-      return json(res, 429, { error: "rate_limited" }, {
-        "retry-after": String(Math.ceil(limit.windowMs / 1000)),
-      });
+      return json(
+        res,
+        429,
+        { error: "rate_limited" },
+        {
+          "retry-after": String(Math.ceil(limit.windowMs / 1000)),
+        },
+      );
     }
 
     if (req.method === "GET" && pathname === "/v1/revision") {
@@ -178,6 +196,20 @@ const server = createServer(async (req, res) => {
 
     if (req.method === "GET" && pathname === "/v1/revisions") {
       return json(res, 200, { revisions: store.revisions(), canRollback: store.canRollback() });
+    }
+
+    if (req.method === "GET" && pathname === "/v1/community/trades") {
+      const limit = Number(url.searchParams.get("limit") ?? 100);
+      return json(res, 200, { trades: community.list(limit) });
+    }
+
+    if (req.method === "POST" && pathname === "/v1/community/trades") {
+      try {
+        const trade = community.add(await readBody(req));
+        return json(res, 201, { trade });
+      } catch {
+        return json(res, 400, { error: "invalid_trade" });
+      }
     }
 
     if (req.method === "GET" && pathname === "/v1/snapshot") {
@@ -239,8 +271,7 @@ const server = createServer(async (req, res) => {
     if (req.method === "POST" && pathname === "/v1/admin/publish") {
       if (!authorized(req)) return json(res, 401, { error: "unauthorized" });
       const body = (await readBody(req).catch(() => undefined)) as
-        | { requireClean?: boolean }
-        | undefined;
+        { requireClean?: boolean } | undefined;
       try {
         const snapshot = store.publish({ requireClean: body?.requireClean });
         return json(res, 200, { revision: snapshot.revision, items: snapshot.items.length });

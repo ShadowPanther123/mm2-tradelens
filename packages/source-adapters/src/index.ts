@@ -55,11 +55,7 @@ export function slugify(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function toSourceValue(
-  row: RawRow,
-  importedAt: string,
-  adapterVersion?: string,
-): SourceValue {
+function toSourceValue(row: RawRow, importedAt: string, adapterVersion?: string): SourceValue {
   return {
     value: row.value,
     demand: row.demand,
@@ -96,9 +92,7 @@ export function mergeSources(
 ): Item[] {
   const items = new Map<string, Item>();
 
-  for (const [source, rows] of Object.entries(bySource) as Array<
-    [SourceId, RawRow[]]
-  >) {
+  for (const [source, rows] of Object.entries(bySource) as Array<[SourceId, RawRow[]]>) {
     if (!rows) continue;
     for (const [i, row] of rows.entries()) {
       const id = slugify(row.name ?? "");
@@ -120,8 +114,7 @@ export function mergeSources(
         if (row.verified === false) existing.verified = false;
         // Fill in metadata gaps from later sources.
         if (!existing.origin && row.origin) existing.origin = row.origin;
-        if (existing.year === undefined && row.year !== undefined)
-          existing.year = row.year;
+        if (existing.year === undefined && row.year !== undefined) existing.year = row.year;
         for (const alias of row.aliases ?? []) {
           if (!existing.aliases.includes(alias)) existing.aliases.push(alias);
         }
@@ -185,4 +178,3 @@ export * from "./providers.js";
 export * from "./audit.js";
 export * from "./assets.js";
 export * from "./licenses.js";
-export * from "./supreme-import.js";

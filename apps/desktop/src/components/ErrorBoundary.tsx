@@ -60,8 +60,8 @@ export class ErrorBoundary extends Component<Props, State> {
             </button>
           </div>
           <p className="text-xs text-slate-600">
-            Diagnostics stay on your device. Share the exported file only if you want help
-            troubleshooting.
+            Diagnostics stay on your device. Share the exported file only if you want
+            help troubleshooting.
           </p>
         </div>
       </div>

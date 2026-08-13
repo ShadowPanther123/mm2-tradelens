@@ -1,7 +1,7 @@
 use tauri::State;
 
-use crate::database::settings;
 use crate::database::models::Settings;
+use crate::database::settings;
 use crate::error::AppResult;
 use crate::state::AppState;
 

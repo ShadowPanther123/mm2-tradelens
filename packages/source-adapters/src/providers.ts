@@ -18,7 +18,7 @@ import type { RawRow } from "./index.js";
  * do anything when pointed at a feed the source owner has explicitly agreed to
  * provide, and their field mappings are assumptions to confirm with that owner
  * — not a reflection of any existing public endpoint. Until such permission
- * exists, use the manual-entry path (rows flagged `verified: false`).
+ * exists, the Supreme source remains disabled.
  */
 export interface ProviderContext {
   /**
@@ -53,10 +53,7 @@ export interface Provider {
  * deliberately no "scrape" option — unauthorised scraping is out of scope.
  */
 export type PermissionBasis =
-  | "official-api"
-  | "partner-agreement"
-  | "licensed-export"
-  | "explicit-permission";
+  "official-api" | "partner-agreement" | "licensed-export" | "explicit-permission";
 
 /** Options shared by the built-in HTTP-backed providers. */
 export interface HttpProviderOptions {
@@ -64,6 +61,8 @@ export interface HttpProviderOptions {
   baseUrl: string;
   /** Optional bearer token for authenticated partner/API access. */
   token?: string;
+  /** Identifier for the source owner's written grant or partner agreement. */
+  authorizationReference?: string;
 }
 
 /** Guard: refuse to construct a provider without a permission basis. */
@@ -85,20 +84,35 @@ function authHeaders(token?: string): Record<string, string> {
   return token ? { authorization: `Bearer ${token}` } : {};
 }
 
+function authorizedSupremeBaseUrl(options: HttpProviderOptions): string {
+  if (!options.authorizationReference?.trim()) {
+    throw new Error("A SupremeValues written authorization reference is required.");
+  }
+  const url = new URL(options.baseUrl);
+  if (url.protocol !== "https:") throw new Error("The SupremeValues partner feed must use HTTPS.");
+  if (url.hostname === "supremevalues.com" || url.hostname.endsWith(".supremevalues.com")) {
+    throw new Error("Public SupremeValues pages cannot be used as the application feed.");
+  }
+  return options.baseUrl.replace(/\/+$/, "");
+}
+
 /**
- * Supreme Values provider (template — requires explicit permission).
+ * Supreme Values provider (template; requires explicit permission).
  *
- * No official Supreme Values API exists as of 2026-07-31. This adapter is only
- * usable against an endpoint the site owner has agreed to expose; the
+ * SupremeValues' terms reviewed 2026-08-12 prohibit copying value-list data
+ * into applications, including scraping and manual entry. This adapter is only
+ * usable against an endpoint the site owner has agreed in writing to expose;
+ * the
  * {@link SupremeResponse} shape below is an *assumed* mapping target to be
  * confirmed with them, not a documented contract. Constructing this provider
  * asserts you hold a valid {@link PermissionBasis}.
  */
 export function createSupremeProvider(
   options: HttpProviderOptions,
-  permission: PermissionBasis = "explicit-permission",
+  permission?: PermissionBasis,
 ): Provider {
   const basis = assertPermitted("supreme", permission);
+  const baseUrl = authorizedSupremeBaseUrl(options);
   const adapterVersion = "supreme-1.0.0";
   return {
     id: "supreme",
@@ -107,10 +121,11 @@ export function createSupremeProvider(
     permission: basis,
     async fetchRows(ctx) {
       const now = ctx.now?.() ?? new Date().toISOString();
-      const body = (await ctx.fetchJson(`${options.baseUrl}/items`, {
+      const body = (await ctx.fetchJson(`${baseUrl}/items`, {
         headers: { accept: "application/json", ...authHeaders(options.token) },
       })) as SupremeResponse;
-      return (body.items ?? []).map((raw) => mapSupremeRow(raw, now));
+      const extractionMethod = basis === "official-api" ? "api" : "partner-feed";
+      return (body.items ?? []).map((raw) => mapSupremeRow(raw, now, extractionMethod));
     },
   };
 }
@@ -222,7 +237,11 @@ function mapRarity(value: string): RawRow["rarity"] {
   return (RARITY_VALUES.has(v) ? v : "common") as RawRow["rarity"];
 }
 
-function mapSupremeRow(raw: SupremeRow, retrievedAt: string): RawRow {
+function mapSupremeRow(
+  raw: SupremeRow,
+  retrievedAt: string,
+  extractionMethod: RawRow["extractionMethod"],
+): RawRow {
   return {
     name: raw.name,
     aliases: raw.aliases,
@@ -238,7 +257,7 @@ function mapSupremeRow(raw: SupremeRow, retrievedAt: string): RawRow {
     updatedAt: raw.updated_at,
     sourceItemId: raw.id,
     retrievedAt,
-    extractionMethod: "api",
+    extractionMethod,
     verified: true,
   };
 }

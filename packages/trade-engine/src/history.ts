@@ -1,5 +1,12 @@
 import type { SourceId } from "@tradelens/item-schema";
-import { BIG_BAND, type TradeResult, type TradeVerdict, type ValuedLine } from "./fairness.js";
+import {
+  BIG_BAND,
+  type TradeInsightKind,
+  type TradeInsightTone,
+  type TradeResult,
+  type TradeVerdict,
+  type ValuedLine,
+} from "./fairness.js";
 import type { Confidence, SourceMode } from "./values.js";
 
 /**
@@ -51,6 +58,13 @@ export interface FrozenWarning {
   message: string;
 }
 
+export interface FrozenInsight {
+  kind: TradeInsightKind;
+  tone: TradeInsightTone;
+  label: string;
+  detail: string;
+}
+
 /**
  * A complete, self-contained record of a trade calculation. Everything needed
  * to re-display the original verdict is here, so the History view never has to
@@ -70,6 +84,7 @@ export interface TradeCalculation {
   adjustedVerdict: TradeVerdict;
   confidence: Confidence;
   thresholds: FrozenThresholds;
+  insights?: FrozenInsight[];
   warnings: FrozenWarning[];
   /** Plain-language explanation shown at the time. */
   explanation: string;
@@ -108,6 +123,7 @@ export function toTradeCalculation(result: TradeResult): TradeCalculation {
     adjustedVerdict: result.adjustedVerdict,
     confidence: result.confidence,
     thresholds: { fairBand: result.fairBand, bigBand: BIG_BAND },
+    insights: result.insights.map((insight) => ({ ...insight })),
     warnings: result.warnings.map((w) => ({ kind: w.kind, message: w.message })),
     explanation: result.explanation,
   };

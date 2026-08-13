@@ -1,7 +1,9 @@
 import { test, expect, bootApp, navTo } from "./helpers";
 
 test.describe("keyboard-only navigation", () => {
-  test("reaches the search input and navigation using only the keyboard", async ({ page }) => {
+  test("reaches the search input and navigation using only the keyboard", async ({
+    page,
+  }) => {
     await bootApp(page);
 
     const dashboardLink = page.getByRole("link", { name: "Dashboard", exact: true });

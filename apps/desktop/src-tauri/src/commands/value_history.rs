@@ -14,6 +14,7 @@ const MAX_TIMESTAMP_LEN: usize = 40;
 const MAX_POINTS_PER_BATCH: usize = 20_000;
 const MAX_VALUE: f64 = 1_000_000_000.0;
 const MAX_HISTORY_LIMIT: i64 = 5_000;
+const MAX_ALL_HISTORY_LIMIT: i64 = 100_000;
 
 fn is_slug(s: &str) -> bool {
     !s.is_empty()
@@ -53,7 +54,9 @@ fn validate_point(p: &HistoryPoint) -> AppResult<()> {
         ));
     }
     if p.revision < 0 {
-        return Err(AppError::Validation("value history revision is negative".into()));
+        return Err(AppError::Validation(
+            "value history revision is negative".into(),
+        ));
     }
     Ok(())
 }
@@ -87,6 +90,22 @@ pub fn get_value_history(
             "\"{item_id}\" is not a valid item id"
         )));
     }
-    let limit = limit.unwrap_or(MAX_HISTORY_LIMIT).clamp(1, MAX_HISTORY_LIMIT);
+    let limit = limit
+        .unwrap_or(MAX_HISTORY_LIMIT)
+        .clamp(1, MAX_HISTORY_LIMIT);
     state.with_db(|conn| Ok(value_history::list(conn, &item_id, limit)?))
+}
+
+/// Return the recorded value history for every item at once, oldest first per
+/// item. Powers the Trends view, which needs movement across many items without
+/// a per-item round trip.
+#[tauri::command]
+pub fn get_all_value_history(
+    state: State<AppState>,
+    limit: Option<i64>,
+) -> AppResult<Vec<HistoryPoint>> {
+    let limit = limit
+        .unwrap_or(MAX_ALL_HISTORY_LIMIT)
+        .clamp(1, MAX_ALL_HISTORY_LIMIT);
+    state.with_db(|conn| Ok(value_history::list_all(conn, limit)?))
 }

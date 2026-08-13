@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Item, SourceValue, Stability } from "@tradelens/item-schema";
-import { resolveValue, roundValue, sourceModeLabel } from "../src/values.js";
+import { readingConfidence, resolveValue, roundValue, sourceModeLabel } from "../src/values.js";
 
 const now = Date.parse("2026-07-30T12:00:00Z");
 const recent = "2026-07-30T10:00:00Z";
@@ -8,11 +8,11 @@ const old = "2026-07-01T10:00:00Z"; // > 48h before `now`
 
 function reading(value: number, opts: Partial<SourceValue> = {}): SourceValue {
   return {
+    ...opts,
     value,
     demand: opts.demand ?? 3,
     stability: opts.stability ?? "stable",
     updatedAt: opts.updatedAt ?? recent,
-    ...(opts.validation ? { validation: opts.validation } : {}),
   };
 }
 
@@ -53,7 +53,11 @@ describe("sourceModeLabel", () => {
 
 describe("resolveValue", () => {
   it("combines multiple sources as an unweighted mean", () => {
-    const r = resolveValue(item({ supreme: reading(100), mm2values: reading(120) }), "consensus", now);
+    const r = resolveValue(
+      item({ supreme: reading(100), mm2values: reading(120) }),
+      "consensus",
+      now,
+    );
     expect(r?.value).toBeCloseTo(110, 5);
     expect(r?.readings).toHaveLength(2);
   });
@@ -78,7 +82,11 @@ describe("resolveValue", () => {
   });
 
   it("surfaces strong disagreement instead of hiding it", () => {
-    const r = resolveValue(item({ supreme: reading(1000), mm2values: reading(2000) }), "consensus", now);
+    const r = resolveValue(
+      item({ supreme: reading(1000), mm2values: reading(2000) }),
+      "consensus",
+      now,
+    );
     expect(r?.value).toBeCloseTo(1500, 5);
     expect(r?.disagreement).toBeGreaterThan(0.5);
     expect(r?.confidence).toBe("low");
@@ -106,7 +114,10 @@ describe("resolveValue", () => {
 
   it("marks values as stale and drops confidence when data is old", () => {
     const r = resolveValue(
-      item({ supreme: reading(1000, { updatedAt: old }), mm2values: reading(1000, { updatedAt: old }) }),
+      item({
+        supreme: reading(1000, { updatedAt: old }),
+        mm2values: reading(1000, { updatedAt: old }),
+      }),
       "consensus",
       now,
     );
@@ -119,5 +130,62 @@ describe("resolveValue", () => {
     expect(r?.value).toBe(0);
     expect(r?.disagreement).toBe(0);
     expect(r?.readings).toHaveLength(2);
+  });
+});
+
+describe("readingConfidence freshness", () => {
+  it("reads a fresh, otherwise-medium value as high when updated within 12 hours", () => {
+    const within12h = "2026-07-30T02:00:00Z"; // 10h before `now`
+    expect(
+      readingConfidence(reading(100, { stability: "fluctuating", updatedAt: within12h }), now),
+    ).toBe("high");
+  });
+
+  it("reads a fresh, otherwise-medium value as high when updated earlier the same day", () => {
+    const later = Date.parse("2026-07-30T20:00:00Z");
+    const sameDayEarly = "2026-07-30T05:00:00Z"; // 15h earlier, but the same UTC day
+    expect(
+      readingConfidence(reading(100, { stability: "fluctuating", updatedAt: sameDayEarly }), later),
+    ).toBe("high");
+  });
+
+  it("keeps an otherwise-medium value medium when the update is over a day old", () => {
+    const yesterday = "2026-07-29T06:00:00Z"; // >12h earlier, a different day, still < 48h
+    expect(
+      readingConfidence(reading(100, { stability: "fluctuating", updatedAt: yesterday }), now),
+    ).toBe("medium");
+  });
+
+  it("never lifts a stale value above low, however recent the calendar day looks", () => {
+    const stale = "2026-07-25T12:00:00Z"; // > 48h before `now`
+    expect(
+      readingConfidence(reading(100, { stability: "fluctuating", updatedAt: stale }), now),
+    ).toBe("low");
+  });
+
+  it("uses retrieval time when the published value itself has not changed", () => {
+    expect(
+      readingConfidence(
+        reading(100, { stability: "fluctuating", updatedAt: old, retrievedAt: recent }),
+        now,
+      ),
+    ).toBe("high");
+  });
+
+  it("never treats a suspect reading as high confidence", () => {
+    expect(
+      readingConfidence(reading(100, { stability: "stable", validation: "suspect" }), now),
+    ).toBe("medium");
+  });
+
+  it("rejects future-dated readings as stale", () => {
+    const future = "2026-07-31T12:00:00Z";
+    const resolved = resolveValue(
+      item({ mm2values: reading(100, { retrievedAt: future }) }),
+      "mm2values",
+      now,
+    );
+    expect(resolved?.stale).toBe(true);
+    expect(resolved?.confidence).toBe("low");
   });
 });

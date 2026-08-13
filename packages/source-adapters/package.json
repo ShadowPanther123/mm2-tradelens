@@ -7,14 +7,20 @@
   "exports": {
     ".": "./src/index.ts",
     "./sample": "./src/sample.ts",
-    "./mm2values": "./src/mm2values.ts",
-    "./supreme-import": "./src/supreme-import.ts"
+    "./mm2values": "./src/mm2values.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "generate:mm2values": "node scripts/generate-mm2values.mjs",
+    "enrich:catalogue": "node scripts/enrich-catalogue.mjs",
+    "backfill:history": "node scripts/backfill-history.mjs",
+    "backfill:legendary-icons": "node scripts/backfill-legendary-icons.mjs",
+    "backfill:missing-icons": "node scripts/backfill-missing-icons.mjs",
+    "reconcile:icons": "node scripts/reconcile-icon-metadata.mjs",
+    "audit:mm2values": "node scripts/audit-mm2values.mjs",
     "sync:values": "node scripts/sync-values.mjs",
     "fetch:icons": "node scripts/fetch-icons.mjs",
+    "normalize:icons": "node ../../scripts/normalize-icon-formats.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },

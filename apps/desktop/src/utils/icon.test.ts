@@ -3,7 +3,9 @@ import { itemIconSrc, isUsableLocalImage, PLACEHOLDER_ICON } from "./icon";
 
 describe("itemIconSrc", () => {
   it("returns the placeholder for an external (hotlink) image", () => {
-    expect(itemIconSrc({ id: "seer", image: "https://cdn/x.png" })).toBe(PLACEHOLDER_ICON);
+    expect(itemIconSrc({ id: "seer", image: "https://cdn/x.png" })).toBe(
+      PLACEHOLDER_ICON,
+    );
   });
 
   it("returns the placeholder when there is no bundled image", () => {

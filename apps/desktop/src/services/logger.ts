@@ -30,7 +30,12 @@ const MAX_ENTRIES = 500;
 const buffer: LogEntry[] = [];
 const listeners = new Set<(entry: LogEntry) => void>();
 
-function push(level: LogLevel, scope: string, message: string, detail?: Record<string, unknown>) {
+function push(
+  level: LogLevel,
+  scope: string,
+  message: string,
+  detail?: Record<string, unknown>,
+) {
   const entry: LogEntry = { time: new Date().toISOString(), level, scope, message };
   if (detail && Object.keys(detail).length > 0) entry.detail = detail;
 
@@ -40,7 +45,8 @@ function push(level: LogLevel, scope: string, message: string, detail?: Record<s
   // Mirror to the console so live debugging still works.
   const line = `[TradeLens:${scope}] ${message}`;
   // eslint-disable-next-line no-console
-  const sink = level === "error" ? console.error : level === "warn" ? console.warn : console.info;
+  const sink =
+    level === "error" ? console.error : level === "warn" ? console.warn : console.info;
   if (detail) sink(line, detail);
   else sink(line);
 
@@ -105,7 +111,8 @@ export function buildDiagnosticsReport(extra?: Record<string, unknown>): string 
     `online: ${typeof navigator !== "undefined" ? navigator.onLine : "n/a"}`,
   ];
   if (extra) {
-    for (const [k, v] of Object.entries(extra)) header.push(`${k}: ${JSON.stringify(v)}`);
+    for (const [k, v] of Object.entries(extra))
+      header.push(`${k}: ${JSON.stringify(v)}`);
   }
   const lines = buffer.map((e) => {
     const detail = e.detail ? ` ${JSON.stringify(e.detail)}` : "";

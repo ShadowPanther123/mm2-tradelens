@@ -9,13 +9,7 @@ import { z } from "zod";
  */
 
 /** Broad item category. */
-export const ItemCategory = z.enum([
-  "knife",
-  "gun",
-  "pet",
-  "bundle",
-  "other",
-]);
+export const ItemCategory = z.enum(["knife", "gun", "pet", "bundle", "other"]);
 export type ItemCategory = z.infer<typeof ItemCategory>;
 
 /**
@@ -50,57 +44,81 @@ export const SourceId = z.enum(["supreme", "mm2values", "community"]);
 export type SourceId = z.infer<typeof SourceId>;
 
 /** How a source reading was obtained (for provenance and auditing). */
-export const ExtractionMethod = z.enum([
-  "api",
-  "partner-feed",
-  "licensed-export",
-  "manual-entry",
-]);
+export const ExtractionMethod = z.enum(["api", "partner-feed", "licensed-export", "manual-entry"]);
 export type ExtractionMethod = z.infer<typeof ExtractionMethod>;
 
 /** A single source's reading for one item. */
-export const SourceValue = z.object({
-  /** Headline value in the game's trading unit. */
-  value: z.number().nonnegative(),
-  /** Demand rating, 0–5 (calibrated for the trade calculator). */
-  demand: z.number().min(0).max(5).optional(),
-  /** Rarity/desirability score, 0–5 (calibrated for the trade calculator). */
-  rarityScore: z.number().min(0).max(5).optional(),
-  /** Raw source demand rating on the source's own 0–11 scale, for display. */
-  demandRating: z.number().min(0).max(11).optional(),
-  /** Raw source rarity rating on the source's own 0–11 scale, for display. */
-  rarityRating: z.number().min(0).max(11).optional(),
-  /** Published value range (low–high), where the source reports one. */
-  valueRange: z
-    .object({ low: z.number().nonnegative(), high: z.number().nonnegative() })
-    .optional(),
-  /** Recent price stability, bucketed to the calculator's enum. */
-  stability: Stability.optional(),
-  /** Exact stability label as published by the source (e.g. "Overpaid For"). */
-  stabilityLabel: z.string().max(64).optional(),
-  /** Percentage trend over the source's recent window. */
-  trendPercent: z.number().optional(),
-  /** Previous value, used to compute change deltas. */
-  previousValue: z.number().nonnegative().optional(),
-  /** When the source itself last updated this reading (ISO 8601). */
-  updatedAt: z.string().datetime(),
-  /** When TradeLens imported this reading (ISO 8601). */
-  importedAt: z.string().datetime().optional(),
-  /** When TradeLens retrieved this reading from the source (ISO 8601). */
-  retrievedAt: z.string().datetime().optional(),
-  /** The identifier this reading has in the source's own system, if any. */
-  sourceItemId: z.string().optional(),
-  /** Original source page/record URL, stored only where the source permits it. */
-  sourceUrl: z.string().url().optional(),
-  /** Version of the adapter that produced this reading. */
-  adapterVersion: z.string().optional(),
-  /** How the reading was obtained. */
-  extractionMethod: ExtractionMethod.optional(),
-  /** Validation status assigned during import. */
-  validation: z.enum(["ok", "suspect", "stale"]).optional(),
-  /** Manual-review status of this reading, set by an administrator. */
-  reviewStatus: z.enum(["unreviewed", "approved", "rejected"]).optional(),
-});
+export const SourceValue = z
+  .object({
+    /** Headline value in the game's trading unit. */
+    value: z.number().nonnegative(),
+    /** Demand rating, 0–5 (calibrated for the trade calculator). */
+    demand: z.number().min(0).max(5).optional(),
+    /** Rarity/desirability score, 0–5 (calibrated for the trade calculator). */
+    rarityScore: z.number().min(0).max(5).optional(),
+    /** Raw source demand rating on the source's own 0–11 scale, for display. */
+    demandRating: z.number().min(0).max(11).optional(),
+    /** Raw source rarity rating on the source's own 0–11 scale, for display. */
+    rarityRating: z.number().min(0).max(11).optional(),
+    /** Published value range (low–high), where the source reports one. */
+    valueRange: z
+      .object({ low: z.number().nonnegative(), high: z.number().nonnegative() })
+      .optional(),
+    /** Recent price stability, bucketed to the calculator's enum. */
+    stability: Stability.optional(),
+    /** Exact stability label as published by the source (e.g. "Overpaid For"). */
+    stabilityLabel: z.string().max(64).optional(),
+    /** Percentage trend over the source's recent window. */
+    trendPercent: z.number().optional(),
+    /** Previous value, used to compute change deltas. */
+    previousValue: z.number().nonnegative().optional(),
+    /**
+     * Rolling series of recent values for this source, oldest first, appended by
+     * the value sync whenever the headline value changes. Powers the Trends view
+     * so movement is visible offline without waiting for locally recorded points.
+     */
+    history: z
+      .array(z.object({ value: z.number().nonnegative(), at: z.string().datetime() }))
+      .max(200)
+      .optional(),
+    /** When the source itself last updated this reading (ISO 8601). */
+    updatedAt: z.string().datetime(),
+    /** When TradeLens imported this reading (ISO 8601). */
+    importedAt: z.string().datetime().optional(),
+    /** When TradeLens retrieved this reading from the source (ISO 8601). */
+    retrievedAt: z.string().datetime().optional(),
+    /** The identifier this reading has in the source's own system, if any. */
+    sourceItemId: z.string().optional(),
+    /** Original source page/record URL, stored only where the source permits it. */
+    sourceUrl: z.string().url().optional(),
+    /** Version of the adapter that produced this reading. */
+    adapterVersion: z.string().optional(),
+    /** How the reading was obtained. */
+    extractionMethod: ExtractionMethod.optional(),
+    /** Validation status assigned during import. */
+    validation: z.enum(["ok", "suspect", "stale"]).optional(),
+    /** Manual-review status of this reading, set by an administrator. */
+    reviewStatus: z.enum(["unreviewed", "approved", "rejected"]).optional(),
+  })
+  .superRefine((reading, ctx) => {
+    if (!reading.history || reading.history.length === 0) return;
+    for (let i = 1; i < reading.history.length; i++) {
+      if (Date.parse(reading.history[i]!.at) < Date.parse(reading.history[i - 1]!.at)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["history", i, "at"],
+          message: "history must be ordered oldest first",
+        });
+      }
+    }
+    if (reading.history.at(-1)!.value !== reading.value) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["history"],
+        message: "history must end at the current value",
+      });
+    }
+  });
 export type SourceValue = z.infer<typeof SourceValue>;
 
 /**
@@ -238,7 +256,5 @@ function stableStringify(value: unknown): string {
   const entries = Object.entries(value as Record<string, unknown>)
     .filter(([, v]) => v !== undefined)
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  return `{${entries
-    .map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`)
-    .join(",")}}`;
+  return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`).join(",")}}`;
 }

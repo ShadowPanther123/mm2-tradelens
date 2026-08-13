@@ -61,7 +61,11 @@ describe("auditItems", () => {
   it("accepts a stable source-id suffix used to distinguish same-named items", () => {
     const sourceReading = { ...reading(100), sourceItemId: "567" };
     const report = auditItems([
-      item({ id: "aurora-gun-567", displayName: "Aurora Gun", values: { mm2values: sourceReading } }),
+      item({
+        id: "aurora-gun-567",
+        displayName: "Aurora Gun",
+        values: { mm2values: sourceReading },
+      }),
     ]);
     expect(report.nonCanonicalIds).toEqual([]);
     expect(report.clean).toBe(true);
@@ -221,7 +225,11 @@ describe("auditItems — additional checks", () => {
   it("detects future and missing timestamps", () => {
     const future = "2999-01-01T00:00:00.000Z";
     const items: Item[] = [
-      item({ id: "seer", displayName: "Seer", values: { supreme: { value: 40, updatedAt: future } } }),
+      item({
+        id: "seer",
+        displayName: "Seer",
+        values: { supreme: { value: 40, updatedAt: future } },
+      }),
     ];
     const report = auditItems(items, { now: new Date("2026-01-01T00:00:00.000Z") });
     expect(report.futureTimestamps.some((t) => t.itemId === "seer")).toBe(true);
@@ -253,7 +261,12 @@ describe("auditItems — additional checks", () => {
   it("detects duplicate images by hash", () => {
     const items: Item[] = [
       item({ id: "seer", displayName: "Seer", image: "a.png", values: { supreme: reading(40) } }),
-      item({ id: "gemseer", displayName: "Gemseer", image: "b.png", values: { supreme: reading(40) } }),
+      item({
+        id: "gemseer",
+        displayName: "Gemseer",
+        image: "b.png",
+        values: { supreme: reading(40) },
+      }),
     ];
     const report = auditItems(items, { imageHashes: { "a.png": "H1", "b.png": "H1" } });
     expect(report.duplicateImages.some((g) => g.key === "H1")).toBe(true);

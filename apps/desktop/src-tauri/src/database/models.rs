@@ -45,6 +45,23 @@ pub struct Favorite {
     pub created_at: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PortfolioEntry {
+    pub item_id: String,
+    pub quantity: i64,
+    pub baseline_value: f64,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchStat {
+    pub item_id: String,
+    pub count: i64,
+    pub last_searched_at: String,
+}
+
 /// One item + quantity on a side of a saved trade.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -14,7 +14,9 @@ const ACCENT: Record<NonNullable<StatPillProps["accent"]>, string> = {
 export function StatPill({ label, value, accent = "default" }: StatPillProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] uppercase tracking-wide text-slate-500">{label}</span>
+      <span className="text-[10px] uppercase tracking-wide text-slate-500">
+        {label}
+      </span>
       <span className={`text-sm font-medium ${ACCENT[accent]}`}>{value}</span>
     </div>
   );

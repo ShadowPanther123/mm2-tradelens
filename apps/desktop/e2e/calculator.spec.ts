@@ -3,7 +3,9 @@ import type { Page } from "@playwright/test";
 
 /** Add the first live result from a side's inline "Add an item…" search bar. */
 async function addToSide(page: Page, side: "Your offer" | "Their offer") {
-  const card = page.getByRole("heading", { name: side }).locator("xpath=ancestor::div[1]/..");
+  const card = page
+    .getByRole("heading", { name: side })
+    .locator("xpath=ancestor::div[1]/..");
   const input = card.getByLabel("Add an item…");
   await input.click();
   await input.fill("seer");
@@ -38,5 +40,19 @@ test.describe("trade calculator", () => {
 
     await navTo(page, "History");
     await expect(page.getByText(/no trades/i)).toHaveCount(0);
+  });
+
+  test("shows analyzer signals and automatically saves completed calculations", async ({
+    page,
+  }) => {
+    await bootApp(page);
+    await navTo(page, "Calculator");
+    await addToSide(page, "Your offer");
+    await addToSide(page, "Their offer");
+
+    await expect(page.getByLabel("Trade signals")).toBeVisible();
+    await page.waitForTimeout(1_500);
+    await navTo(page, "History");
+    await expect(page.getByText(/no saved trades yet/i)).toHaveCount(0);
   });
 });

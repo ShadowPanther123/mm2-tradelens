@@ -64,6 +64,20 @@ describe("searchItems", () => {
     expect(results[0]?.item.id).toBe("harvester");
   });
 
+  it("tolerates transposed letters", () => {
+    expect(searchItems(items, "harvesetr")[0]?.item.id).toBe("harvester");
+  });
+
+  it("generates compact abbreviations when aliases are absent", () => {
+    const catalogue = [make("icepiercer", "Icepiercer")];
+    expect(searchItems(catalogue, "ip")[0]?.item.id).toBe("icepiercer");
+  });
+
+  it("matches separators and spacing interchangeably", () => {
+    const catalogue = [make("ice-wing", "Ice Wing")];
+    expect(searchItems(catalogue, "icewing")[0]?.item.id).toBe("ice-wing");
+  });
+
   it("finds all ice-prefixed items", () => {
     const results = searchItems(items, "ice");
     const ids = results.map((r) => r.item.id);
@@ -93,6 +107,11 @@ describe("search quality", () => {
     expect(results[0]?.item.id).toBe("elderwood-scythe");
   });
 
+  it("fuzzy-matches individual words in a phrase", () => {
+    const catalogue = [make("elderwood-scythe", "Elderwood Scythe")];
+    expect(searchItems(catalogue, "elderwod sythe")[0]?.item.id).toBe("elderwood-scythe");
+  });
+
   it("matches set / origin names", () => {
     const catalogue = [
       make("candy", "Candy", { origin: "Christmas 2022" }),
@@ -106,22 +125,14 @@ describe("search quality", () => {
   });
 
   it("ranks exact matches above fuzzy matches", () => {
-    const catalogue = [
-      make("bat", "Bat"),
-      make("hat", "Hat"),
-      make("cat", "Cat"),
-    ];
+    const catalogue = [make("bat", "Bat"), make("hat", "Hat"), make("cat", "Cat")];
     const results = searchItems(catalogue, "bat");
     expect(results[0]?.item.id).toBe("bat");
     expect(results[0]?.matchedOn).toBe("name");
   });
 
   it("does not surface unrelated fuzzy results for short queries", () => {
-    const catalogue = [
-      make("ace", "Ace"),
-      make("icy", "Icy"),
-      make("orb", "Orb"),
-    ];
+    const catalogue = [make("ace", "Ace"), make("icy", "Icy"), make("orb", "Orb")];
     // "ice" is < 4 chars, so fuzzy is suppressed and nothing unrelated matches.
     expect(searchItems(catalogue, "ice")).toHaveLength(0);
   });

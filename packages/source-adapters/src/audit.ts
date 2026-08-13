@@ -195,9 +195,12 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
       .map((reading) => reading?.sourceItemId)
       .filter((id): id is string => typeof id === "string" && id.length > 0)
       .map(slugify);
-    const hasStableCollisionSuffix = stableSourceIds.some(
-      (sourceId) => item.id === `${canonicalId}-${sourceId}`,
-    );
+    const hasStableCollisionSuffix = stableSourceIds.some((sourceId) => {
+      const suffix = `-${sourceId}`;
+      if (!item.id.endsWith(suffix)) return false;
+      const baseId = item.id.slice(0, -suffix.length);
+      return canonicalId === baseId || canonicalId.startsWith(`${baseId}-`);
+    });
     if (item.id !== canonicalId && !hasStableCollisionSuffix) nonCanonicalIds.push(item.id);
     idCounts.set(item.id, (idCounts.get(item.id) ?? 0) + 1);
     const name = normaliseName(item.displayName);
@@ -314,13 +317,25 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
   for (const [name, group] of byName) {
     if (group.itemIds.length < 2) continue;
     if (group.categories.size > 1) {
-      conflictingCategories.push({ name, itemIds: [...group.itemIds].sort(), values: [...group.categories].sort() });
+      conflictingCategories.push({
+        name,
+        itemIds: [...group.itemIds].sort(),
+        values: [...group.categories].sort(),
+      });
     }
     if (group.rarities.size > 1) {
-      conflictingRarities.push({ name, itemIds: [...group.itemIds].sort(), values: [...group.rarities].sort() });
+      conflictingRarities.push({
+        name,
+        itemIds: [...group.itemIds].sort(),
+        values: [...group.rarities].sort(),
+      });
     }
     if (group.types.size > 1) {
-      conflictingTypes.push({ name, itemIds: [...group.itemIds].sort(), values: [...group.types].sort() });
+      conflictingTypes.push({
+        name,
+        itemIds: [...group.itemIds].sort(),
+        values: [...group.types].sort(),
+      });
     }
   }
   const byNameKey = (a: FieldConflict, b: FieldConflict) => (a.name < b.name ? -1 : 1);
@@ -364,7 +379,9 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
     conflictingRarities,
     conflictingTypes,
     impossibleValues: impossibleValues.sort((a, b) => (a.itemId < b.itemId ? -1 : 1)),
-    extremeChanges: extremeChanges.sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent)),
+    extremeChanges: extremeChanges.sort(
+      (a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent),
+    ),
     futureTimestamps: futureTimestamps.sort((a, b) => (a.itemId < b.itemId ? -1 : 1)),
     missingTimestamps: missingTimestamps.sort((a, b) => (a.itemId < b.itemId ? -1 : 1)),
     unmappedRecords,
@@ -384,7 +401,9 @@ export function formatAuditReport(report: AuditReport): string {
   const lines: string[] = [];
   lines.push(`Audited ${report.itemCount} items — ${report.clean ? "clean" : "issues found"}.`);
   if (report.nonCanonicalIds.length) {
-    lines.push(`Non-canonical ids (${report.nonCanonicalIds.length}): ${report.nonCanonicalIds.join(", ")}`);
+    lines.push(
+      `Non-canonical ids (${report.nonCanonicalIds.length}): ${report.nonCanonicalIds.join(", ")}`,
+    );
   }
   for (const group of report.duplicateIds) {
     lines.push(`Duplicate id "${group.key}": ${group.itemIds.join(", ")}`);
@@ -423,10 +442,14 @@ export function formatAuditReport(report: AuditReport): string {
     lines.push(`Unmapped source records: ${report.unmappedRecords.length}`);
   }
   if (report.missingImages.length) {
-    lines.push(`Missing images (${report.missingImages.length}): ${report.missingImages.join(", ")}`);
+    lines.push(
+      `Missing images (${report.missingImages.length}): ${report.missingImages.join(", ")}`,
+    );
   }
   if (report.brokenImagePaths.length) {
-    lines.push(`Broken image paths (${report.brokenImagePaths.length}): ${report.brokenImagePaths.join(", ")}`);
+    lines.push(
+      `Broken image paths (${report.brokenImagePaths.length}): ${report.brokenImagePaths.join(", ")}`,
+    );
   }
   for (const group of report.duplicateImages) {
     lines.push(`Duplicate image "${group.key}": ${group.itemIds.join(", ")}`);
@@ -462,8 +485,7 @@ export interface AuditFinding {
 /** Flatten a report into one row per finding for export. */
 export function auditFindings(report: AuditReport): AuditFinding[] {
   const rows: AuditFinding[] = [];
-  const push = (category: string, key: string, detail = "") =>
-    rows.push({ category, key, detail });
+  const push = (category: string, key: string, detail = "") => rows.push({ category, key, detail });
 
   for (const id of report.nonCanonicalIds) push("non-canonical-id", id);
   for (const g of report.duplicateIds) push("duplicate-id", g.key, g.itemIds.join(" "));
@@ -475,12 +497,20 @@ export function auditFindings(report: AuditReport): AuditFinding[] {
     push("conflicting-rarity", c.name, `${c.values.join("|")} :: ${c.itemIds.join(" ")}`);
   for (const c of report.conflictingTypes)
     push("conflicting-type", c.name, `${c.values.join("|")} :: ${c.itemIds.join(" ")}`);
-  for (const i of report.impossibleValues) push("impossible-value", `${i.itemId}@${i.source}`, i.detail);
+  for (const i of report.impossibleValues)
+    push("impossible-value", `${i.itemId}@${i.source}`, i.detail);
   for (const c of report.extremeChanges)
-    push("extreme-change", `${c.itemId}@${c.source}`, `${c.from} -> ${c.to} (${c.changePercent.toFixed(0)}%)`);
-  for (const i of report.futureTimestamps) push("future-timestamp", `${i.itemId}@${i.source}`, i.detail);
-  for (const i of report.missingTimestamps) push("missing-timestamp", `${i.itemId}@${i.source}`, i.detail);
-  for (const u of report.unmappedRecords) push("unmapped-record", u.source, `${u.name ?? ""} :: ${u.reason}`);
+    push(
+      "extreme-change",
+      `${c.itemId}@${c.source}`,
+      `${c.from} -> ${c.to} (${c.changePercent.toFixed(0)}%)`,
+    );
+  for (const i of report.futureTimestamps)
+    push("future-timestamp", `${i.itemId}@${i.source}`, i.detail);
+  for (const i of report.missingTimestamps)
+    push("missing-timestamp", `${i.itemId}@${i.source}`, i.detail);
+  for (const u of report.unmappedRecords)
+    push("unmapped-record", u.source, `${u.name ?? ""} :: ${u.reason}`);
   for (const id of report.missingImages) push("missing-image", id);
   for (const id of report.brokenImagePaths) push("broken-image-path", id);
   for (const g of report.duplicateImages) push("duplicate-image", g.key, g.itemIds.join(" "));

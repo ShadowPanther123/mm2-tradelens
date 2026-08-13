@@ -112,29 +112,29 @@ export function Onboarding() {
           onKeyDown={handleKeyDown}
           className="card w-full max-w-md p-6"
         >
-        <h2 id="onboarding-title" className="text-lg font-semibold text-white">
-          Welcome to MM2 TradeLens
-        </h2>
-        <p id="onboarding-intro" className="mt-1 text-sm text-slate-400">
-          A quick tour of how it stays out of your way.
-        </p>
+          <h2 id="onboarding-title" className="text-lg font-semibold text-white">
+            Welcome to MM2 TradeLens
+          </h2>
+          <p id="onboarding-intro" className="mt-1 text-sm text-slate-400">
+            A quick tour of how it stays out of your way.
+          </p>
 
-        <ul className="mt-4 flex flex-col gap-3">
-          {TIPS.map((tip) => (
-            <li key={tip.title} className="flex items-start gap-3">
-              <span
-                aria-hidden="true"
-                className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 text-base"
-              >
-                {tip.icon}
-              </span>
-              <div className="min-w-0">
-                <div className="text-sm font-medium text-slate-200">{tip.title}</div>
-                <p className="text-xs leading-relaxed text-slate-400">{tip.body}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+          <ul className="mt-4 flex flex-col gap-3">
+            {TIPS.map((tip) => (
+              <li key={tip.title} className="flex items-start gap-3">
+                <span
+                  aria-hidden="true"
+                  className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 text-base"
+                >
+                  {tip.icon}
+                </span>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-slate-200">{tip.title}</div>
+                  <p className="text-xs leading-relaxed text-slate-400">{tip.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
 
           <div className="mt-6 flex justify-end">
             <button

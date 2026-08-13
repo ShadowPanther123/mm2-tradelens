@@ -54,10 +54,16 @@ export function useAutoUpdate() {
       try {
         const result = await checkForUpdates();
         if (cancelled || !result.updated) return;
-        logger.info("auto-update", `refreshed via ${reason} → revision ${result.revision}`);
+        logger.info(
+          "auto-update",
+          `refreshed via ${reason} → revision ${result.revision}`,
+        );
 
-        const { notificationsEnabled: on, threshold: limit, absThreshold: minMove } =
-          prefs.current;
+        const {
+          notificationsEnabled: on,
+          threshold: limit,
+          absThreshold: minMove,
+        } = prefs.current;
         if (!on) return;
 
         // Watchlist: favorites that moved beyond the percentage threshold.
@@ -87,7 +93,10 @@ export function useAutoUpdate() {
         }
         const remaining = movers.length - Math.min(3, movers.length);
         if (remaining > 0) {
-          notify(`+${remaining} more item${remaining === 1 ? "" : "s"} moved ${minMove}+`, "info");
+          notify(
+            `+${remaining} more item${remaining === 1 ? "" : "s"} moved ${minMove}+`,
+            "info",
+          );
         }
       } finally {
         inFlight = false;
@@ -103,6 +112,21 @@ export function useAutoUpdate() {
       void runCheck("reconnect");
     };
     window.addEventListener("online", onOnline);
+
+    // Browsers and WebViews throttle timers while hidden. Refresh immediately
+    // when the app returns to the foreground so a long-idle window never waits
+    // for the next interval before showing current values.
+    let hiddenAt: number | null = document.hidden ? Date.now() : null;
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        hiddenAt = Date.now();
+        return;
+      }
+      const hiddenFor = hiddenAt === null ? 0 : Date.now() - hiddenAt;
+      hiddenAt = null;
+      if (hiddenFor >= CHECK_INTERVAL_MS) void runCheck("foreground");
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     // Wake-from-sleep watchdog: detect a large wall-clock gap between ticks
     // (which indicates the OS suspended the app) and refresh on resume.
@@ -123,6 +147,7 @@ export function useAutoUpdate() {
       clearInterval(interval);
       clearInterval(wake);
       window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [ready, offlineMode, checkForUpdates, notify]);
 }

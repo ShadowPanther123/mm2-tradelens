@@ -5,7 +5,9 @@ use rusqlite::Connection;
 pub mod favorites;
 pub mod history;
 pub mod models;
+pub mod portfolio;
 pub mod schema;
+pub mod search_stats;
 pub mod settings;
 pub mod snapshot;
 pub mod value_history;
@@ -94,6 +96,8 @@ pub fn clear_all(conn: &Connection) -> rusqlite::Result<()> {
          DELETE FROM trade_history;
          DELETE FROM snapshot_cache;
          DELETE FROM value_history;
+         DELETE FROM portfolio;
+         DELETE FROM search_stats;
          UPDATE settings SET
             source_mode = 'consensus',
             overlay_size = 'trade',
@@ -120,6 +124,8 @@ pub fn reset(conn: &mut Connection) -> rusqlite::Result<()> {
          DROP TABLE IF EXISTS trade_history;
          DROP TABLE IF EXISTS snapshot_cache;
          DROP TABLE IF EXISTS value_history;
+         DROP TABLE IF EXISTS portfolio;
+         DROP TABLE IF EXISTS search_stats;
          DROP TABLE IF EXISTS settings;
          DROP TABLE IF EXISTS schema_migrations;
          PRAGMA user_version = 0;",
@@ -147,6 +153,11 @@ mod tests {
             [],
         )
         .unwrap();
+        conn.execute(
+            "INSERT INTO portfolio (item_id, quantity, baseline_value) VALUES ('seer', 2, 40)",
+            [],
+        )
+        .unwrap();
 
         reset(&mut conn).unwrap();
 
@@ -163,6 +174,10 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM value_history", [], |row| row.get(0))
             .unwrap();
         assert_eq!(value_history, 0);
+        let portfolio: i64 = conn
+            .query_row("SELECT COUNT(*) FROM portfolio", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(portfolio, 0);
         // The default settings row is seeded again.
         let settings: i64 = conn
             .query_row("SELECT COUNT(*) FROM settings", [], |row| row.get(0))

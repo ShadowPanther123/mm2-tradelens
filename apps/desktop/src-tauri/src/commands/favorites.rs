@@ -42,11 +42,7 @@ pub fn list_favorites(state: State<AppState>) -> AppResult<Vec<Favorite>> {
 }
 
 #[tauri::command]
-pub fn add_favorite(
-    state: State<AppState>,
-    item_id: String,
-    baseline_value: f64,
-) -> AppResult<()> {
+pub fn add_favorite(state: State<AppState>, item_id: String, baseline_value: f64) -> AppResult<()> {
     validate_item_id(&item_id)?;
     validate_baseline(baseline_value)?;
     state.with_db(|conn| Ok(favorites::add(conn, &item_id, baseline_value)?))

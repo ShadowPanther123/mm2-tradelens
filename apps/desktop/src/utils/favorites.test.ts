@@ -61,7 +61,11 @@ describe("resolveFavorites", () => {
 
 describe("dedupeFavorites", () => {
   it("keeps the first occurrence of each id", () => {
-    const deduped = dedupeFavorites([fav("seer", 10), fav("seer", 20), fav("chroma", 5)]);
+    const deduped = dedupeFavorites([
+      fav("seer", 10),
+      fav("seer", 20),
+      fav("chroma", 5),
+    ]);
     expect(deduped).toHaveLength(2);
     expect(deduped[0]!.baselineValue).toBe(10);
   });

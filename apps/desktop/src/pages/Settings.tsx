@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDataStore } from "@/hooks/useDataStore";
 import { useToast } from "@/contexts/ToastContext";
-import { ToggleSwitch, ConfirmDialog, SupremeImport } from "@/components";
+import { ToggleSwitch, ConfirmDialog, SupremeSourceStatus } from "@/components";
 import { setAlwaysOnTop, setOverlaySize } from "@/services/tauri";
 import {
   updateStatusMessage,
@@ -51,7 +51,9 @@ export function Settings() {
   const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
-    getAppInfo().then(setInfo).catch(() => setInfo(null));
+    getAppInfo()
+      .then(setInfo)
+      .catch(() => setInfo(null));
   }, []);
 
   async function doCheckForUpdates() {
@@ -87,7 +89,11 @@ export function Settings() {
   async function doClear() {
     await clearAll();
     await Promise.all([setAlwaysOnTop(true), setOverlaySize("trade")]).catch((err) =>
-      logger.warn("settings", "could not apply reset window settings", describeError(err)),
+      logger.warn(
+        "settings",
+        "could not apply reset window settings",
+        describeError(err),
+      ),
     );
     setConfirmClear(false);
     notify("All local data cleared", "success");
@@ -97,7 +103,11 @@ export function Settings() {
     try {
       await resetData();
       await Promise.all([setAlwaysOnTop(true), setOverlaySize("trade")]).catch((err) =>
-        logger.warn("settings", "could not apply rebuilt window settings", describeError(err)),
+        logger.warn(
+          "settings",
+          "could not apply rebuilt window settings",
+          describeError(err),
+        ),
       );
       setConfirmReset(false);
       notify("Database rebuilt and reset", "success");
@@ -158,10 +168,10 @@ export function Settings() {
           </div>
           {settings.sourceMode === "consensus" && (
             <p className="mt-2 text-xs text-slate-600">
-              The combined estimate is the plain average of every available source reading
-              (for example 100 and 120 combine to 110), rounded to the nearest whole value
-              for display. The individual source readings are always shown alongside it —
-              it&apos;s a guide, not an official value.
+              The combined estimate is the plain average of every available source
+              reading (for example 100 and 120 combine to 110), rounded to the nearest
+              whole value for display. The individual source readings are always shown
+              alongside it — it&apos;s a guide, not an official value.
             </p>
           )}
         </div>
@@ -180,7 +190,9 @@ export function Settings() {
             className="input w-24"
             value={settings.disagreementThresholdPercent}
             onChange={(e) =>
-              updateSettings({ disagreementThresholdPercent: Number(e.target.value) || 5 })
+              updateSettings({
+                disagreementThresholdPercent: Number(e.target.value) || 5,
+              })
             }
           />
         </label>
@@ -259,7 +271,7 @@ export function Settings() {
         )}
       </section>
 
-      <SupremeImport />
+      <SupremeSourceStatus />
 
       <section className="card flex flex-col gap-4 p-5">
         <h2 className="text-sm font-semibold">Window</h2>
@@ -316,7 +328,9 @@ export function Settings() {
                 className="input w-24"
                 value={settings.notifyThresholdPercent}
                 onChange={(e) =>
-                  updateSettings({ notifyThresholdPercent: Number(e.target.value) || 5 })
+                  updateSettings({
+                    notifyThresholdPercent: Number(e.target.value) || 5,
+                  })
                 }
               />
             </label>
@@ -333,7 +347,9 @@ export function Settings() {
                 className="input w-24"
                 value={settings.alertAbsoluteThreshold}
                 onChange={(e) =>
-                  updateSettings({ alertAbsoluteThreshold: Number(e.target.value) || 5 })
+                  updateSettings({
+                    alertAbsoluteThreshold: Number(e.target.value) || 5,
+                  })
                 }
               />
             </label>
@@ -348,8 +364,8 @@ export function Settings() {
           <span className="flex flex-col">
             <span className="text-slate-300">Keep at most (trades)</span>
             <span className="text-xs text-slate-600">
-              Automatically prune the oldest saved trades beyond this many. 0 keeps every
-              trade.
+              Automatically prune the oldest saved trades beyond this many. 0 keeps
+              every trade.
             </span>
           </span>
           <input
@@ -360,24 +376,33 @@ export function Settings() {
             value={settings.historyRetentionLimit}
             onChange={(e) =>
               updateSettings({
-                historyRetentionLimit: Math.max(0, Math.floor(Number(e.target.value) || 0)),
+                historyRetentionLimit: Math.max(
+                  0,
+                  Math.floor(Number(e.target.value) || 0),
+                ),
               })
             }
           />
         </label>
 
         <div className="border-t border-white/5 pt-3">
-          <button className="btn btn-danger self-start" onClick={() => setConfirmClear(true)}>
+          <button
+            className="btn btn-danger self-start"
+            onClick={() => setConfirmClear(true)}
+          >
             Delete all local data
           </button>
         </div>
 
         <div className="mt-2 border-t border-white/5 pt-3">
           <p className="mb-2 text-xs text-slate-500">
-            If the app misbehaves after an update, rebuild the database from
-            scratch. This removes all local data and cannot be undone.
+            If the app misbehaves after an update, rebuild the database from scratch.
+            This removes all local data and cannot be undone.
           </p>
-          <button className="btn btn-ghost self-start" onClick={() => setConfirmReset(true)}>
+          <button
+            className="btn btn-ghost self-start"
+            onClick={() => setConfirmReset(true)}
+          >
             Reset database
           </button>
         </div>

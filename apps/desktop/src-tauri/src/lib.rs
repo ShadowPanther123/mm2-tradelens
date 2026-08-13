@@ -7,10 +7,21 @@ use tauri::Manager;
 
 use crate::state::AppState;
 
+/// Test-only app-data redirection used by the installed lifecycle smoke test.
+/// Both variables are required and the target must be absolute, preventing an
+/// ordinary launch from accidentally redirecting persistent user data.
+pub(crate) fn smoke_app_data_dir() -> Option<std::path::PathBuf> {
+    if std::env::var("TRADELENS_INSTALLED_SMOKE").ok().as_deref() != Some("1") {
+        return None;
+    }
+    let path = std::path::PathBuf::from(std::env::var_os("TRADELENS_SMOKE_APP_DATA_DIR")?);
+    path.is_absolute().then_some(path)
+}
+
 /// Initialise the SQLite database inside the app data directory and return the
 /// managed application state.
 fn init_state(app: &tauri::App) -> Result<AppState, Box<dyn std::error::Error>> {
-    let dir = app.path().app_data_dir()?;
+    let dir = smoke_app_data_dir().unwrap_or(app.path().app_data_dir()?);
     std::fs::create_dir_all(&dir)?;
     let db_path = dir.join("tradelens.sqlite");
     let conn = database::open(&db_path)?;
@@ -176,6 +187,11 @@ pub fn run() {
             commands::favorites::add_favorite,
             commands::favorites::remove_favorite,
             commands::favorites::is_favorite,
+            commands::portfolio::list_portfolio,
+            commands::portfolio::upsert_portfolio_entry,
+            commands::portfolio::remove_portfolio_entry,
+            commands::search_stats::list_search_stats,
+            commands::search_stats::record_search,
             commands::history::list_history,
             commands::history::add_history_record,
             commands::history::remove_history_record,
@@ -185,6 +201,7 @@ pub fn run() {
             commands::snapshot::save_snapshot,
             commands::value_history::record_value_history,
             commands::value_history::get_value_history,
+            commands::value_history::get_all_value_history,
             commands::system::app_info,
             commands::system::set_overlay_size,
             commands::system::set_always_on_top,

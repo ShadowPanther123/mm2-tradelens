@@ -1,9 +1,4 @@
-import type {
-  Item,
-  ItemCategory,
-  ItemRarity,
-  SourceId,
-} from "@tradelens/item-schema";
+import type { Item, ItemCategory, ItemRarity, SourceId } from "@tradelens/item-schema";
 
 /**
  * Item search that tolerates misspellings, aliases, abbreviations, plurals,
@@ -53,10 +48,40 @@ function acronym(normalised: string): string {
   return words.map((w) => w[0]).join("");
 }
 
+function compact(normalised: string): string {
+  return normalised.replace(/\s/g, "");
+}
+
+/** Ordered-letter abbreviation, e.g. "ip" → "icepiercer", "cdb" → "chroma darkbringer". */
+function abbreviationScore(query: string, candidate: string): number {
+  if (query.length < 2 || candidate.length <= query.length || candidate[0] !== query[0]) return 0;
+  let cursor = 0;
+  let gap = 0;
+  for (let i = 0; i < query.length; i++) {
+    const char = query[i]!;
+    if (i === 1 && query.length === 2) {
+      const midpoint = Math.max(cursor, Math.floor(candidate.length * 0.35));
+      const foundLater = candidate.indexOf(char, midpoint);
+      if (foundLater >= 0) {
+        gap += foundLater - cursor;
+        cursor = foundLater + 1;
+        continue;
+      }
+    }
+    const found = candidate.indexOf(char, cursor);
+    if (found < 0) return 0;
+    gap += found - cursor;
+    cursor = found + 1;
+  }
+  const density = query.length / Math.max(query.length, cursor + gap * 0.25);
+  return 0.56 + density * 0.1;
+}
+
 /** Bounded Levenshtein distance (returns maxDistance + 1 once exceeded). */
 export function levenshtein(a: string, b: string, maxDistance = 3): number {
   if (a === b) return 0;
   if (Math.abs(a.length - b.length) > maxDistance) return maxDistance + 1;
+  const prevPrev = new Array(b.length + 1).fill(0);
   const prev = new Array(b.length + 1);
   const curr = new Array(b.length + 1);
   for (let j = 0; j <= b.length; j++) prev[j] = j;
@@ -66,10 +91,16 @@ export function levenshtein(a: string, b: string, maxDistance = 3): number {
     for (let j = 1; j <= b.length; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
       curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        curr[j] = Math.min(curr[j], prevPrev[j - 2] + 1);
+      }
       if (curr[j] < rowMin) rowMin = curr[j];
     }
     if (rowMin > maxDistance) return maxDistance + 1;
-    for (let j = 0; j <= b.length; j++) prev[j] = curr[j];
+    for (let j = 0; j <= b.length; j++) {
+      prevPrev[j] = prev[j];
+      prev[j] = curr[j];
+    }
   }
   return prev[b.length];
 }
@@ -78,7 +109,10 @@ interface Indexed {
   item: Item;
   name: string;
   nameSingular: string;
+  compactName: string;
+  words: string[];
   aliases: string[];
+  compactAliases: string[];
   /** Initials, e.g. "ip" for "Ice Piercer". */
   acronym: string;
   /** Normalised set / origin name, e.g. "christmas 2022". */
@@ -108,14 +142,18 @@ export class SearchIndex {
   constructor(items: Item[]) {
     this.entries = items.map((item) => {
       const name = normalise(item.displayName);
+      const aliases = [
+        ...item.aliases.map(normalise),
+        ...(item.chroma && !name.startsWith("chroma ") ? ["chroma " + name] : []),
+      ].filter(Boolean);
       return {
         item,
         name,
         nameSingular: singularise(name),
-        aliases: [
-          ...item.aliases.map(normalise),
-          ...(item.chroma ? ["chroma " + name] : []),
-        ].filter(Boolean),
+        compactName: compact(name),
+        words: name.split(" "),
+        aliases,
+        compactAliases: aliases.map(compact),
         acronym: acronym(name),
         set: item.origin ? normalise(item.origin) : "",
       };
@@ -131,6 +169,7 @@ export class SearchIndex {
     const q = normalise(query);
     if (q.length === 0) return [];
     const qSingular = singularise(q);
+    const qCompact = compact(q);
     const allowFuzzy = q.length >= MIN_FUZZY_QUERY_LENGTH;
 
     const categories = toArray(filters?.categories);
@@ -143,7 +182,7 @@ export class SearchIndex {
       if (rarities && !rarities.includes(entry.item.rarity)) continue;
       if (sources && !sources.some((s) => entry.item.values?.[s])) continue;
 
-      const match = this.scoreEntry(entry, q, qSingular, allowFuzzy);
+      const match = this.scoreEntry(entry, q, qSingular, qCompact, allowFuzzy);
       if (match.score > 0) {
         results.push({ item: entry.item, ...match });
       }
@@ -169,11 +208,15 @@ export class SearchIndex {
     entry: Indexed,
     q: string,
     qSingular: string,
+    qCompact: string,
     allowFuzzy: boolean,
   ): { score: number; matchedOn: SearchResult["matchedOn"] } {
     // Exact / prefix name matches score highest so exact beats fuzzy.
     if (entry.name === q || entry.nameSingular === qSingular) {
       return { score: 1, matchedOn: "name" };
+    }
+    if (entry.compactName === qCompact) {
+      return { score: 0.96, matchedOn: "name" };
     }
     if (entry.name.startsWith(q)) {
       return { score: 0.9, matchedOn: "name" };
@@ -186,18 +229,45 @@ export class SearchIndex {
     if (entry.acronym && entry.acronym === q) {
       return { score: 0.8, matchedOn: "abbrev" };
     }
-
     // Alias matches (explicit alternate spellings and abbreviations).
-    for (const alias of entry.aliases) {
+    for (let i = 0; i < entry.aliases.length; i++) {
+      const alias = entry.aliases[i]!;
+      const compactAlias = entry.compactAliases[i]!;
       if (alias === q) return { score: 0.85, matchedOn: "alias" };
+      if (compactAlias === qCompact) return { score: 0.82, matchedOn: "alias" };
       if (alias.startsWith(q)) return { score: 0.7, matchedOn: "alias" };
       if (alias.includes(q)) return { score: 0.6, matchedOn: "alias" };
+    }
+    const generatedAbbreviation = abbreviationScore(qCompact, entry.compactName);
+    if (generatedAbbreviation > 0) {
+      return { score: generatedAbbreviation, matchedOn: "abbrev" };
     }
 
     // Set / origin name, e.g. "christmas" -> every Christmas 2022 item.
     if (entry.set && q.length >= 3) {
       if (entry.set === q) return { score: 0.65, matchedOn: "set" };
       if (entry.set.includes(q)) return { score: 0.5, matchedOn: "set" };
+    }
+
+    // Multi-word typo fallback: match each query word to one candidate word.
+    const queryWords = q.split(" ").filter(Boolean);
+    if (allowFuzzy && queryWords.length > 1) {
+      const candidateWords = [entry.words, ...entry.aliases.map((alias) => alias.split(" "))];
+      for (const words of candidateWords) {
+        const distances = queryWords.map((queryWord) =>
+          Math.min(
+            ...words.map((word) =>
+              word.startsWith(queryWord)
+                ? 0
+                : levenshtein(queryWord, word, queryWord.length <= 7 ? 2 : 3),
+            ),
+          ),
+        );
+        const total = distances.reduce((sum, value) => sum + value, 0);
+        if (distances.every((value) => value <= 2) && total <= 3) {
+          return { score: 0.5 - total * 0.06, matchedOn: "fuzzy" };
+        }
+      }
     }
 
     // Fuzzy fallback for misspellings — suppressed for very short queries,

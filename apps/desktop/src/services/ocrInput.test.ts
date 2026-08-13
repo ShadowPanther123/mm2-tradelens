@@ -30,7 +30,9 @@ describe("isSupportedImage", () => {
 
 describe("validateImageFile", () => {
   it("accepts a normal screenshot", () => {
-    expect(validateImageFile({ type: "image/png", size: 500_000 })).toEqual({ ok: true });
+    expect(validateImageFile({ type: "image/png", size: 500_000 })).toEqual({
+      ok: true,
+    });
   });
 
   it("rejects empty files", () => {
@@ -57,7 +59,11 @@ describe("fitWithin", () => {
   });
 
   it("scales oversized images down to the longest-edge cap", () => {
-    const fit = fitWithin(MAX_IMAGE_DIMENSION * 2, MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION);
+    const fit = fitWithin(
+      MAX_IMAGE_DIMENSION * 2,
+      MAX_IMAGE_DIMENSION,
+      MAX_IMAGE_DIMENSION,
+    );
     expect(fit.width).toBe(MAX_IMAGE_DIMENSION);
     expect(fit.height).toBe(MAX_IMAGE_DIMENSION / 2);
     expect(fit.scale).toBeCloseTo(0.5);

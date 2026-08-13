@@ -11,6 +11,7 @@ interface ItemOpts {
   demand?: number;
   stability?: Stability;
   rarity?: Item["rarity"];
+  trendPercent?: number;
 }
 
 function item(id: string, opts: ItemOpts = {}): Item {
@@ -20,6 +21,7 @@ function item(id: string, opts: ItemOpts = {}): Item {
     demand = 3,
     stability = "stable",
     rarity = "godly",
+    trendPercent,
   } = opts;
   return {
     id,
@@ -29,8 +31,8 @@ function item(id: string, opts: ItemOpts = {}): Item {
     rarity,
     chroma: false,
     values: {
-      supreme: { value: supreme, demand, stability, updatedAt: recent },
-      mm2values: { value: mm2values, demand, stability, updatedAt: recent },
+      supreme: { value: supreme, demand, stability, trendPercent, updatedAt: recent },
+      mm2values: { value: mm2values, demand, stability, trendPercent, updatedAt: recent },
     },
   };
 }
@@ -108,12 +110,7 @@ describe("evaluateTrade", () => {
   });
 
   it("handles an empty give side without dividing by zero", () => {
-    const r = evaluateTrade(
-      [],
-      [{ item: item("b"), quantity: 1 }],
-      "consensus",
-      now,
-    );
+    const r = evaluateTrade([], [{ item: item("b"), quantity: 1 }], "consensus", now);
     expect(Number.isFinite(r.ratio)).toBe(false);
     expect(r.rawVerdict).toBe("big-win");
   });
@@ -126,6 +123,50 @@ describe("evaluateTrade", () => {
       now,
     );
     expect(r.algorithmVersion).toBe(1);
+  });
+
+  it("adds demand, risk and outlook insights", () => {
+    const r = evaluateTrade(
+      [{ item: item("give", { supreme: 1000, mm2values: 1000, demand: 2 }), quantity: 1 }],
+      [
+        {
+          item: item("receive", {
+            supreme: 1100,
+            mm2values: 1100,
+            demand: 4,
+            trendPercent: 3,
+          }),
+          quantity: 1,
+        },
+      ],
+      "consensus",
+      now,
+    );
+
+    expect(r.insights.map((insight) => insight.kind)).toEqual(["demand", "risk", "outlook"]);
+    expect(r.insights.find((insight) => insight.kind === "demand")?.label).toBe("Demand rising");
+    expect(r.insights.find((insight) => insight.kind === "risk")?.label).toBe("Low risk");
+    expect(r.insights.find((insight) => insight.kind === "outlook")?.label).toBe("Likely profit");
+  });
+
+  it("does not promise profit when risk is high", () => {
+    const r = evaluateTrade(
+      [{ item: item("give", { supreme: 1000, mm2values: 1000 }), quantity: 1 }],
+      [
+        {
+          item: item("receive", {
+            supreme: 1200,
+            mm2values: 1500,
+            stability: "volatile",
+          }),
+          quantity: 1,
+        },
+      ],
+      "consensus",
+      now,
+    );
+    expect(r.insights.find((insight) => insight.kind === "risk")?.label).toBe("Higher risk");
+    expect(r.insights.find((insight) => insight.kind === "outlook")?.label).toBe("Possible profit");
   });
 });
 
@@ -212,4 +253,3 @@ describe("warnings", () => {
     expect(r.warnings.some((w) => w.kind === "same-item-both-sides")).toBe(true);
   });
 });
-

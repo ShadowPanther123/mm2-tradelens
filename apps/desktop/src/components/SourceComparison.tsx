@@ -44,7 +44,9 @@ export function SourceComparison({
         <h3 className="text-sm font-semibold">Source comparison</h3>
       </div>
 
-      <div className={`grid gap-3 ${entries.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+      <div
+        className={`grid gap-3 ${entries.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}
+      >
         {entries.map(([source, v]) => {
           const confidence = readingConfidence(v as Reading & { updatedAt: string });
           return (

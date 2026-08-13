@@ -1,5 +1,8 @@
 import type { Item, ValueSnapshot } from "@tradelens/item-schema";
-import type { SourceMode as EngineSourceMode, TradeCalculation } from "@tradelens/trade-engine";
+import type {
+  SourceMode as EngineSourceMode,
+  TradeCalculation,
+} from "@tradelens/trade-engine";
 
 export type { Item, ValueSnapshot };
 export type { EngineSourceMode };
@@ -45,6 +48,31 @@ export interface Favorite {
   itemId: string;
   baselineValue: number;
   createdAt: string;
+}
+
+/** One owned item tracked in the portfolio. */
+export interface PortfolioEntry {
+  itemId: string;
+  quantity: number;
+  baselineValue: number;
+  createdAt: string;
+}
+
+/** Local aggregate used by the most-searched analytics ranking. */
+export interface SearchStat {
+  itemId: string;
+  count: number;
+  lastSearchedAt: string;
+}
+
+/** Privacy-minimal trade shared with the optional community feed. */
+export interface CommunityTrade {
+  id: string;
+  createdAt: string;
+  gave: TradeSlot[];
+  received: TradeSlot[];
+  difference: number;
+  resultPercent: number;
 }
 
 /** One item + quantity on a side of a trade. */

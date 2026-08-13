@@ -85,6 +85,9 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         working-directory: apps/desktop
+      - name: Production preview blank-screen test
+        run: npm run test:preview
+        working-directory: apps/desktop
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -150,6 +153,9 @@ jobs:
           $sig = [System.IO.File]::ReadAllBytes($path)[0..1]
           if ($sig[0] -ne 0x4D -or $sig[1] -ne 0x5A) { throw "Installer is not a valid PE (missing MZ header)" }
           Write-Host "Installer OK:" $file.Name $file.Length "bytes"
+      - name: Smoke-test installed application lifecycle
+        shell: pwsh
+        run: ./scripts/smoke-installed-app.ps1 -Installer "${{ steps.find.outputs.path }}"
       - name: Publish installer checksum
         shell: pwsh
         run: |

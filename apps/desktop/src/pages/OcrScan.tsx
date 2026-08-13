@@ -109,7 +109,10 @@ export function OcrScan() {
 
   function addMatch(item: Item, side: "your" | "their") {
     add(side, item.id);
-    notify(`Added ${item.displayName} to ${side === "your" ? "your" : "their"} side.`, "success");
+    notify(
+      `Added ${item.displayName} to ${side === "your" ? "your" : "their"} side.`,
+      "success",
+    );
   }
 
   /** Swap a reviewed row to one of its alternative matches. */
@@ -142,8 +145,8 @@ export function OcrScan() {
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold">Scan a screenshot</h1>
         <p className="card p-4 text-sm text-slate-400">
-          Screenshot scanning isn't included in this build. You can still add
-          items from the{" "}
+          Screenshot scanning isn't included in this build. You can still add items from
+          the{" "}
           <Link to="/calculator" className="text-accent hover:underline">
             calculator
           </Link>
@@ -193,7 +196,9 @@ export function OcrScan() {
             className="max-h-64 rounded-xl border border-white/10 object-contain"
           />
         ) : (
-          <div className="text-4xl text-slate-600 opacity-60" aria-hidden="true">▣</div>
+          <div className="text-4xl text-slate-600 opacity-60" aria-hidden="true">
+            ▣
+          </div>
         )}
         <div className="text-sm text-slate-400">
           Drag &amp; drop an image, paste from clipboard, or
@@ -268,8 +273,8 @@ export function OcrScan() {
             </Link>
           </div>
           <p className="mb-3 text-xs text-slate-500">
-            Nothing is added automatically. Check each match, pick an alternative
-            if needed, then add the ones you want.
+            Nothing is added automatically. Check each match, pick an alternative if
+            needed, then add the ones you want.
           </p>
 
           {!review || review.length === 0 ? (
@@ -303,7 +308,8 @@ export function OcrScan() {
                         )}
                       </div>
                       <div className="mt-0.5 text-xs text-slate-500">
-                        {Math.round(entry.score * 100)}% match · read “{entry.sourceText}”
+                        {Math.round(entry.score * 100)}% match · read “
+                        {entry.sourceText}”
                       </div>
                     </div>
                     <ValueBadge item={entry.item} mode={mode} />

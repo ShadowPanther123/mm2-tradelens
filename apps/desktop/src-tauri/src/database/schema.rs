@@ -45,6 +45,10 @@ const MIGRATIONS: &[Migration] = &[
         name: "008_always_on_top",
         up: m008_always_on_top,
     },
+    Migration {
+        name: "009_portfolio_search_stats",
+        up: m009_portfolio_search_stats,
+    },
 ];
 
 /// Total number of migrations this build knows about — the target
@@ -207,6 +211,25 @@ fn m008_always_on_top(tx: &Transaction) -> rusqlite::Result<()> {
     Ok(())
 }
 
+fn m009_portfolio_search_stats(tx: &Transaction) -> rusqlite::Result<()> {
+    tx.execute_batch(
+        r#"
+CREATE TABLE IF NOT EXISTS portfolio (
+    item_id        TEXT PRIMARY KEY,
+    quantity       INTEGER NOT NULL CHECK (quantity BETWEEN 1 AND 10000),
+    baseline_value REAL    NOT NULL CHECK (baseline_value >= 0),
+    created_at     TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+CREATE TABLE IF NOT EXISTS search_stats (
+    item_id          TEXT PRIMARY KEY,
+    count            INTEGER NOT NULL DEFAULT 1 CHECK (count > 0),
+    last_searched_at TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+"#,
+    )
+}
+
 /// Return whether `table` has a column named `column`.
 fn column_exists(conn: &Connection, table: &str, column: &str) -> rusqlite::Result<bool> {
     let mut stmt = conn.prepare(&format!("PRAGMA table_info({table})"))?;
@@ -289,6 +312,8 @@ mod tests {
             "trade_history",
             "snapshot_cache",
             "value_history",
+            "portfolio",
+            "search_stats",
         ] {
             let count: i64 = conn
                 .query_row(
@@ -371,7 +396,8 @@ mod tests {
                 "005_history_retention_limit",
                 "006_history_calculation",
                 "007_value_history",
-                "008_always_on_top"
+                "008_always_on_top",
+                "009_portfolio_search_stats"
             ]
         );
     }

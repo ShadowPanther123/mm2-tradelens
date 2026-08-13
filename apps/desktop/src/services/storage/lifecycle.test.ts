@@ -76,8 +76,12 @@ describe("snapshot lifecycle (integration)", () => {
     await store.saveSnapshot(snapshot(2, 55));
 
     // A downgrade/replay is refused, so the good rev 2 stays in place (rollback).
-    await expect(store.saveSnapshot(snapshot(2, 999))).rejects.toThrow(/refusing to cache/);
-    await expect(store.saveSnapshot(snapshot(1, 999))).rejects.toThrow(/refusing to cache/);
+    await expect(store.saveSnapshot(snapshot(2, 999))).rejects.toThrow(
+      /refusing to cache/,
+    );
+    await expect(store.saveSnapshot(snapshot(1, 999))).rejects.toThrow(
+      /refusing to cache/,
+    );
 
     const cached = await store.getCachedSnapshot();
     expect(cached?.revision).toBe(2);

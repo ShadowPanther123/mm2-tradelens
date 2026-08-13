@@ -17,7 +17,9 @@ test.describe("favorites", () => {
 });
 
 test.describe("settings and source switching", () => {
-  test("switches the active value source and reflects it in the sidebar", async ({ page }) => {
+  test("switches the active value source and reflects it in the sidebar", async ({
+    page,
+  }) => {
     await bootApp(page);
     await navTo(page, "Settings");
 

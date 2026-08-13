@@ -49,7 +49,9 @@ describe("command response validation", () => {
   });
 
   it("rejects a non-array history response", () => {
-    expect(() => validateResponse("list_history", 42)).toThrow(/did not return an array/);
+    expect(() => validateResponse("list_history", 42)).toThrow(
+      /did not return an array/,
+    );
   });
 
   it("passes through commands without a registered validator", () => {

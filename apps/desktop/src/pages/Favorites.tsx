@@ -28,7 +28,10 @@ export function Favorites() {
   const retiredCount = resolved.filter((r) => r.status === "retired").length;
 
   function handleExport() {
-    downloadTextFile(`tradelens-favorites-${Date.now()}.json`, exportFavorites(favorites));
+    downloadTextFile(
+      `tradelens-favorites-${Date.now()}.json`,
+      exportFavorites(favorites),
+    );
     notify("Favorites exported", "success");
   }
 
@@ -49,7 +52,10 @@ export function Favorites() {
         added > 0 ? "success" : "info",
       );
     } catch (err) {
-      notify(err instanceof Error ? err.message : "Could not import favorites", "error");
+      notify(
+        err instanceof Error ? err.message : "Could not import favorites",
+        "error",
+      );
     }
   }
 
@@ -65,12 +71,21 @@ export function Favorites() {
 
   const header = (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h1 className="text-xl font-semibold">Favorites</h1>
+      <div>
+        <h1 className="text-xl font-semibold">Favorites / Watchlist</h1>
+        <p className="text-sm text-slate-500">
+          Pinned items update automatically when values change.
+        </p>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <button className="btn btn-ghost" onClick={handleImport}>
           Import
         </button>
-        <button className="btn btn-ghost" onClick={handleExport} disabled={favorites.length === 0}>
+        <button
+          className="btn btn-ghost"
+          onClick={handleExport}
+          disabled={favorites.length === 0}
+        >
           Export
         </button>
         {confirmingClear ? (
@@ -112,12 +127,14 @@ export function Favorites() {
     <div className="flex flex-col gap-4">
       {header}
       {confirmingClear && (
-        <p className="text-sm text-slate-500">Remove all {favorites.length} favorites?</p>
+        <p className="text-sm text-slate-500">
+          Remove all {favorites.length} favorites?
+        </p>
       )}
       {retiredCount > 0 && (
         <p className="text-sm text-amber-400/90">
-          {retiredCount} favorite{retiredCount === 1 ? " is" : "s are"} no longer in the current
-          value list. They are kept here so you can review or remove them.
+          {retiredCount} favorite{retiredCount === 1 ? " is" : "s are"} no longer in the
+          current value list. They are kept here so you can review or remove them.
         </p>
       )}
       <div className="flex flex-col gap-2">
@@ -150,7 +167,9 @@ function FavoriteEntry({
       <div className="card flex items-center justify-between gap-3 p-4">
         <div className="min-w-0">
           <div className="truncate font-medium text-slate-300">{favorite.itemId}</div>
-          <div className="text-[11px] text-amber-400/90">Retired · not in the current list</div>
+          <div className="text-[11px] text-amber-400/90">
+            Retired · not in the current list
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <StatPill label="Since starred" value={formatValue(favorite.baselineValue)} />
@@ -170,7 +189,9 @@ function FavoriteEntry({
   const resolvedValue = resolveValue(item, toEngineMode(mode));
   const now = resolvedValue?.value ?? 0;
   const change =
-    favorite.baselineValue > 0 ? ((now - favorite.baselineValue) / favorite.baselineValue) * 100 : 0;
+    favorite.baselineValue > 0
+      ? ((now - favorite.baselineValue) / favorite.baselineValue) * 100
+      : 0;
 
   return (
     <div className="flex flex-col gap-1">

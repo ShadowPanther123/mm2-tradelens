@@ -7,7 +7,9 @@ test.describe("OCR review", () => {
     await bootApp(page);
     await navTo(page, "Scan");
 
-    await expect(page.getByRole("heading", { name: "Scan a screenshot" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Scan a screenshot" }),
+    ).toBeVisible();
 
     // Either the OCR flow is available, or the build cleanly says it isn't —
     // both are valid, and neither should ever auto-add items.

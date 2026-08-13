@@ -19,7 +19,9 @@ export function getStorage(): StorageAdapter {
     active = tauriStorage;
   } else {
     if (typeof window === "undefined" || !window.localStorage) {
-      throw new Error("No storage backend available: not running in Tauri and no localStorage.");
+      throw new Error(
+        "No storage backend available: not running in Tauri and no localStorage.",
+      );
     }
     active = createBrowserStorage(window.localStorage);
     console.warn(

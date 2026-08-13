@@ -7,16 +7,15 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     groups:
+      # Monitor the client router separately so routing updates are visible and
+      # can be reviewed without being buried in tooling batches.
+      react-router:
+        patterns:
+          - react-router
+          - react-router-dom
       # Batch low-risk dev tooling into a single PR to reduce noise.
       dev-dependencies:
         dependency-type: development
-    ignore:
-      # react-router v7 introduces GHSA-qwww-vcr4-c8h2 (RSC-mode CSRF), which is
-      # not applicable to this client-only Tauri app but is flagged high and
-      # would fail the production audit gate. Stay on the maintained v6 line
-      # (still receives minor/patch updates) until a clean major is evaluated.
-      - dependency-name: react-router-dom
-        update-types: [version-update:semver-major]
     labels:
       - dependencies
       - javascript

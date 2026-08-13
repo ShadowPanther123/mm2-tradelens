@@ -9,14 +9,13 @@ export function SampleDataBanner() {
   if (!isSampleData) return null;
 
   return (
-    <div
-      role="status"
-      className="banner border-line bg-slate-500/10 text-slate-300"
-    >
-      <span className="text-base" aria-hidden="true">◈</span>
+    <div role="status" className="banner border-line bg-slate-500/10 text-slate-300">
+      <span className="text-base" aria-hidden="true">
+        ◈
+      </span>
       <span>
-        Showing bundled sample data for demonstration — these are placeholder figures, not
-        live Supreme Values or MM2Values. Check for updates to load current values.
+        Showing bundled sample data for demonstration — these are placeholder figures,
+        not live Supreme Values or MM2Values. Check for updates to load current values.
       </span>
     </div>
   );

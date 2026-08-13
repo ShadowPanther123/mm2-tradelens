@@ -37,7 +37,9 @@ export function TrendBars({ entries, className }: TrendBarsProps) {
           >
             <div className="min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium">{e.item.displayName}</span>
+                <span className="truncate text-sm font-medium">
+                  {e.item.displayName}
+                </span>
                 <span
                   className={cn(
                     "shrink-0 tabular-nums text-xs",

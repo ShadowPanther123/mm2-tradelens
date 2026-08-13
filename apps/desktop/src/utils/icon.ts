@@ -1,4 +1,8 @@
-import { isLocalAsset, MISSING_ICON_PLACEHOLDER, resolveItemIcon } from "@tradelens/source-adapters";
+import {
+  isLocalAsset,
+  MISSING_ICON_PLACEHOLDER,
+  resolveItemIcon,
+} from "@tradelens/source-adapters";
 
 /**
  * Public-root-relative path of the shared missing-icon placeholder.
@@ -32,6 +36,7 @@ export function isUsableLocalImage(ref: string | undefined): ref is string {
  * URIs and already-absolute paths are passed through unchanged.
  */
 export function localImageSrc(ref: string): string {
-  if (ref.startsWith("data:") || ref.startsWith("blob:") || ref.startsWith("/")) return ref;
+  if (ref.startsWith("data:") || ref.startsWith("blob:") || ref.startsWith("/"))
+    return ref;
   return `/${ref}`;
 }

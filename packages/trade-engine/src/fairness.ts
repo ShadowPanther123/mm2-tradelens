@@ -24,13 +24,7 @@ export interface TradeLine {
 }
 
 /** Outcome label for a trade. */
-export type TradeVerdict =
-  | "big-win"
-  | "win"
-  | "fair"
-  | "loss"
-  | "big-loss"
-  | "unknown";
+export type TradeVerdict = "big-win" | "win" | "fair" | "loss" | "big-loss" | "unknown";
 
 /** A per-line valuation used in the breakdown. */
 export interface ValuedLine {
@@ -66,6 +60,17 @@ export interface TradeWarning {
   message: string;
 }
 
+export type TradeInsightKind = "demand" | "risk" | "outlook";
+export type TradeInsightTone = "positive" | "neutral" | "negative";
+
+/** A short, structured signal shown alongside the numeric verdict. */
+export interface TradeInsight {
+  kind: TradeInsightKind;
+  tone: TradeInsightTone;
+  label: string;
+  detail: string;
+}
+
 /** Full result of evaluating a two-sided trade. */
 export interface TradeResult {
   /** Version of the algorithm that produced this result. */
@@ -86,6 +91,8 @@ export interface TradeResult {
   confidence: Confidence;
   /** True when any item on either side has no value under the current source. */
   hasMissingValues: boolean;
+  /** Demand, risk, and likely-outcome signals for quick trade screening. */
+  insights: TradeInsight[];
   warnings: TradeWarning[];
   /** Plain-language explanation of the adjusted verdict. */
   explanation: string;
@@ -150,8 +157,7 @@ function valueSide(lines: TradeLine[], mode: SourceMode, now: number): SideTotal
     const lineValue = unitValue * line.quantity;
     if (!resolved) hasUnvalued = true;
     total += lineValue;
-    adjustedTotal +=
-      lineValue * demandMultiplier(resolved?.demand) * stabilityMultiplier(resolved);
+    adjustedTotal += lineValue * demandMultiplier(resolved?.demand) * stabilityMultiplier(resolved);
     valued.push({
       id: line.item.id,
       displayName: line.item.displayName,
@@ -190,10 +196,7 @@ function collectWarnings(
     .map((l) => l.resolved)
     .filter((r): r is ResolvedValue => Boolean(r));
 
-  const maxDisagreement = allResolved.reduce(
-    (m, r) => Math.max(m, r.disagreement),
-    0,
-  );
+  const maxDisagreement = allResolved.reduce((m, r) => Math.max(m, r.disagreement), 0);
   if (maxDisagreement > 0.06) {
     warnings.push({
       kind: "source-disagreement",
@@ -236,15 +239,15 @@ function collectWarnings(
     });
   }
 
-  const rareItems = [...lines.your, ...lines.their].filter((l) =>
-    RARE_RARITIES.has(l.item.rarity),
-  );
+  const rareItems = [...lines.your, ...lines.their].filter((l) => RARE_RARITIES.has(l.item.rarity));
   if (rareItems.length > 0) {
     warnings.push({
       kind: "collectible",
       message: `Includes collectible/rare items (${rareItems
         .map((l) => l.item.displayName)
-        .join(", ")}). These are easily manipulated and their real-world worth can differ from list values.`,
+        .join(
+          ", ",
+        )}). These are easily manipulated and their real-world worth can differ from list values.`,
     });
   }
 
@@ -334,22 +337,17 @@ export function evaluateTrade(
       : theirSide.adjustedTotal / yourSide.adjustedTotal;
 
   const difference = theirSide.total - yourSide.total;
-  const differencePercent =
-    yourSide.total === 0 ? 0 : (difference / yourSide.total) * 100;
+  const differencePercent = yourSide.total === 0 ? 0 : (difference / yourSide.total) * 100;
 
   // Widen the fair band when the trade is uncertain.
   const allResolved = [...yourSide.lines, ...theirSide.lines]
     .map((l) => l.resolved)
     .filter((r): r is ResolvedValue => Boolean(r));
-  const maxDisagreement = allResolved.reduce(
-    (m, r) => Math.max(m, r.disagreement),
-    0,
-  );
+  const maxDisagreement = allResolved.reduce((m, r) => Math.max(m, r.disagreement), 0);
   const unstable = allResolved.some(
     (r) => r.stability === "volatile" || r.stability === "fluctuating",
   );
-  const fairBand =
-    BASE_FAIR_BAND + maxDisagreement * 0.5 + (unstable ? 0.03 : 0);
+  const fairBand = BASE_FAIR_BAND + maxDisagreement * 0.5 + (unstable ? 0.03 : 0);
 
   const rawVerdict = verdictFromRatio(ratio, fairBand);
   const adjustedVerdict = verdictFromRatio(adjustedRatio, fairBand);
@@ -357,6 +355,14 @@ export function evaluateTrade(
   const hasMissingValues = yourSide.hasUnvalued || theirSide.hasUnvalued;
 
   const warnings = collectWarnings(yourSide, theirSide, { your, their }, confidence);
+  const insights = buildInsights(
+    yourSide,
+    theirSide,
+    adjustedVerdict,
+    confidence,
+    hasMissingValues,
+    warnings,
+  );
 
   const explanation = buildExplanation(
     rawVerdict,
@@ -379,9 +385,153 @@ export function evaluateTrade(
     fairBand,
     confidence,
     hasMissingValues,
+    insights,
     warnings,
     explanation,
   };
+}
+
+function averageMetric(
+  side: SideTotal,
+  read: (line: ValuedLine) => number | undefined,
+): number | undefined {
+  let total = 0;
+  let weight = 0;
+  for (const line of side.lines) {
+    const value = read(line);
+    if (value === undefined) continue;
+    const lineWeight = Math.max(1, line.quantity);
+    total += value * lineWeight;
+    weight += lineWeight;
+  }
+  return weight > 0 ? total / weight : undefined;
+}
+
+function buildInsights(
+  your: SideTotal,
+  their: SideTotal,
+  verdict: TradeVerdict,
+  confidence: Confidence,
+  hasMissingValues: boolean,
+  warnings: TradeWarning[],
+): TradeInsight[] {
+  const yourDemand = averageMetric(your, (line) => line.resolved?.demand);
+  const theirDemand = averageMetric(their, (line) => line.resolved?.demand);
+  const yourTrend = averageMetric(your, (line) => line.resolved?.trendPercent);
+  const theirTrend = averageMetric(their, (line) => line.resolved?.trendPercent);
+  const demandDelta =
+    yourDemand === undefined || theirDemand === undefined ? undefined : theirDemand - yourDemand;
+
+  let demand: TradeInsight;
+  if (
+    demandDelta !== undefined &&
+    demandDelta >= 0.25 &&
+    theirTrend !== undefined &&
+    theirTrend >= 1 &&
+    theirTrend > (yourTrend ?? 0)
+  ) {
+    demand = {
+      kind: "demand",
+      tone: "positive",
+      label: "Demand rising",
+      detail: "The received side combines stronger demand with positive value momentum.",
+    };
+  } else if (demandDelta !== undefined && demandDelta >= 0.35) {
+    demand = {
+      kind: "demand",
+      tone: "positive",
+      label: "Demand stronger",
+      detail: "The received items carry higher average demand.",
+    };
+  } else if (demandDelta !== undefined && demandDelta <= -0.35) {
+    demand = {
+      kind: "demand",
+      tone: "negative",
+      label: "Demand weaker",
+      detail: "The received items may be harder to trade onward.",
+    };
+  } else {
+    demand = {
+      kind: "demand",
+      tone: "neutral",
+      label: demandDelta === undefined ? "Demand unknown" : "Demand balanced",
+      detail:
+        demandDelta === undefined
+          ? "There is not enough demand data for both sides."
+          : "Average demand is similar on both sides.",
+    };
+  }
+
+  const highRiskKinds = new Set<TradeWarning["kind"]>([
+    "missing-values",
+    "stale-data",
+    "source-disagreement",
+    "stability",
+    "collectible",
+    "low-confidence",
+  ]);
+  const highRisk = hasMissingValues || warnings.some((warning) => highRiskKinds.has(warning.kind));
+  const lowRisk = confidence === "high" && warnings.length === 0;
+  const risk: TradeInsight = highRisk
+    ? {
+        kind: "risk",
+        tone: "negative",
+        label: "Higher risk",
+        detail: "Uncertain, moving, stale, or collectible values need extra checking.",
+      }
+    : lowRisk
+      ? {
+          kind: "risk",
+          tone: "positive",
+          label: "Low risk",
+          detail: "Values are steady, complete, and supported with high confidence.",
+        }
+      : {
+          kind: "risk",
+          tone: "neutral",
+          label: "Moderate risk",
+          detail: "The result is usable, but one or more signals deserve a quick check.",
+        };
+
+  const profitable = verdict === "win" || verdict === "big-win";
+  const losing = verdict === "loss" || verdict === "big-loss";
+  const outlook: TradeInsight =
+    hasMissingValues || verdict === "unknown"
+      ? {
+          kind: "outlook",
+          tone: "neutral",
+          label: "Profit unclear",
+          detail: "Missing information prevents a dependable outcome estimate.",
+        }
+      : profitable && !highRisk
+        ? {
+            kind: "outlook",
+            tone: "positive",
+            label: "Likely profit",
+            detail: "The adjusted value advantage remains after demand and stability checks.",
+          }
+        : profitable
+          ? {
+              kind: "outlook",
+              tone: "neutral",
+              label: "Possible profit",
+              detail: "The numbers are positive, but the risk signals reduce certainty.",
+            }
+          : losing
+            ? {
+                kind: "outlook",
+                tone: "negative",
+                label: "Likely loss",
+                detail: "The received side remains behind after practical adjustments.",
+              }
+            : {
+                kind: "outlook",
+                tone: "neutral",
+                label: "Break-even likely",
+                detail: "Neither side has a dependable practical advantage.",
+              };
+
+  return [demand, risk, outlook];
 }
 
 function buildExplanation(

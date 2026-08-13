@@ -2,6 +2,8 @@ import type {
   AppInfo,
   Favorite,
   HistoryPoint,
+  PortfolioEntry,
+  SearchStat,
   Settings,
   SnapshotMeta,
   TradeRecord,
@@ -24,6 +26,17 @@ export interface StorageAdapter {
   listFavorites(): Promise<Favorite[]>;
   addFavorite(itemId: string, baselineValue: number): Promise<void>;
   removeFavorite(itemId: string): Promise<void>;
+
+  listPortfolio(): Promise<PortfolioEntry[]>;
+  upsertPortfolioEntry(
+    itemId: string,
+    quantity: number,
+    baselineValue: number,
+  ): Promise<void>;
+  removePortfolioEntry(itemId: string): Promise<void>;
+
+  listSearchStats(): Promise<SearchStat[]>;
+  recordSearch(itemId: string): Promise<void>;
 
   listHistory(): Promise<TradeRecord[]>;
   addHistoryRecord(record: TradeRecord): Promise<void>;
@@ -48,6 +61,9 @@ export interface StorageAdapter {
 
   /** Read the recorded value history for one item, oldest first. */
   getValueHistory(itemId: string, limit?: number): Promise<HistoryPoint[]>;
+
+  /** Read the recorded value history for every item at once, oldest first. */
+  getAllValueHistory(limit?: number): Promise<HistoryPoint[]>;
 
   getAppInfo(): Promise<AppInfo>;
   clearAllData(): Promise<void>;

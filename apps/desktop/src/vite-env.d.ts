@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_SNAPSHOT_PUBLIC_KEY?: string;
   /** Set to "true"/"1" to exclude the OCR feature from a lightweight build. */
   readonly VITE_OCR_DISABLED?: string;
+  /** Base URL for the optional anonymous community trade feed. */
+  readonly VITE_COMMUNITY_API_URL?: string;
 }
 
 interface ImportMeta {

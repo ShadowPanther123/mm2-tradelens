@@ -32,12 +32,7 @@ describe("mergeSources", () => {
       { name: "", category: "knife", rarity: "godly", value: 1, updatedAt },
       { name: "Bat", category: "knife", rarity: "godly", value: 425, updatedAt },
     ];
-    const items = mergeSources(
-      { supreme },
-      undefined,
-      undefined,
-      (f) => failures.push(f.reason),
-    );
+    const items = mergeSources({ supreme }, undefined, undefined, (f) => failures.push(f.reason));
     expect(items).toHaveLength(1);
     expect(items[0]!.id).toBe("bat");
     expect(failures).toHaveLength(1);
@@ -45,8 +40,26 @@ describe("mergeSources", () => {
 
   it("merges aliases across sources", () => {
     const items = mergeSources({
-      supreme: [{ name: "Icepiercer", aliases: ["ip"], category: "gun", rarity: "ancient", value: 1, updatedAt }],
-      mm2values: [{ name: "Icepiercer", aliases: ["ice piercer"], category: "gun", rarity: "ancient", value: 1, updatedAt }],
+      supreme: [
+        {
+          name: "Icepiercer",
+          aliases: ["ip"],
+          category: "gun",
+          rarity: "ancient",
+          value: 1,
+          updatedAt,
+        },
+      ],
+      mm2values: [
+        {
+          name: "Icepiercer",
+          aliases: ["ice piercer"],
+          category: "gun",
+          rarity: "ancient",
+          value: 1,
+          updatedAt,
+        },
+      ],
     });
     expect(items[0]!.aliases).toEqual(expect.arrayContaining(["ip", "ice piercer"]));
   });

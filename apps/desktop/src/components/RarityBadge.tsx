@@ -18,5 +18,7 @@ const RARITY_STYLES: Record<ItemRarity, string> = {
 };
 
 export function RarityBadge({ rarity }: { rarity: ItemRarity }) {
-  return <span className={cn("chip", RARITY_STYLES[rarity])}>{capitalise(rarity)}</span>;
+  return (
+    <span className={cn("chip", RARITY_STYLES[rarity])}>{capitalise(rarity)}</span>
+  );
 }

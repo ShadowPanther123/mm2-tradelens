@@ -29,7 +29,11 @@ export function ItemIcon({
 }) {
   const [failed, setFailed] = useState(false);
   const dims =
-    size === "lg" ? "h-14 w-14 text-2xl" : size === "sm" ? "h-8 w-8 text-base" : "h-10 w-10 text-lg";
+    size === "lg"
+      ? "h-14 w-14 text-2xl"
+      : size === "sm"
+        ? "h-8 w-8 text-base"
+        : "h-10 w-10 text-lg";
 
   // Never hotlink: only bundled/local or in-memory images are shown. Bundled
   // paths are made root-relative so they resolve on every route.

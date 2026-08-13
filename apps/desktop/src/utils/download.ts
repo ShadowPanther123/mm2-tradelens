@@ -21,7 +21,9 @@ export function downloadTextFile(
  * Prompt the user to pick a text file and resolve with its contents, or null if
  * the picker was dismissed. Uses a transient hidden `<input type="file">`.
  */
-export function pickTextFile(accept = "application/json,.json"): Promise<string | null> {
+export function pickTextFile(
+  accept = "application/json,.json",
+): Promise<string | null> {
   return new Promise((resolve, reject) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -36,7 +38,8 @@ export function pickTextFile(accept = "application/json,.json"): Promise<string 
       }
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result ?? ""));
-      reader.onerror = () => reject(reader.error ?? new Error("Could not read the file."));
+      reader.onerror = () =>
+        reject(reader.error ?? new Error("Could not read the file."));
       reader.readAsText(file);
     });
     document.body.appendChild(input);

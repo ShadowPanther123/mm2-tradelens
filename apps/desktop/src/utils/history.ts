@@ -10,7 +10,8 @@ import type { Item, TradeRecord } from "@/types";
  */
 
 /** Coarse verdict bucket derived from a stored result percentage. */
-export type HistoryVerdict = "big-win" | "win" | "fair" | "loss" | "big-loss" | "unknown";
+export type HistoryVerdict =
+  "big-win" | "win" | "fair" | "loss" | "big-loss" | "unknown";
 
 /** Map a stored result percentage to a verdict bucket. */
 export function verdictFromPercent(pct: number): HistoryVerdict {
@@ -23,7 +24,9 @@ export function verdictFromPercent(pct: number): HistoryVerdict {
 
 /** Use the exact verdict shown when saved; legacy records use the old summary. */
 export function verdictForRecord(record: TradeRecord): HistoryVerdict {
-  return record.calculation?.adjustedVerdict ?? verdictFromPercent(record.resultPercent);
+  return (
+    record.calculation?.adjustedVerdict ?? verdictFromPercent(record.resultPercent)
+  );
 }
 
 /** Outcome filter for the history view. */
@@ -69,7 +72,8 @@ export function filterHistory(
 ): TradeRecord[] {
   const query = filter.query?.trim().toLowerCase() ?? "";
   return history.filter((record) => {
-    if (filter.mode && filter.mode !== "all" && record.mode !== filter.mode) return false;
+    if (filter.mode && filter.mode !== "all" && record.mode !== filter.mode)
+      return false;
     if (filter.outcome && !matchesOutcome(record, filter.outcome)) return false;
     if (query) {
       const haystack = recordItemIds(record)

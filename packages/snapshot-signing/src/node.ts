@@ -103,10 +103,7 @@ export function signBytes(
 }
 
 /** Node-side verification, mainly for tests and server-side re-checks. */
-export function verifySnapshotNode(
-  signed: SignedSnapshot,
-  publicKeyBase64: string,
-): boolean {
+export function verifySnapshotNode(signed: SignedSnapshot, publicKeyBase64: string): boolean {
   if (signed.algorithm !== "ed25519") return false;
   try {
     const raw = Buffer.from(publicKeyBase64, "base64");
@@ -119,12 +116,7 @@ export function verifySnapshotNode(
       format: "jwk",
     });
     const message = Buffer.from(canonicaliseSnapshot(signed.snapshot), "utf8");
-    return nodeVerify(
-      null,
-      message,
-      publicKey,
-      Buffer.from(signed.signature, "base64"),
-    );
+    return nodeVerify(null, message, publicKey, Buffer.from(signed.signature, "base64"));
   } catch {
     return false;
   }

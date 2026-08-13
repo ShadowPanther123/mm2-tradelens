@@ -7,3 +7,6 @@ export { ItemDetails } from "./ItemDetails";
 export { Favorites } from "./Favorites";
 export { History } from "./History";
 export { Settings } from "./Settings";
+export { Portfolio } from "./Portfolio";
+export { Analytics } from "./Analytics";
+export { Community } from "./Community";

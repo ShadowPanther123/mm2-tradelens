@@ -22,6 +22,16 @@ export function SearchBar({
   const [focused, setFocused] = useState(false);
   const results = useSearch(query, 8);
   const mode = useDataStore((s) => s.settings.sourceMode);
+  const recordItemSearch = useDataStore((s) => s.recordItemSearch);
+
+  function pick(item: Item) {
+    void recordItemSearch(item.id).catch(() => undefined);
+    onPick?.(item);
+    if (onPick) {
+      setQuery("");
+      setFocused(false);
+    }
+  }
 
   const showResults = focused && results.length > 0;
 
@@ -52,7 +62,7 @@ export function SearchBar({
               key={r.item.id}
               item={r.item}
               mode={mode}
-              onAdd={onPick}
+              onAdd={onPick ? pick : undefined}
               addLabel={pickLabel}
             />
           ))}

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDataStore } from "@/hooks/useDataStore";
 import { useToast } from "@/contexts/ToastContext";
 import { EmptyState } from "@/components";
@@ -13,6 +14,8 @@ import {
 } from "@/utils/history";
 import type { Item, TradeRecord, TradeSlot } from "@/types";
 import { verdictLabel } from "@tradelens/trade-engine";
+import { useTradeStore } from "@/hooks/useTradeStore";
+import { communityFeedConfigured, shareCommunityTrade } from "@/services/community";
 
 function summarise(
   slots: TradeSlot[],
@@ -32,6 +35,8 @@ export function History() {
   const history = useDataStore((s) => s.history);
   const itemById = useDataStore((s) => s.itemById);
   const removeHistory = useDataStore((s) => s.removeHistory);
+  const loadTrade = useTradeStore((s) => s.load);
+  const navigate = useNavigate();
   const { notify } = useToast();
 
   const [query, setQuery] = useState("");
@@ -44,7 +49,12 @@ export function History() {
   );
 
   const filtered = useMemo(
-    () => filterHistory(history, { query, outcome, mode }, (id) => itemById(id) as Item | undefined),
+    () =>
+      filterHistory(
+        history,
+        { query, outcome, mode },
+        (id) => itemById(id) as Item | undefined,
+      ),
     [history, query, outcome, mode, itemById],
   );
 
@@ -62,7 +72,7 @@ export function History() {
         <EmptyState
           icon="⟲"
           title="No saved trades yet"
-          hint="Save a trade from the calculator to keep a record here."
+          hint="Completed calculations from the calculator will appear here automatically."
         />
       </div>
     );
@@ -94,7 +104,11 @@ export function History() {
           <option value="fair">Fair</option>
           <option value="losses">Losses</option>
         </select>
-        <select className="input" value={mode} onChange={(e) => setMode(e.target.value)}>
+        <select
+          className="input"
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+        >
           <option value="all">All sources</option>
           {modes.map((m) => (
             <option key={m} value={m}>
@@ -105,7 +119,11 @@ export function History() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon="⌕" title="No trades match" hint="Try a different search or filter." />
+        <EmptyState
+          icon="⌕"
+          title="No trades match"
+          hint="Try a different search or filter."
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((rec) => (
@@ -117,6 +135,22 @@ export function History() {
                 await removeHistory(rec.id);
                 notify("Trade removed", "info");
               }}
+              onReuse={() => {
+                loadTrade(rec.gave, rec.received);
+                navigate("/calculator");
+              }}
+              onShare={
+                communityFeedConfigured
+                  ? async () => {
+                      try {
+                        await shareCommunityTrade(rec);
+                        notify("Trade shared anonymously", "success");
+                      } catch {
+                        notify("Could not share this trade", "error");
+                      }
+                    }
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -129,10 +163,14 @@ function HistoryRow({
   rec,
   itemById,
   onDelete,
+  onReuse,
+  onShare,
 }: {
   rec: TradeRecord;
   itemById: (id: string) => Item | undefined;
   onDelete: () => void | Promise<void>;
+  onReuse: () => void;
+  onShare?: () => void | Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -149,11 +187,15 @@ function HistoryRow({
         >
           <div className="flex items-center gap-2 text-sm">
             <span className="text-slate-400">Gave</span>
-            <span className="truncate font-medium">{summarise(rec.gave, itemById)}</span>
+            <span className="truncate font-medium">
+              {summarise(rec.gave, itemById)}
+            </span>
           </div>
           <div className="mt-0.5 flex items-center gap-2 text-sm">
             <span className="text-slate-400">Got</span>
-            <span className="truncate font-medium">{summarise(rec.received, itemById)}</span>
+            <span className="truncate font-medium">
+              {summarise(rec.received, itemById)}
+            </span>
           </div>
           <div className="mt-1 text-[11px] text-slate-500">
             {formatDate(rec.date)} · {sourceModeLabel(rec.mode)}
@@ -177,6 +219,14 @@ function HistoryRow({
             {formatPercent(rec.resultPercent)}
           </div>
         </div>
+        <button className="btn btn-ghost px-2 py-1 text-xs" onClick={onReuse}>
+          Reuse
+        </button>
+        {onShare && (
+          <button className="btn btn-ghost px-2 py-1 text-xs" onClick={onShare}>
+            Share anonymously
+          </button>
+        )}
         {confirming ? (
           <div className="flex items-center gap-1">
             <button
@@ -209,17 +259,26 @@ function HistoryRow({
   );
 }
 
-function CalculationDetail({ calc }: { calc: NonNullable<TradeRecord["calculation"]> }) {
+function CalculationDetail({
+  calc,
+}: {
+  calc: NonNullable<TradeRecord["calculation"]>;
+}) {
   const lines = [...calc.gave, ...calc.received];
   return (
     <div className="mt-1 flex flex-col gap-2 border-t border-white/5 pt-3 text-xs">
       <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-400">
         <span>
-          Given <span className="tabular-nums text-slate-200">{formatValue(calc.yourTotal)}</span>
+          Given{" "}
+          <span className="tabular-nums text-slate-200">
+            {formatValue(calc.yourTotal)}
+          </span>
         </span>
         <span>
           Received{" "}
-          <span className="tabular-nums text-slate-200">{formatValue(calc.theirTotal)}</span>
+          <span className="tabular-nums text-slate-200">
+            {formatValue(calc.theirTotal)}
+          </span>
         </span>
         <span>
           Fair band ±
@@ -236,9 +295,25 @@ function CalculationDetail({ calc }: { calc: NonNullable<TradeRecord["calculatio
         <span>Confidence {calc.confidence}</span>
       </div>
 
+      {calc.insights && calc.insights.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {calc.insights.map((insight) => (
+            <span
+              key={insight.kind}
+              className="chip border border-white/10 bg-white/5 px-2 py-1"
+            >
+              {insight.label}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-col gap-1">
         {lines.map((line, i) => (
-          <div key={`${line.itemId}-${i}`} className="flex items-center justify-between gap-3">
+          <div
+            key={`${line.itemId}-${i}`}
+            className="flex items-center justify-between gap-3"
+          >
             <span className="truncate text-slate-300">
               {line.displayName}
               {line.quantity > 1 && ` ×${line.quantity}`}
@@ -248,8 +323,9 @@ function CalculationDetail({ calc }: { calc: NonNullable<TradeRecord["calculatio
                 <span className="text-amber-400/90">no value</span>
               ) : (
                 <>
-                  {line.readings.map((r) => `${r.source} ${formatValue(r.value)}`).join(" · ") ||
-                    formatValue(line.unitValue)}
+                  {line.readings
+                    .map((r) => `${r.source} ${formatValue(r.value)}`)
+                    .join(" · ") || formatValue(line.unitValue)}
                 </>
               )}
             </span>

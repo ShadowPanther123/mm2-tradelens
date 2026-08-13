@@ -60,7 +60,8 @@ describe("icon filename convention", () => {
   it("only permits the allow-listed formats", () => {
     for (const f of ALLOWED_ICON_FORMATS) expect(isAllowedIconFormat(f)).toBe(true);
     expect(isAllowedIconFormat("gif")).toBe(false);
-    expect(isAllowedIconFormat("jpg")).toBe(false);
+    expect(isAllowedIconFormat("jpg")).toBe(true);
+    expect(isAllowedIconFormat("gif")).toBe(false);
   });
 });
 
@@ -188,6 +189,11 @@ describe("asset licensing", () => {
     expect(rec?.asset).toBe("data:");
   });
 
+  it("covers licensed MM2Values item icons via the manifest-backed prefix", () => {
+    const rec = licenseFor("icons/items/seer.png");
+    expect(rec?.permission).toBe("permission-granted");
+  });
+
   it("reports item images with no licence record", () => {
     const items: Item[] = [
       item({ id: "seer", displayName: "Seer" }), // no image, skipped
@@ -195,7 +201,7 @@ describe("asset licensing", () => {
       item({ id: "loc", displayName: "Loc", image: "icons/items/loc.png" }),
     ];
     const unlicensed = findUnlicensedAssets(items);
-    expect(unlicensed.map((u) => u.itemId)).toEqual(["hot", "loc"]);
+    expect(unlicensed.map((u) => u.itemId)).toEqual(["hot"]);
     expect(unlicensed.find((u) => u.itemId === "hot")?.hotlink).toBe(true);
   });
 

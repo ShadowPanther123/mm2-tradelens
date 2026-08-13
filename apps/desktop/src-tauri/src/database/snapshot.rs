@@ -51,9 +51,8 @@ pub fn save(
     generated_at: &str,
     payload: &Value,
 ) -> rusqlite::Result<()> {
-    let text = serde_json::to_string(payload).map_err(|e| {
-        rusqlite::Error::ToSqlConversionFailure(Box::new(e))
-    })?;
+    let text = serde_json::to_string(payload)
+        .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
     conn.execute(
         "INSERT INTO snapshot_cache (id, revision, generated_at, payload, cached_at)
          VALUES (1, ?1, ?2, ?3, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))

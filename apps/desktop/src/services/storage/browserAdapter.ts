@@ -2,6 +2,8 @@ import type {
   AppInfo,
   Favorite,
   HistoryPoint,
+  PortfolioEntry,
+  SearchStat,
   Settings,
   SnapshotMeta,
   TradeRecord,
@@ -18,6 +20,8 @@ const KEYS = {
   snapshot: "tradelens:snapshot",
   snapshotMeta: "tradelens:snapshot-meta",
   valueHistory: "tradelens:value-history",
+  portfolio: "tradelens:portfolio",
+  searchStats: "tradelens:search-stats",
 } as const;
 
 const DEFAULT_SETTINGS: Settings = {
@@ -34,6 +38,13 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 const APP_INFO: AppInfo = { name: "MM2 TradeLens", version: "0.1.0" };
+const MAX_HISTORY_LIMIT = 5_000;
+const MAX_ALL_HISTORY_LIMIT = 100_000;
+
+function boundedLimit(limit: number | undefined, maximum: number): number {
+  if (limit === undefined || !Number.isFinite(limit)) return maximum;
+  return Math.min(maximum, Math.max(1, Math.trunc(limit)));
+}
 
 type Validator<T> = (value: unknown) => value is T;
 
@@ -47,6 +58,17 @@ const isFavorite = (value: unknown): value is Favorite =>
   typeof value.itemId === "string" &&
   isFiniteNumber(value.baselineValue) &&
   typeof value.createdAt === "string";
+const isPortfolioEntry = (value: unknown): value is PortfolioEntry =>
+  isObject(value) &&
+  typeof value.itemId === "string" &&
+  isFiniteNumber(value.quantity) &&
+  isFiniteNumber(value.baselineValue) &&
+  typeof value.createdAt === "string";
+const isSearchStat = (value: unknown): value is SearchStat =>
+  isObject(value) &&
+  typeof value.itemId === "string" &&
+  isFiniteNumber(value.count) &&
+  typeof value.lastSearchedAt === "string";
 const isTradeSlot = (value: unknown): boolean =>
   isObject(value) && typeof value.itemId === "string" && isFiniteNumber(value.quantity);
 const isTradeRecord = (value: unknown): value is TradeRecord =>
@@ -59,7 +81,8 @@ const isTradeRecord = (value: unknown): value is TradeRecord =>
   value.gave.every(isTradeSlot) &&
   Array.isArray(value.received) &&
   value.received.every(isTradeSlot);
-const isSnapshot = (value: unknown): value is ValueSnapshot => safeParseSnapshot(value).success;
+const isSnapshot = (value: unknown): value is ValueSnapshot =>
+  safeParseSnapshot(value).success;
 const isSnapshotMeta = (value: unknown): value is SnapshotMeta =>
   isObject(value) &&
   isFiniteNumber(value.revision) &&
@@ -72,8 +95,10 @@ const isHistoryPoint = (value: unknown): value is HistoryPoint =>
   isFiniteNumber(value.value) &&
   typeof value.recordedAt === "string" &&
   isFiniteNumber(value.revision);
-const arrayOf = <T>(validator: Validator<T>): Validator<T[]> =>
-  (value: unknown): value is T[] => Array.isArray(value) && value.every(validator);
+const arrayOf =
+  <T>(validator: Validator<T>): Validator<T[]> =>
+  (value: unknown): value is T[] =>
+    Array.isArray(value) && value.every(validator);
 
 function read<T>(store: Storage, key: string, fallback: T, validate: Validator<T>): T {
   const raw = store.getItem(key);
@@ -127,6 +152,45 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
       write(store, KEYS.favorites, favorites);
     },
 
+    async listPortfolio() {
+      return read(store, KEYS.portfolio, [], arrayOf(isPortfolioEntry));
+    },
+    async upsertPortfolioEntry(itemId, quantity, baselineValue) {
+      const entries = read(store, KEYS.portfolio, [], arrayOf(isPortfolioEntry));
+      const existing = entries.find((entry) => entry.itemId === itemId);
+      const next = entries.filter((entry) => entry.itemId !== itemId);
+      next.unshift({
+        itemId,
+        quantity,
+        baselineValue,
+        createdAt: existing?.createdAt ?? new Date().toISOString(),
+      });
+      write(store, KEYS.portfolio, next);
+    },
+    async removePortfolioEntry(itemId) {
+      const entries = read(store, KEYS.portfolio, [], arrayOf(isPortfolioEntry)).filter(
+        (entry) => entry.itemId !== itemId,
+      );
+      write(store, KEYS.portfolio, entries);
+    },
+
+    async listSearchStats() {
+      return read(store, KEYS.searchStats, [], arrayOf(isSearchStat)).sort(
+        (a, b) => b.count - a.count || b.lastSearchedAt.localeCompare(a.lastSearchedAt),
+      );
+    },
+    async recordSearch(itemId) {
+      const stats = read(store, KEYS.searchStats, [], arrayOf(isSearchStat));
+      const existing = stats.find((entry) => entry.itemId === itemId);
+      const next = stats.filter((entry) => entry.itemId !== itemId);
+      next.push({
+        itemId,
+        count: (existing?.count ?? 0) + 1,
+        lastSearchedAt: new Date().toISOString(),
+      });
+      write(store, KEYS.searchStats, next);
+    },
+
     async listHistory() {
       return read(store, KEYS.history, [], arrayOf(isTradeRecord));
     },
@@ -145,20 +209,34 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
     },
 
     async getCachedSnapshot() {
-      return read(store, KEYS.snapshot, null, (value): value is ValueSnapshot | null =>
-        value === null || isSnapshot(value));
+      return read(
+        store,
+        KEYS.snapshot,
+        null,
+        (value): value is ValueSnapshot | null => value === null || isSnapshot(value),
+      );
     },
     async getSnapshotMeta() {
-      return read(store, KEYS.snapshotMeta, null, (value): value is SnapshotMeta | null =>
-        value === null || isSnapshotMeta(value));
+      return read(
+        store,
+        KEYS.snapshotMeta,
+        null,
+        (value): value is SnapshotMeta | null =>
+          value === null || isSnapshotMeta(value),
+      );
     },
     async readExternalSnapshot() {
       // The browser fallback has no local publish channel.
       return null;
     },
     async saveSnapshot(snapshot: ValueSnapshot) {
-      const existing = read(store, KEYS.snapshotMeta, null, (value): value is SnapshotMeta | null =>
-        value === null || isSnapshotMeta(value));
+      const existing = read(
+        store,
+        KEYS.snapshotMeta,
+        null,
+        (value): value is SnapshotMeta | null =>
+          value === null || isSnapshotMeta(value),
+      );
       if (existing && snapshot.revision <= existing.revision) {
         throw new Error(
           `refusing to cache revision ${snapshot.revision} at or below current ${existing.revision}`,
@@ -190,11 +268,33 @@ export function createBrowserStorage(store: Storage): StorageAdapter {
     async getValueHistory(itemId, limit) {
       const all = read(store, KEYS.valueHistory, [], arrayOf(isHistoryPoint))
         .filter((p) => p.itemId === itemId)
-        .sort((a, b) => a.revision - b.revision);
-      if (limit && limit > 0 && all.length > limit) {
-        return all.slice(all.length - limit);
+        .sort(
+          (a, b) => a.revision - b.revision || a.recordedAt.localeCompare(b.recordedAt),
+        );
+      const capped = boundedLimit(limit, MAX_HISTORY_LIMIT);
+      if (all.length > capped) {
+        return all.slice(all.length - capped);
       }
       return all;
+    },
+    async getAllValueHistory(limit) {
+      const capped = boundedLimit(limit, MAX_ALL_HISTORY_LIMIT);
+      return read(store, KEYS.valueHistory, [], arrayOf(isHistoryPoint))
+        .sort(
+          (a, b) =>
+            b.revision - a.revision ||
+            b.recordedAt.localeCompare(a.recordedAt) ||
+            a.itemId.localeCompare(b.itemId) ||
+            a.source.localeCompare(b.source),
+        )
+        .slice(0, capped)
+        .sort(
+          (a, b) =>
+            a.itemId.localeCompare(b.itemId) ||
+            a.revision - b.revision ||
+            a.recordedAt.localeCompare(b.recordedAt) ||
+            a.source.localeCompare(b.source),
+        );
     },
 
     async getAppInfo() {

@@ -5,6 +5,8 @@ import type {
   Favorite,
   HistoryPoint,
   OverlaySize,
+  PortfolioEntry,
+  SearchStat,
   Settings,
   SnapshotMeta,
   TradeRecord,
@@ -25,6 +27,16 @@ export interface CommandMap {
   remove_favorite: { args: { itemId: string }; result: void };
   is_favorite: { args: { itemId: string }; result: boolean };
 
+  list_portfolio: { args: undefined; result: PortfolioEntry[] };
+  upsert_portfolio_entry: {
+    args: { itemId: string; quantity: number; baselineValue: number };
+    result: void;
+  };
+  remove_portfolio_entry: { args: { itemId: string }; result: void };
+
+  list_search_stats: { args: undefined; result: SearchStat[] };
+  record_search: { args: { itemId: string }; result: void };
+
   list_history: { args: undefined; result: TradeRecord[] };
   add_history_record: { args: { record: TradeRecord }; result: void };
   remove_history_record: { args: { id: string }; result: void };
@@ -40,6 +52,10 @@ export interface CommandMap {
   record_value_history: { args: { points: HistoryPoint[] }; result: number };
   get_value_history: {
     args: { itemId: string; limit?: number };
+    result: HistoryPoint[];
+  };
+  get_all_value_history: {
+    args: { limit?: number };
     result: HistoryPoint[];
   };
 
@@ -65,7 +81,9 @@ const responseValidators: {
     if (value === null) return null;
     const parsed = safeParseSnapshot(value);
     if (!parsed.success) {
-      throw new Error(`get_snapshot returned an invalid snapshot: ${parsed.error.message}`);
+      throw new Error(
+        `get_snapshot returned an invalid snapshot: ${parsed.error.message}`,
+      );
     }
     return parsed.data as ValueSnapshot;
   },
@@ -86,8 +104,19 @@ const responseValidators: {
     return value as Settings;
   },
   list_favorites: (value) => {
-    if (!Array.isArray(value)) throw new Error("list_favorites did not return an array");
+    if (!Array.isArray(value))
+      throw new Error("list_favorites did not return an array");
     return value as Favorite[];
+  },
+  list_portfolio: (value) => {
+    if (!Array.isArray(value))
+      throw new Error("list_portfolio did not return an array");
+    return value as PortfolioEntry[];
+  },
+  list_search_stats: (value) => {
+    if (!Array.isArray(value))
+      throw new Error("list_search_stats did not return an array");
+    return value as SearchStat[];
   },
   list_history: (value) => {
     if (!Array.isArray(value)) throw new Error("list_history did not return an array");
@@ -105,8 +134,7 @@ export function validateResponse<K extends CommandName>(
   value: unknown,
 ): CommandMap[K]["result"] {
   const validate = responseValidators[name] as
-    | ((value: unknown) => CommandMap[K]["result"])
-    | undefined;
+    ((value: unknown) => CommandMap[K]["result"]) | undefined;
   return validate ? validate(value) : (value as CommandMap[K]["result"]);
 }
 

@@ -7,25 +7,32 @@ import {
 } from "@tradelens/trade-engine";
 import { safeParseSnapshot } from "@tradelens/item-schema";
 import { sampleSnapshot } from "@tradelens/source-adapters/sample";
-import { mm2valuesSnapshot } from "@tradelens/source-adapters/mm2values";
-import {
-  mergeSupremeCapture,
-  type SupremeMergeReport,
-} from "@tradelens/source-adapters/supreme-import";
 import type {
   Favorite,
   HistoryPoint,
   Item,
+  PortfolioEntry,
+  SearchStat,
   Settings,
   SnapshotMeta,
   TradeRecord,
   ValueSnapshot,
 } from "@/types";
 import * as db from "@/database";
-import { fetchRemoteSnapshot, type FetchOutcome, type UpdateStatus } from "@/services/updates";import { describeError, logger } from "@/services/logger";
+import {
+  fetchRemoteSnapshot,
+  type FetchOutcome,
+  type UpdateStatus,
+} from "@/services/updates";
+import { describeError, logger } from "@/services/logger";
 import { toEngineMode } from "@/utils/sourceMode";
 import { mergeFavorites } from "@/utils/favorites";
 import { recordsToPrune } from "@/utils/history";
+import {
+  bundledHistoryPoints,
+  loadBundledCatalogue,
+  mergeBundledHistory,
+} from "@/services/bundledData";
 
 /** A favorited item whose resolved value moved between snapshots. */
 export interface MovedFavorite {
@@ -61,12 +68,6 @@ const DEFAULT_SETTINGS: Settings = {
 
 const STALE_AFTER_HOURS = 48;
 
-/**
- * The snapshot the app seeds and ships offline. This is the real bundled
- * MM2Values feed, not the illustrative {@link sampleSnapshot}.
- */
-const bundledSnapshot = mm2valuesSnapshot as ValueSnapshot;
-
 interface DataState {
   ready: boolean;
   loading: boolean;
@@ -81,6 +82,8 @@ interface DataState {
   settings: Settings;
   favorites: Favorite[];
   history: TradeRecord[];
+  portfolio: PortfolioEntry[];
+  searchStats: SearchStat[];
 
   checking: boolean;
   lastCheckedAt: string | null;
@@ -96,6 +99,10 @@ interface DataState {
   clearFavorites: () => Promise<void>;
   importFavorites: (incoming: Favorite[]) => Promise<number>;
 
+  setPortfolioQuantity: (itemId: string, quantity: number) => Promise<void>;
+  removePortfolio: (itemId: string) => Promise<void>;
+  recordItemSearch: (itemId: string) => Promise<void>;
+
   addHistory: (record: TradeRecord) => Promise<void>;
   removeHistory: (id: string) => Promise<void>;
 
@@ -104,7 +111,6 @@ interface DataState {
   resetData: () => Promise<void>;
 
   checkForUpdates: () => Promise<UpdateResult>;
-  importSupreme: (capture: string) => Promise<SupremeMergeReport>;
 }
 
 function buildIndex(items: Item[]): { index: SearchIndex; itemMap: Map<string, Item> } {
@@ -119,7 +125,12 @@ function buildIndex(items: Item[]): { index: SearchIndex; itemMap: Map<string, I
  * revision (and therefore the item set) has not changed — e.g. a refresh that
  * only touched favorites, or an update check that returned "already current".
  */
-let indexCache: { revision: number; index: SearchIndex; itemMap: Map<string, Item> } | null = null;
+let indexCache: {
+  revision: number;
+  items: Item[];
+  index: SearchIndex;
+  itemMap: Map<string, Item>;
+} | null = null;
 
 /**
  * Return a search index for a snapshot's items, reusing the cached one when the
@@ -130,11 +141,11 @@ function indexForSnapshot(
   items: Item[],
 ): { index: SearchIndex; itemMap: Map<string, Item> } {
   const revision = snapshot?.revision ?? -1;
-  if (indexCache && indexCache.revision === revision) {
+  if (indexCache && indexCache.revision === revision && indexCache.items === items) {
     return { index: indexCache.index, itemMap: indexCache.itemMap };
   }
   const built = buildIndex(items);
-  indexCache = { revision, ...built };
+  indexCache = { revision, items, ...built };
   return built;
 }
 
@@ -204,8 +215,8 @@ async function loadValidSnapshot(): Promise<ValueSnapshot | null> {
  * Whether the bundled snapshot has a higher monotonic revision than a cached
  * one. Revision is authoritative; timestamps must never cause a downgrade.
  */
-function bundledIsNewer(cached: ValueSnapshot): boolean {
-  return bundledSnapshot.revision > cached.revision;
+function bundledIsNewer(cached: ValueSnapshot, bundled: ValueSnapshot): boolean {
+  return bundled.revision > cached.revision;
 }
 
 /** True when the active snapshot is the bundled demonstration data, not live values. */
@@ -225,7 +236,10 @@ function isSample(snapshot: ValueSnapshot | null): boolean {
  * cache. A published file that fails schema validation is ignored so a bad drop
  * can never break the update check.
  */
-async function resolveLocalUpdate(currentRevision: number): Promise<FetchOutcome> {
+async function resolveLocalUpdate(
+  currentRevision: number,
+  bundledSnapshot: ValueSnapshot,
+): Promise<FetchOutcome> {
   let candidate: ValueSnapshot | null = null;
   try {
     const external = await db.readExternalSnapshot();
@@ -266,8 +280,14 @@ function sanitizeSettings(raw: unknown): Settings {
   };
   const bool = (v: unknown, fallback: boolean): boolean =>
     typeof v === "boolean" ? v : fallback;
-  const oneOf = <T extends string>(v: unknown, allowed: readonly T[], fallback: T): T =>
-    typeof v === "string" && (allowed as readonly string[]).includes(v) ? (v as T) : fallback;
+  const oneOf = <T extends string>(
+    v: unknown,
+    allowed: readonly T[],
+    fallback: T,
+  ): T =>
+    typeof v === "string" && (allowed as readonly string[]).includes(v)
+      ? (v as T)
+      : fallback;
 
   return {
     sourceMode: oneOf(
@@ -282,8 +302,16 @@ function sanitizeSettings(raw: unknown): Settings {
     ),
     alwaysOnTop: bool(s.alwaysOnTop, DEFAULT_SETTINGS.alwaysOnTop),
     theme: oneOf(s.theme, ["dark", "light"] as const, DEFAULT_SETTINGS.theme),
-    notificationsEnabled: bool(s.notificationsEnabled, DEFAULT_SETTINGS.notificationsEnabled),
-    notifyThresholdPercent: num(s.notifyThresholdPercent, DEFAULT_SETTINGS.notifyThresholdPercent, 1, 100),
+    notificationsEnabled: bool(
+      s.notificationsEnabled,
+      DEFAULT_SETTINGS.notificationsEnabled,
+    ),
+    notifyThresholdPercent: num(
+      s.notifyThresholdPercent,
+      DEFAULT_SETTINGS.notifyThresholdPercent,
+      1,
+      100,
+    ),
     alertAbsoluteThreshold: num(
       s.alertAbsoluteThreshold,
       DEFAULT_SETTINGS.alertAbsoluteThreshold,
@@ -316,6 +344,8 @@ export const useDataStore = create<DataState>((set, get) => ({
   settings: DEFAULT_SETTINGS,
   favorites: [],
   history: [],
+  portfolio: [],
+  searchStats: [],
 
   checking: false,
   lastCheckedAt: null,
@@ -326,6 +356,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     if (get().ready || get().loading) return;
     set({ loading: true, error: null });
     try {
+      const bundledSnapshot = await loadBundledCatalogue();
       // Load each piece defensively: a single corrupted store must not prevent
       // the app from starting. Anything unreadable falls back to a safe default
       // and is logged rather than silently ignored.
@@ -333,7 +364,11 @@ export const useDataStore = create<DataState>((set, get) => ({
         .getSettings()
         .then(sanitizeSettings)
         .catch((err) => {
-          logger.warn("init", "settings unreadable; using defaults", describeError(err));
+          logger.warn(
+            "init",
+            "settings unreadable; using defaults",
+            describeError(err),
+          );
           return DEFAULT_SETTINGS;
         });
       const favorites = await db.listFavorites().catch((err) => {
@@ -344,13 +379,25 @@ export const useDataStore = create<DataState>((set, get) => ({
         logger.warn("init", "history unreadable; starting empty", describeError(err));
         return [] as TradeRecord[];
       });
+      const portfolio = await db.listPortfolio().catch((err) => {
+        logger.warn("init", "portfolio unreadable; starting empty", describeError(err));
+        return [] as PortfolioEntry[];
+      });
+      const searchStats = await db.listSearchStats().catch((err) => {
+        logger.warn(
+          "init",
+          "search stats unreadable; starting empty",
+          describeError(err),
+        );
+        return [] as SearchStat[];
+      });
 
       // Load and validate the cached snapshot. If it is missing, unreadable,
       // structurally invalid, or older than the data bundled with this build,
       // fall back to the bundled snapshot so the app stays usable offline and
       // upgrades pick up fresh values even when a stale seed is cached.
       let snapshot = await loadValidSnapshot();
-      if (!snapshot || bundledIsNewer(snapshot)) {
+      if (!snapshot || bundledIsNewer(snapshot, bundledSnapshot)) {
         snapshot = bundledSnapshot;
         try {
           await db.saveSnapshot(snapshot);
@@ -360,12 +407,12 @@ export const useDataStore = create<DataState>((set, get) => ({
       }
       const meta = await db.getSnapshotMeta().catch(() => null);
 
-      await recordSnapshotHistory(snapshot);
-
       set({
         settings,
         favorites,
         history,
+        portfolio,
+        searchStats,
         snapshot,
         snapshotMeta: meta,
         items: snapshot.items,
@@ -374,6 +421,28 @@ export const useDataStore = create<DataState>((set, get) => ({
         ready: true,
         loading: false,
       });
+      void mergeBundledHistory(snapshot)
+        .then((withHistory) => {
+          if (get().snapshot?.revision !== withHistory.revision) return;
+          set({
+            snapshot: withHistory,
+            items: withHistory.items,
+            ...indexForSnapshot(withHistory, withHistory.items),
+          });
+        })
+        .catch((err) =>
+          logger.warn("history", "bundled history could not be loaded", describeError(err)),
+        );
+      void bundledHistoryPoints(snapshot)
+        .then((points) =>
+          db.recordValueHistory([
+            ...points,
+            ...historyPointsFor(snapshot, new Date().toISOString()),
+          ]),
+        )
+        .catch((err) =>
+          logger.warn("history", "bundled history could not be recorded", describeError(err)),
+        );
     } catch (err) {
       const info = describeError(err);
       logger.error("init", `startup failed: ${info.message}`, { kind: info.kind });
@@ -382,16 +451,21 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   async refresh() {
-    const [favorites, history, snapshot, meta] = await Promise.all([
-      db.listFavorites(),
-      db.listHistory(),
-      db.getCachedSnapshot(),
-      db.getSnapshotMeta(),
-    ]);
+    const [favorites, history, portfolio, searchStats, snapshot, meta] =
+      await Promise.all([
+        db.listFavorites(),
+        db.listHistory(),
+        db.listPortfolio(),
+        db.listSearchStats(),
+        db.getCachedSnapshot(),
+        db.getSnapshotMeta(),
+      ]);
     const items = snapshot?.items ?? get().items;
     set({
       favorites,
       history,
+      portfolio,
+      searchStats,
       snapshot: snapshot ?? get().snapshot,
       snapshotMeta: meta,
       items,
@@ -437,6 +511,32 @@ export const useDataStore = create<DataState>((set, get) => ({
     return added;
   },
 
+  async setPortfolioQuantity(itemId, quantity) {
+    const item = get().itemById(itemId);
+    if (!item) return;
+    const whole = Math.min(10_000, Math.max(0, Math.floor(quantity)));
+    if (whole === 0) {
+      await db.removePortfolioEntry(itemId);
+    } else {
+      const mode = toEngineMode(get().settings.sourceMode);
+      const current = resolveValue(item, mode)?.value ?? 0;
+      const existing = get().portfolio.find((entry) => entry.itemId === itemId);
+      const baseline = existing ? existing.baselineValue : current;
+      await db.upsertPortfolioEntry(itemId, whole, baseline);
+    }
+    set({ portfolio: await db.listPortfolio() });
+  },
+
+  async removePortfolio(itemId) {
+    await db.removePortfolioEntry(itemId);
+    set({ portfolio: await db.listPortfolio() });
+  },
+
+  async recordItemSearch(itemId) {
+    await db.recordSearch(itemId);
+    set({ searchStats: await db.listSearchStats() });
+  },
+
   async addHistory(record) {
     await db.addHistoryRecord(record);
     let history = await db.listHistory();
@@ -470,11 +570,14 @@ export const useDataStore = create<DataState>((set, get) => ({
     // Full recovery reset: rebuild the database, then reload everything and
     // re-seed the bundled snapshot so the app remains usable offline.
     await db.resetDatabase();
-    const [settings, favorites, history] = await Promise.all([
+    const [settings, favorites, history, portfolio, searchStats] = await Promise.all([
       db.getSettings(),
       db.listFavorites(),
       db.listHistory(),
+      db.listPortfolio(),
+      db.listSearchStats(),
     ]);
+    const bundledSnapshot = await loadBundledCatalogue();
     let snapshot = await db.getCachedSnapshot();
     if (!snapshot) {
       snapshot = bundledSnapshot;
@@ -485,41 +588,14 @@ export const useDataStore = create<DataState>((set, get) => ({
       settings,
       favorites,
       history,
+      portfolio,
+      searchStats,
       snapshot,
       snapshotMeta: meta,
       items: snapshot.items,
       ...indexForSnapshot(snapshot, snapshot.items),
       isSampleData: isSample(snapshot),
     });
-  },
-
-  async importSupreme(capture) {
-    // Merge a Supreme Values capture the user saved from their own browser
-    // session into the current snapshot. Only items already in the snapshot are
-    // updated; unmatched rows are reported, never invented. When nothing
-    // changed the revision is preserved and no write occurs.
-    const current = get().snapshot ?? bundledSnapshot;
-    const { snapshot: merged, report } = mergeSupremeCapture(current, capture);
-    if (report.changed + report.added === 0) {
-      return report;
-    }
-    await db.saveSnapshot(merged);
-    await recordSnapshotHistory(merged);
-    const meta = await db.getSnapshotMeta().catch(() => get().snapshotMeta);
-    const stamp = new Date().toISOString();
-    set({
-      snapshot: merged,
-      snapshotMeta: meta,
-      items: merged.items,
-      ...indexForSnapshot(merged, merged.items),
-      isSampleData: isSample(merged),
-      lastUpdatedAt: stamp,
-    });
-    logger.info(
-      "supreme-import",
-      `applied revision ${merged.revision} (${report.changed} changed, ${report.added} added, ${report.unmatched} unmatched)`,
-    );
-    return report;
   },
 
   async checkForUpdates() {
@@ -529,7 +605,12 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
     // Prevent overlapping requests: a check already in flight wins.
     if (checking) {
-      return { status: "already-current", updated: false, movedFavorites: [], movedItems: [] };
+      return {
+        status: "already-current",
+        updated: false,
+        movedFavorites: [],
+        movedItems: [],
+      };
     }
     set({ checking: true });
     const now = () => new Date().toISOString();
@@ -538,18 +619,36 @@ export const useDataStore = create<DataState>((set, get) => ({
       const currentRevision = current?.revision ?? -1;
       let outcome = await fetchRemoteSnapshot(undefined, undefined, currentRevision);
 
-      // Offline-first fallback: when no remote values service is configured for
-      // this build, values reach an installed app through two local channels —
-      // a snapshot published into the app data directory by a values sync
-      // (scripts/publish-local), and the values bundled with the build. Adopt
-      // whichever is newest instead of dead-ending on "no values service".
-      if (outcome.status === "not-configured") {
-        outcome = await resolveLocalUpdate(currentRevision);
+      // Offline-first fallback: when the remote service is unavailable or has
+      // no newer revision, also inspect the app-data publish channel and the
+      // values bundled with this build. Invalid/signature-failed remote data is
+      // never bypassed through this fallback.
+      if (
+        [
+          "not-configured",
+          "already-current",
+          "offline",
+          "network-error",
+          "server-error",
+        ].includes(outcome.status)
+      ) {
+        const local = await resolveLocalUpdate(
+          currentRevision,
+          await loadBundledCatalogue(),
+        );
+        if (local.status === "updated" || outcome.status === "not-configured") {
+          outcome = local;
+        }
       }
 
       if (outcome.status !== "updated") {
         set({ checking: false, lastCheckedAt: now() });
-        return { status: outcome.status, updated: false, movedFavorites: [], movedItems: [] };
+        return {
+          status: outcome.status,
+          updated: false,
+          movedFavorites: [],
+          movedItems: [],
+        };
       }
 
       const remote = outcome.snapshot;
@@ -572,7 +671,12 @@ export const useDataStore = create<DataState>((set, get) => ({
         const info = describeError(err);
         logger.error("updates", `failed to cache revision ${remote.revision}`, info);
         set({ checking: false, lastCheckedAt: now() });
-        return { status: "database-error", updated: false, movedFavorites: [], movedItems: [] };
+        return {
+          status: "database-error",
+          updated: false,
+          movedFavorites: [],
+          movedItems: [],
+        };
       }
 
       const meta = await db.getSnapshotMeta();
@@ -600,7 +704,12 @@ export const useDataStore = create<DataState>((set, get) => ({
         if (from === undefined || !resolved || from === 0) continue;
         const changePercent = ((resolved.value - from) / from) * 100;
         if (changePercent !== 0) {
-          movedFavorites.push({ item: nextItem!, from, to: resolved.value, changePercent });
+          movedFavorites.push({
+            item: nextItem!,
+            from,
+            to: resolved.value,
+            changePercent,
+          });
         }
       }
 
@@ -628,7 +737,12 @@ export const useDataStore = create<DataState>((set, get) => ({
         kind: info.kind,
       });
       set({ checking: false, lastCheckedAt: now() });
-      return { status: "network-error", updated: false, movedFavorites: [], movedItems: [] };
+      return {
+        status: "network-error",
+        updated: false,
+        movedFavorites: [],
+        movedItems: [],
+      };
     }
   },
 }));

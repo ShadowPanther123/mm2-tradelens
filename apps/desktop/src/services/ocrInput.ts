@@ -34,9 +34,7 @@ export interface ImageFileInfo {
   name?: string;
 }
 
-export type ImageValidation =
-  | { ok: true }
-  | { ok: false; reason: string };
+export type ImageValidation = { ok: true } | { ok: false; reason: string };
 
 const EXTENSION_TYPES: Record<string, SupportedImageType> = {
   png: "image/png",
@@ -60,7 +58,9 @@ export function isSupportedImage(info: ImageFileInfo): boolean {
 
 function formatBytes(bytes: number): string {
   const mb = bytes / (1024 * 1024);
-  return mb >= 1 ? `${mb.toFixed(0)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return mb >= 1
+    ? `${mb.toFixed(0)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
 /** Validate a screenshot before any decoding or OCR work begins. */

@@ -8,6 +8,8 @@ export * from "./favorites";
 export * from "./history";
 export * from "./snapshot";
 export * from "./valueHistory";
+export * from "./portfolio";
+export * from "./searchStats";
 
 /** Read basic app metadata. */
 export function getAppInfo(): Promise<AppInfo> {

@@ -21,11 +21,7 @@ const index = new SearchIndex([
   item("elderwand", "Elderwand"),
 ]);
 
-function word(
-  text: string,
-  confidence = 90,
-  bbox?: OcrWord["bbox"],
-): OcrWord {
+function word(text: string, confidence = 90, bbox?: OcrWord["bbox"]): OcrWord {
   return { text, confidence, bbox };
 }
 

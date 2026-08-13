@@ -27,9 +27,7 @@ function base64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
 /** Import a raw 32-byte Ed25519 public key (base64) for verification. */
 async function importPublicKey(publicKeyBase64: string): Promise<CryptoKey> {
   const raw = base64ToBytes(publicKeyBase64);
-  return crypto.subtle.importKey("raw", raw, { name: "Ed25519" }, false, [
-    "verify",
-  ]);
+  return crypto.subtle.importKey("raw", raw, { name: "Ed25519" }, false, ["verify"]);
 }
 
 /**
@@ -48,16 +46,9 @@ export async function verifySignedSnapshot(
   }
   try {
     const key = await importPublicKey(publicKeyBase64);
-    const message = new TextEncoder().encode(
-      canonicaliseSnapshot(signed.snapshot),
-    );
+    const message = new TextEncoder().encode(canonicaliseSnapshot(signed.snapshot));
     const signature = base64ToBytes(signed.signature);
-    const ok = await crypto.subtle.verify(
-      { name: "Ed25519" },
-      key,
-      signature,
-      message,
-    );
+    const ok = await crypto.subtle.verify({ name: "Ed25519" }, key, signature, message);
     return ok ? { valid: true } : { valid: false, reason: "signature mismatch" };
   } catch (err) {
     return { valid: false, reason: (err as Error).message };

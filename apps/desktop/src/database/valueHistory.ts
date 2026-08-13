@@ -10,6 +10,14 @@ export function recordValueHistory(points: HistoryPoint[]): Promise<void> {
 }
 
 /** Read the recorded value history for one item, oldest first. */
-export function getValueHistory(itemId: string, limit?: number): Promise<HistoryPoint[]> {
+export function getValueHistory(
+  itemId: string,
+  limit?: number,
+): Promise<HistoryPoint[]> {
   return getStorage().getValueHistory(itemId, limit);
+}
+
+/** Read the recorded value history for every item at once, oldest first. */
+export function getAllValueHistory(limit?: number): Promise<HistoryPoint[]> {
+  return getStorage().getAllValueHistory(limit);
 }

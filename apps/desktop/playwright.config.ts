@@ -20,9 +20,7 @@ export default defineConfig({
     viewport: { width: 1100, height: 760 },
     trace: "on-first-retry",
   },
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-  ],
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "npm run dev",
     url: "http://localhost:1420",

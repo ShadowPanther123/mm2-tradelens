@@ -5,7 +5,13 @@ import type { Item } from "@/types";
  * placeholder or manually entered records). Shown so users never mistake an
  * unverified value for a confirmed one.
  */
-export function UnverifiedBadge({ item, className }: { item: Item; className?: string }) {
+export function UnverifiedBadge({
+  item,
+  className,
+}: {
+  item: Item;
+  className?: string;
+}) {
   if (item.verified) return null;
   return (
     <span

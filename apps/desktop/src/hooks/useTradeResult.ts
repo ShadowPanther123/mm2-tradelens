@@ -9,7 +9,10 @@ import { useTradeStore } from "./useTradeStore";
 import type { Item, TradeSlot } from "@/types";
 import { toEngineMode } from "@/utils/sourceMode";
 
-function toLines(slots: TradeSlot[], itemById: (id: string) => Item | undefined): TradeLine[] {
+function toLines(
+  slots: TradeSlot[],
+  itemById: (id: string) => Item | undefined,
+): TradeLine[] {
   const lines: TradeLine[] = [];
   for (const slot of slots) {
     const item = itemById(slot.itemId);

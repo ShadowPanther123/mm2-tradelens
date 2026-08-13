@@ -1,0 +1,8 @@
+node_modules/
+**/dist/
+**/target/
+release/
+audit-npm.json
+apps/desktop/public/tesseract/
+apps/desktop/public/tessdata/
+packages/source-adapters/src/mm2values-snapshot.json

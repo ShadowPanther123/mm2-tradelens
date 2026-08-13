@@ -20,7 +20,7 @@ export const ITEM_ICON_DIR = "icons/items";
 export const MISSING_ICON_PLACEHOLDER = "icons/placeholder.svg";
 
 /** Image formats an item icon may use. */
-export const ALLOWED_ICON_FORMATS = ["png", "webp", "svg"] as const;
+export const ALLOWED_ICON_FORMATS = ["png", "webp", "jpg", "jpeg", "svg"] as const;
 export type IconFormat = (typeof ALLOWED_ICON_FORMATS)[number];
 
 /**

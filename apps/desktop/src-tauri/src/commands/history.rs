@@ -39,13 +39,19 @@ fn validate_slot(slot: &TradeSlot) -> AppResult<()> {
 
 fn validate_record(record: &TradeRecord) -> AppResult<()> {
     if record.id.trim().is_empty() || record.id.len() > MAX_ID_LEN {
-        return Err(AppError::Validation("trade record id is empty or too long".into()));
+        return Err(AppError::Validation(
+            "trade record id is empty or too long".into(),
+        ));
     }
     if record.date.trim().is_empty() || record.date.len() > MAX_DATE_LEN {
-        return Err(AppError::Validation("trade record date is empty or too long".into()));
+        return Err(AppError::Validation(
+            "trade record date is empty or too long".into(),
+        ));
     }
     if record.mode.trim().is_empty() || record.mode.len() > MAX_MODE_LEN {
-        return Err(AppError::Validation("trade record mode is empty or too long".into()));
+        return Err(AppError::Validation(
+            "trade record mode is empty or too long".into(),
+        ));
     }
     if record.gave.is_empty() && record.received.is_empty() {
         return Err(AppError::Validation("trade record has no items".into()));
@@ -95,7 +101,10 @@ mod tests {
     use super::*;
 
     fn slot(id: &str, qty: i64) -> TradeSlot {
-        TradeSlot { item_id: id.into(), quantity: qty }
+        TradeSlot {
+            item_id: id.into(),
+            quantity: qty,
+        }
     }
 
     fn record() -> TradeRecord {

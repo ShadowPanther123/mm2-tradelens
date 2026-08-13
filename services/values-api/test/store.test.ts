@@ -93,13 +93,15 @@ describe("values-api snapshot store", () => {
       const first = new SnapshotStore(mm2valuesSnapshot, undefined, file);
       const initialRevision = first.get().snapshot.revision;
       first.importRows({
-        supreme: [{
-          name: "Durable Item",
-          category: "gun",
-          rarity: "godly",
-          value: 42,
-          updatedAt: new Date().toISOString(),
-        }],
+        supreme: [
+          {
+            name: "Durable Item",
+            category: "gun",
+            rarity: "godly",
+            value: 42,
+            updatedAt: new Date().toISOString(),
+          },
+        ],
       });
 
       const restarted = new SnapshotStore(mm2valuesSnapshot, undefined, file);

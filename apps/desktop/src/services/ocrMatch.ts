@@ -64,22 +64,126 @@ const MAX_PHRASE_WORDS = 3;
  * these out sharply reduces false positives from buttons, labels and chrome.
  */
 const UI_STOPWORDS = new Set<string>([
-  "trade", "trades", "trading", "accept", "accepted", "decline", "declined",
-  "cancel", "cancelled", "confirm", "confirmed", "ready", "unready", "waiting",
-  "offer", "offers", "offering", "request", "requests", "requesting",
-  "your", "yours", "their", "theirs", "you", "them", "they", "me", "my", "mine",
-  "value", "values", "valued", "worth", "price", "prices", "total", "totals",
-  "demand", "trend", "trends", "stable", "rising", "falling", "overpay",
-  "robux", "coins", "tokens", "gems", "cash", "credits",
-  "inventory", "backpack", "storage", "sort", "search", "filter", "filters",
-  "add", "remove", "removed", "added", "item", "items", "select", "selected",
-  "chat", "report", "block", "invite", "party", "friend", "friends",
-  "settings", "setting", "options", "menu", "close", "back", "next", "done",
-  "okay", "yes", "no", "on", "off", "and", "the", "for", "with", "from", "to",
-  "mm2", "murder", "mystery", "roblox", "server", "servers", "level", "rank",
-  "quantity", "amount", "each", "per", "all", "none", "empty", "slot", "slots",
-  "godly", "godlys", "vintage", "ancient", "legendary", "rare", "uncommon",
-  "common", "unique", "chroma", "chromas",
+  "trade",
+  "trades",
+  "trading",
+  "accept",
+  "accepted",
+  "decline",
+  "declined",
+  "cancel",
+  "cancelled",
+  "confirm",
+  "confirmed",
+  "ready",
+  "unready",
+  "waiting",
+  "offer",
+  "offers",
+  "offering",
+  "request",
+  "requests",
+  "requesting",
+  "your",
+  "yours",
+  "their",
+  "theirs",
+  "you",
+  "them",
+  "they",
+  "me",
+  "my",
+  "mine",
+  "value",
+  "values",
+  "valued",
+  "worth",
+  "price",
+  "prices",
+  "total",
+  "totals",
+  "demand",
+  "trend",
+  "trends",
+  "stable",
+  "rising",
+  "falling",
+  "overpay",
+  "robux",
+  "coins",
+  "tokens",
+  "gems",
+  "cash",
+  "credits",
+  "inventory",
+  "backpack",
+  "storage",
+  "sort",
+  "search",
+  "filter",
+  "filters",
+  "add",
+  "remove",
+  "removed",
+  "added",
+  "item",
+  "items",
+  "select",
+  "selected",
+  "chat",
+  "report",
+  "block",
+  "invite",
+  "party",
+  "friend",
+  "friends",
+  "settings",
+  "setting",
+  "options",
+  "menu",
+  "close",
+  "back",
+  "next",
+  "done",
+  "okay",
+  "yes",
+  "no",
+  "on",
+  "off",
+  "and",
+  "the",
+  "for",
+  "with",
+  "from",
+  "to",
+  "mm2",
+  "murder",
+  "mystery",
+  "roblox",
+  "server",
+  "servers",
+  "level",
+  "rank",
+  "quantity",
+  "amount",
+  "each",
+  "per",
+  "all",
+  "none",
+  "empty",
+  "slot",
+  "slots",
+  "godly",
+  "godlys",
+  "vintage",
+  "ancient",
+  "legendary",
+  "rare",
+  "uncommon",
+  "common",
+  "unique",
+  "chroma",
+  "chromas",
 ]);
 
 /** True when a word is interface chrome or otherwise not part of an item name. */
@@ -95,9 +199,7 @@ export function filterWords(
   words: OcrWord[],
   minConfidence = MIN_WORD_CONFIDENCE,
 ): OcrWord[] {
-  return words.filter(
-    (w) => w.confidence >= minConfidence && !isUiNoise(w.text),
-  );
+  return words.filter((w) => w.confidence >= minConfidence && !isUiNoise(w.text));
 }
 
 /**
@@ -158,11 +260,20 @@ function scoreRegion(
   for (let i = 0; i < region.length; i++) {
     for (let n = 1; n <= MAX_PHRASE_WORDS && i + n <= region.length; n++) {
       const slice = region.slice(i, i + n);
-      const phrase = slice.map((w) => w.text).join(" ").trim();
+      const phrase = slice
+        .map((w) => w.text)
+        .join(" ")
+        .trim();
       if (phrase.length < 2) continue;
       for (const hit of index.search(phrase, 4)) {
         if (hit.score < minScore) continue;
-        spans.push({ start: i, end: i + n, item: hit.item, score: hit.score, text: phrase });
+        spans.push({
+          start: i,
+          end: i + n,
+          item: hit.item,
+          score: hit.score,
+          text: phrase,
+        });
       }
     }
   }
@@ -200,7 +311,9 @@ export function analyzeOcr(
 
   const candidates: OcrCandidate[] = [];
   for (const region of regions) {
-    const spans = scoreRegion(index, region, minScore).sort((a, b) => b.score - a.score);
+    const spans = scoreRegion(index, region, minScore).sort(
+      (a, b) => b.score - a.score,
+    );
 
     const taken: SpanMatch[] = [];
     for (const span of spans) {
@@ -217,9 +330,7 @@ export function analyzeOcr(
 
     for (const chosen of taken) {
       const alternatives = spans
-        .filter(
-          (s) => overlaps(s, chosen) && s.item.id !== chosen.item.id,
-        )
+        .filter((s) => overlaps(s, chosen) && s.item.id !== chosen.item.id)
         .sort((a, b) => b.score - a.score);
       const seen = new Set<string>();
       const dedupedAlternatives: Array<{ item: Item; score: number }> = [];
@@ -252,7 +363,5 @@ export function analyzeOcr(
     if (!prev || candidate.score > prev.score) best.set(candidate.item.id, candidate);
   }
 
-  return [...best.values()]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, maxResults);
+  return [...best.values()].sort((a, b) => b.score - a.score).slice(0, maxResults);
 }

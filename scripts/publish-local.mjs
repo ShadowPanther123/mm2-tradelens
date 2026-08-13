@@ -34,10 +34,7 @@ const REPO_ROOT = resolve(here, "..");
 /** Tauri bundle identifier from apps/desktop/src-tauri/tauri.conf.json. */
 const APP_IDENTIFIER = "com.tradelens.mm2";
 const EXTERNAL_SNAPSHOT_FILE = "values-snapshot.json";
-const DEFAULT_SNAPSHOT = resolve(
-  REPO_ROOT,
-  "packages/source-adapters/src/mm2values-snapshot.json",
-);
+const DEFAULT_SNAPSHOT = resolve(REPO_ROOT, "packages/source-adapters/src/mm2values-snapshot.json");
 
 function parseArgs(argv) {
   const args = { snapshot: DEFAULT_SNAPSHOT, target: "", dryRun: false };
@@ -45,7 +42,8 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "--dry-run") args.dryRun = true;
     else if (arg === "--snapshot") args.snapshot = resolve(argv[++i] ?? "");
-    else if (arg.startsWith("--snapshot=")) args.snapshot = resolve(arg.slice("--snapshot=".length));
+    else if (arg.startsWith("--snapshot="))
+      args.snapshot = resolve(arg.slice("--snapshot=".length));
     else if (arg === "--target") args.target = resolve(argv[++i] ?? "");
     else if (arg.startsWith("--target=")) args.target = resolve(arg.slice("--target=".length));
   }

@@ -114,6 +114,22 @@ describe("browser storage adapter", () => {
     expect((await store.listHistory()).map((h) => h.id)).toEqual(["b"]);
   });
 
+  it("persists portfolio quantities and search analytics", async () => {
+    const store = createBrowserStorage(memoryStorage());
+    await store.upsertPortfolioEntry("harvester", 2, 100);
+    await store.upsertPortfolioEntry("harvester", 3, 100);
+    expect(await store.listPortfolio()).toMatchObject([
+      { itemId: "harvester", quantity: 3, baselineValue: 100 },
+    ]);
+    await store.recordSearch("harvester");
+    await store.recordSearch("harvester");
+    expect(await store.listSearchStats()).toMatchObject([
+      { itemId: "harvester", count: 2 },
+    ]);
+    await store.removePortfolioEntry("harvester");
+    expect(await store.listPortfolio()).toEqual([]);
+  });
+
   it("caches a snapshot and rejects downgrades", async () => {
     const store = createBrowserStorage(memoryStorage());
     await store.saveSnapshot(snapshot(2));
@@ -129,13 +145,37 @@ describe("browser storage adapter", () => {
   it("records value history, dedupes revisions and reads it back oldest-first", async () => {
     const store = createBrowserStorage(memoryStorage());
     await store.recordValueHistory([
-      { itemId: "seer", source: "supreme", value: 320, recordedAt: "2024-08-01T00:00:00Z", revision: 5 },
-      { itemId: "seer", source: "supreme", value: 315, recordedAt: "2024-08-02T00:00:00Z", revision: 6 },
+      {
+        itemId: "seer",
+        source: "supreme",
+        value: 320,
+        recordedAt: "2024-08-01T00:00:00Z",
+        revision: 5,
+      },
+      {
+        itemId: "seer",
+        source: "supreme",
+        value: 315,
+        recordedAt: "2024-08-02T00:00:00Z",
+        revision: 6,
+      },
     ]);
     // Re-recording the same revision is ignored; a new revision is appended.
     await store.recordValueHistory([
-      { itemId: "seer", source: "supreme", value: 999, recordedAt: "2024-08-02T00:00:00Z", revision: 6 },
-      { itemId: "seer", source: "supreme", value: 330, recordedAt: "2024-08-03T00:00:00Z", revision: 7 },
+      {
+        itemId: "seer",
+        source: "supreme",
+        value: 999,
+        recordedAt: "2024-08-02T00:00:00Z",
+        revision: 6,
+      },
+      {
+        itemId: "seer",
+        source: "supreme",
+        value: 330,
+        recordedAt: "2024-08-03T00:00:00Z",
+        revision: 7,
+      },
     ]);
 
     const history = await store.getValueHistory("seer");
@@ -147,10 +187,41 @@ describe("browser storage adapter", () => {
     expect(capped.map((p) => p.revision)).toEqual([6, 7]);
   });
 
+  it("caps all-item history by the newest revisions globally", async () => {
+    const store = createBrowserStorage(memoryStorage());
+    await store.recordValueHistory([
+      {
+        itemId: "z-old",
+        source: "supreme",
+        value: 1,
+        recordedAt: "2024-01-01T00:00:00Z",
+        revision: 1,
+      },
+      {
+        itemId: "a-new",
+        source: "supreme",
+        value: 2,
+        recordedAt: "2024-01-03T00:00:00Z",
+        revision: 3,
+      },
+      {
+        itemId: "m-mid",
+        source: "supreme",
+        value: 3,
+        recordedAt: "2024-01-02T00:00:00Z",
+        revision: 2,
+      },
+    ]);
+
+    const capped = await store.getAllValueHistory(2);
+    expect(capped.map((p) => p.revision).sort((a, b) => a - b)).toEqual([2, 3]);
+    expect((await store.getAllValueHistory(0)).length).toBe(1);
+  });
+
   it("clears all data", async () => {
     const backing = memoryStorage();
     const store = createBrowserStorage(backing);
-    await store.updateSettings((await store.getSettings()));
+    await store.updateSettings(await store.getSettings());
     await store.addFavorite("seer", 40);
     await store.saveSnapshot(snapshot(1));
     await store.clearAllData();

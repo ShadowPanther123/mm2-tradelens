@@ -23,12 +23,29 @@ export function TradeSideCard({ side, title, total, mode }: TradeSideCardProps) 
   const add = useTradeStore((s) => s.add);
   const remove = useTradeStore((s) => s.remove);
   const setQuantity = useTradeStore((s) => s.setQuantity);
+  const move = useTradeStore((s) => s.move);
   const itemById = useDataStore((s) => s.itemById);
 
   const accent = side === "your" ? "border-yourside/40" : "border-theirside/40";
+  const otherSide: Side = side === "your" ? "their" : "your";
 
   return (
-    <div className={cn("card flex flex-col gap-3 border-t-2 p-4", accent)}>
+    <div
+      className={cn("card flex flex-col gap-3 border-t-2 p-4", accent)}
+      onDragOver={(event) => {
+        if (event.dataTransfer.types.includes("application/x-tradelens-item")) {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+        }
+      }}
+      onDrop={(event) => {
+        const payload = event.dataTransfer.getData("application/x-tradelens-item");
+        const [from, itemId] = payload.split(":");
+        if ((from === "your" || from === "their") && itemId && from !== side) {
+          move(from, side, itemId);
+        }
+      }}
+    >
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">{title}</h2>
         <span className="text-sm tabular-nums text-slate-400">
@@ -56,9 +73,22 @@ export function TradeSideCard({ side, title, total, mode }: TradeSideCardProps) 
           return (
             <div
               key={slot.itemId}
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.setData(
+                  "application/x-tradelens-item",
+                  `${side}:${slot.itemId}`,
+                );
+                event.dataTransfer.effectAllowed = "move";
+              }}
               className="glass-soft flex items-center gap-2 rounded-xl px-2.5 py-2"
             >
-              <ItemIcon category={item.category} image={item.image} alt={item.displayName} size="sm" />
+              <ItemIcon
+                category={item.category}
+                image={item.image}
+                alt={item.displayName}
+                size="sm"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{item.displayName}</div>
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
@@ -96,6 +126,15 @@ export function TradeSideCard({ side, title, total, mode }: TradeSideCardProps) 
                   <span aria-hidden="true">+</span>
                 </button>
               </div>
+              <button
+                type="button"
+                className="icon-btn h-6 w-6 text-slate-400"
+                onClick={() => move(side, otherSide, slot.itemId)}
+                aria-label={`Move ${item.displayName} to ${otherSide === "your" ? "your offer" : "their offer"}`}
+                title="Move to other side"
+              >
+                {side === "your" ? "→" : "←"}
+              </button>
               <button
                 type="button"
                 className="icon-btn icon-btn-danger h-6 w-6"

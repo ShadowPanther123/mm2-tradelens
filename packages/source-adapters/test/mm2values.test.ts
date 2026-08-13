@@ -26,6 +26,16 @@ describe("mm2values bundled snapshot", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("uses unique, disambiguated display names", () => {
+    const names = mm2valuesItems.map((item) => item.displayName.toLowerCase());
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("carries inferred item type and release metadata", () => {
+    expect(mm2valuesItems.filter((item) => item.category !== "other").length).toBeGreaterThan(1_000);
+    expect(mm2valuesItems.filter((item) => item.year !== undefined).length).toBeGreaterThan(300);
+  });
+
   it("keeps ratings within the 0–5 schema range", () => {
     for (const item of mm2valuesItems) {
       const reading = item.values.mm2values!;
@@ -40,7 +50,7 @@ describe("mm2values bundled snapshot", () => {
     }
   });
 
-  it("strips the \"Value: N\" suffix from chroma display names", () => {
+  it('strips the "Value: N" suffix from chroma display names', () => {
     const chroma = mm2valuesItems.filter((i) => i.chroma);
     expect(chroma.length).toBeGreaterThan(0);
     for (const item of chroma) {
@@ -69,8 +79,16 @@ describe("mm2values bundled snapshot", () => {
     expect(withIcon.length).toBeGreaterThan(800);
     for (const item of withIcon) {
       // Never a hotlink; always the canonical bundled path for this item id.
-      expect(item.image).toBe(`icons/items/${item.id}.png`);
+      expect(item.image).toMatch(new RegExp(`^icons/items/${item.id}\\.(png|webp|jpe?g)$`));
       expect(item.image).not.toMatch(/^https?:/i);
+    }
+  });
+
+  it("wires every legendary item to a bundled icon", () => {
+    const legendary = mm2valuesItems.filter((item) => item.rarity === "legendary");
+    expect(legendary.length).toBeGreaterThan(0);
+    for (const item of legendary) {
+      expect(item.image).toMatch(new RegExp(`^icons/items/${item.id}\\.(png|webp|jpe?g)$`));
     }
   });
 });

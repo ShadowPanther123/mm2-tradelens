@@ -8,18 +8,33 @@ import { focusWindow, onToggleOverlay } from "@/services/tauri";
 
 // Only the landing route (Dashboard) is eager. Every other page is split into
 // its own chunk and loaded on first navigation, keeping the startup bundle lean.
-const Search = lazy(() => import("@/pages/Search").then((m) => ({ default: m.Search })));
+const Search = lazy(() =>
+  import("@/pages/Search").then((m) => ({ default: m.Search })),
+);
 const Calculator = lazy(() =>
   import("@/pages/Calculator").then((m) => ({ default: m.Calculator })),
 );
-const Trends = lazy(() => import("@/pages/Trends").then((m) => ({ default: m.Trends })));
+const Trends = lazy(() =>
+  import("@/pages/Trends").then((m) => ({ default: m.Trends })),
+);
 const ItemDetails = lazy(() =>
   import("@/pages/ItemDetails").then((m) => ({ default: m.ItemDetails })),
 );
 const Favorites = lazy(() =>
   import("@/pages/Favorites").then((m) => ({ default: m.Favorites })),
 );
-const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.History })));
+const History = lazy(() =>
+  import("@/pages/History").then((m) => ({ default: m.History })),
+);
+const Portfolio = lazy(() =>
+  import("@/pages/Portfolio").then((m) => ({ default: m.Portfolio })),
+);
+const Community = lazy(() =>
+  import("@/pages/Community").then((m) => ({ default: m.Community })),
+);
+const Analytics = lazy(() =>
+  import("@/pages/Analytics").then((m) => ({ default: m.Analytics })),
+);
 const Settings = lazy(() =>
   import("@/pages/Settings").then((m) => ({ default: m.Settings })),
 );
@@ -56,7 +71,8 @@ function StartupError() {
         <h1 className="text-lg font-semibold text-white">We couldn't finish loading</h1>
         <p className="text-sm text-slate-400">
           TradeLens had trouble reading its local data. Reloading usually helps. If it
-          keeps happening, you can rebuild the database from Settings once you're back in.
+          keeps happening, you can rebuild the database from Settings once you're back
+          in.
         </p>
         <button className="btn self-center" onClick={() => window.location.reload()}>
           Reload app
@@ -119,6 +135,9 @@ export function App() {
                 <Route path="/trends" element={<Trends />} />
                 <Route path="/item/:id" element={<ItemDetails />} />
                 <Route path="/favorites" element={<Favorites />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/analytics" element={<Analytics />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

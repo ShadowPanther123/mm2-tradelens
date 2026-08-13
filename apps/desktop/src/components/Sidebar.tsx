@@ -16,6 +16,9 @@ const NAV: NavItem[] = [
   { to: "/scan", label: "Scan", icon: "▣" },
   { to: "/trends", label: "Trends", icon: "↗" },
   { to: "/favorites", label: "Favorites", icon: "★" },
+  { to: "/portfolio", label: "Portfolio", icon: "◇" },
+  { to: "/community", label: "Community", icon: "◉" },
+  { to: "/analytics", label: "Analytics", icon: "▥" },
   { to: "/history", label: "History", icon: "⟲" },
   { to: "/settings", label: "Settings", icon: "⚙" },
 ];
@@ -37,7 +40,9 @@ function SourceIndicator() {
     <div className="px-2 pb-1 pt-3 text-[11px] leading-relaxed text-slate-500">
       <div className="flex items-center justify-between gap-2">
         <span className="text-slate-600">Source</span>
-        <span className="truncate font-medium text-slate-400">{SOURCE_LABELS[mode]}</span>
+        <span className="truncate font-medium text-slate-400">
+          {SOURCE_LABELS[mode]}
+        </span>
       </div>
       <div className="mt-0.5 flex items-center justify-between gap-2">
         <span className="text-slate-600">Data</span>

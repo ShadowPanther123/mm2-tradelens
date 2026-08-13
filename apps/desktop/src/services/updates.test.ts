@@ -39,9 +39,13 @@ function routeFetch(routes: {
   return vi.fn(async (url: string) => {
     if (routes.throws) throw new Error("network down");
     if (url.endsWith("/v1/revision")) {
-      return routes.revision ? routes.revision() : response(null, { ok: false, status: 404 });
+      return routes.revision
+        ? routes.revision()
+        : response(null, { ok: false, status: 404 });
     }
-    return routes.snapshot ? routes.snapshot() : response(null, { ok: false, status: 404 });
+    return routes.snapshot
+      ? routes.snapshot()
+      : response(null, { ok: false, status: 404 });
   });
 }
 
@@ -57,9 +61,15 @@ afterEach(() => {
 
 describe("fetchRemoteSnapshot outcomes", () => {
   it("requires both HTTPS and a public key in production", () => {
-    expect(isRemoteFeedUsable("https://values.example/v1/snapshot", true, "")).toBe(false);
-    expect(isRemoteFeedUsable("http://values.example/v1/snapshot", true, "key")).toBe(false);
-    expect(isRemoteFeedUsable("https://values.example/v1/snapshot", true, "key")).toBe(true);
+    expect(isRemoteFeedUsable("https://values.example/v1/snapshot", true, "")).toBe(
+      false,
+    );
+    expect(isRemoteFeedUsable("http://values.example/v1/snapshot", true, "key")).toBe(
+      false,
+    );
+    expect(isRemoteFeedUsable("https://values.example/v1/snapshot", true, "key")).toBe(
+      true,
+    );
   });
 
   it("reports offline when the device has no connectivity", async () => {
@@ -119,7 +129,10 @@ describe("fetchRemoteSnapshot outcomes", () => {
     };
     vi.stubGlobal(
       "fetch",
-      routeFetch({ revision: () => response({ revision: 999 }), snapshot: () => response(ancient) }),
+      routeFetch({
+        revision: () => response({ revision: 999 }),
+        snapshot: () => response(ancient),
+      }),
     );
 
     const outcome = await fetchRemoteSnapshot(DEFAULT_SNAPSHOT_URL, 1000, 1, 0);
@@ -129,10 +142,7 @@ describe("fetchRemoteSnapshot outcomes", () => {
   it("enforces the response limit in bytes rather than UTF-16 characters", async () => {
     vi.stubGlobal("navigator", { onLine: true });
     const oversized = `"${"\u0800".repeat(3_000_000)}"`;
-    vi.stubGlobal(
-      "fetch",
-      routeFetch({ snapshot: () => textResponse(oversized) }),
-    );
+    vi.stubGlobal("fetch", routeFetch({ snapshot: () => textResponse(oversized) }));
 
     const outcome = await fetchRemoteSnapshot(DEFAULT_SNAPSHOT_URL, 1000, 1, 0);
     expect(outcome.status).toBe("invalid-data");

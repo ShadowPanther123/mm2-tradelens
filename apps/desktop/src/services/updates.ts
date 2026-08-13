@@ -130,10 +130,7 @@ function toRevisionUrl(url: string): string {
  * {@link FetchOutcome} states with two local ones: `disabled` (offline mode)
  * and `database-error` (the snapshot could not be cached locally).
  */
-export type UpdateStatus =
-  | FetchOutcome["status"]
-  | "disabled"
-  | "database-error";
+export type UpdateStatus = FetchOutcome["status"] | "disabled" | "database-error";
 
 /**
  * Calm, non-technical message for each update status, safe to show the user.
@@ -221,7 +218,11 @@ export async function fetchRemoteSnapshot(
         throw new TransientError(`server ${outcome.httpStatus}`);
       }
       if (outcome.status !== "updated") {
-        logger.info("updates", `update check → ${outcome.status}`, describeOutcome(outcome));
+        logger.info(
+          "updates",
+          `update check → ${outcome.status}`,
+          describeOutcome(outcome),
+        );
       }
       return outcome;
     } catch (err) {
@@ -229,7 +230,9 @@ export async function fetchRemoteSnapshot(
       if (offline) return { status: "offline" };
       if (attempt === retries) {
         const detail = (err as Error).message || "network error";
-        logger.warn("updates", `update check failed after ${retries + 1} attempts`, { detail });
+        logger.warn("updates", `update check failed after ${retries + 1} attempts`, {
+          detail,
+        });
         return { status: "network-error", detail };
       }
       // Exponential backoff with a little jitter: ~0.4s, 0.8s, 1.6s (+/- 20%).
@@ -270,7 +273,10 @@ async function attemptFetch(
     };
   }
   if (!isFreshTimestamp(snapshot.generatedAt)) {
-    return { status: "invalid-data", detail: `implausible generatedAt ${snapshot.generatedAt}` };
+    return {
+      status: "invalid-data",
+      detail: `implausible generatedAt ${snapshot.generatedAt}`,
+    };
   }
   if (snapshot.revision <= currentRevision) {
     return { status: "already-current", revision: snapshot.revision };
@@ -307,10 +313,14 @@ async function fetchSigned(url: string, signal: AbortSignal): Promise<FetchOutco
   const res = await fetch(url, { signal, headers: { accept: "application/json" } });
   if (!res.ok) return { status: "server-error", httpStatus: res.status };
   const body = await readCappedJson(res);
-  if (body === null) return { status: "invalid-data", detail: "empty or oversized body" };
+  if (body === null)
+    return { status: "invalid-data", detail: "empty or oversized body" };
   const parsed = safeParseSignedSnapshot(body);
   if (!parsed.success) {
-    return { status: "schema-failure", detail: "signed envelope failed schema validation" };
+    return {
+      status: "schema-failure",
+      detail: "signed envelope failed schema validation",
+    };
   }
   const result = await verifySignedSnapshot(parsed.data, TRUSTED_PUBLIC_KEY);
   if (!result.valid) {
@@ -331,8 +341,10 @@ async function fetchUnsigned(url: string, signal: AbortSignal): Promise<FetchOut
   const res = await fetch(url, { signal, headers: { accept: "application/json" } });
   if (!res.ok) return { status: "server-error", httpStatus: res.status };
   const body = await readCappedJson(res);
-  if (body === null) return { status: "invalid-data", detail: "empty or oversized body" };
+  if (body === null)
+    return { status: "invalid-data", detail: "empty or oversized body" };
   const parsed = safeParseSnapshot(body);
-  if (!parsed.success) return { status: "schema-failure", detail: "snapshot failed schema validation" };
+  if (!parsed.success)
+    return { status: "schema-failure", detail: "snapshot failed schema validation" };
   return { status: "updated", snapshot: parsed.data as ValueSnapshot };
 }

@@ -39,7 +39,8 @@ export function focusWindow(): Promise<void> {
 
 /** Native window controls used by the custom title bar (no-ops in a browser). */
 export const windowControls = {
-  minimize: () => (isTauriRuntime() ? getCurrentWindow().minimize() : Promise.resolve()),
+  minimize: () =>
+    isTauriRuntime() ? getCurrentWindow().minimize() : Promise.resolve(),
   toggleMaximize: () =>
     isTauriRuntime() ? getCurrentWindow().toggleMaximize() : Promise.resolve(),
   close: () => (isTauriRuntime() ? getCurrentWindow().close() : Promise.resolve()),

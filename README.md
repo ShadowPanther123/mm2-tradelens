@@ -23,21 +23,21 @@ displays community value estimates.
 
 ## What's in the box
 
-| Area | Path | Status |
-| --- | --- | --- |
-| Shared data model + validation | [packages/item-schema](packages/item-schema) | ✅ built & type-checked |
-| Trading engine (values, fairness, confidence, search, trends) | [packages/trade-engine](packages/trade-engine) | ✅ test suite passing |
-| Source normalisation + bundled sample data | [packages/source-adapters](packages/source-adapters) | ✅ test suite passing |
-| Desktop overlay (React + Vite, Tauri shell) | [apps/desktop](apps/desktop) | ✅ builds; Rust shell needs Rust toolchain |
-| Browser extension (MV3 popup) | [apps/browser-extension](apps/browser-extension) | ✅ builds via esbuild |
-| Values API (normalise / validate / version / serve) | [services/values-api](services/values-api) | ✅ runs, endpoints verified |
-| Snapshot updater (signed artefact + checksum) | [services/updater](services/updater) | ✅ produces validated snapshot |
-| Admin dashboard (static review UI) | [services/admin-dashboard](services/admin-dashboard) | ✅ static server |
+| Area                                                          | Path                                                 | Status                                     |
+| ------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| Shared data model + validation                                | [packages/item-schema](packages/item-schema)         | ✅ built & type-checked                    |
+| Trading engine (values, fairness, confidence, search, trends) | [packages/trade-engine](packages/trade-engine)       | ✅ test suite passing                      |
+| Source normalisation + bundled sample data                    | [packages/source-adapters](packages/source-adapters) | ✅ test suite passing                      |
+| Desktop overlay (React + Vite, Tauri shell)                   | [apps/desktop](apps/desktop)                         | ✅ builds; Rust shell needs Rust toolchain |
+| Browser extension (MV3 popup)                                 | [apps/browser-extension](apps/browser-extension)     | ✅ builds via esbuild                      |
+| Values API (normalise / validate / version / serve)           | [services/values-api](services/values-api)           | ✅ runs, endpoints verified                |
+| Snapshot updater (signed artefact + checksum)                 | [services/updater](services/updater)                 | ✅ produces validated snapshot             |
+| Admin dashboard (static review UI)                            | [services/admin-dashboard](services/admin-dashboard) | ✅ static server                           |
 
 ## Requirements
 
 - **Node.js 20+** (developed on Node 26)
-- **Rust + Tauri CLI** *(only needed to produce the native Windows build)* —
+- **Rust + Tauri CLI** _(only needed to produce the native Windows build)_ —
   install from <https://rustup.rs> then `cargo install tauri-cli`
 
 ## Quick start
@@ -67,7 +67,7 @@ npm run dev:desktop
 Data saved in this mode lives only in that browser profile; the native app uses
 the Rust-managed SQLite database instead.
 
-Search an item, add stacks to *Your offer* / *Their offer*, and the calculator
+Search an item, add stacks to _Your offer_ / _Their offer_, and the calculator
 shows the verdict, demand-adjusted result, confidence, and any warnings.
 
 ### Run the native desktop app (needs Rust)
@@ -155,26 +155,20 @@ signed feed from an approved source (permission/API/partnership preferred over
 scraping). A separate `sampleSnapshot` of **illustrative placeholder values**
 remains for tests and offline demos.
 
-### Importing Supreme values
+### Supreme Values integration
 
-You can refresh **Supreme Values** figures from a capture you took in your own
-browser session — TradeLens never scrapes Supreme for you. Open **Settings →
-Import Supreme values** and either:
-
-- **Drag & drop** a saved Supreme page (`.html`), a copied table (`.txt`), or a
-  JSON export (`.json`) onto the drop zone, or
-- **Choose a file** with the picker, or
-- **Paste** the copied text directly and click *Import*.
-
-Only items already in your catalogue are updated — the importer reports how many
-values changed and how many rows were unmatched, and it **never invents items**.
-This keeps the import aligned with Supreme's terms: it processes data you
-already have access to, in one click, on your own device.
+The second-source adapter is prepared for SupremeValues, but no SupremeValues
+data is bundled or collected. SupremeValues' current terms prohibit copying its
+value-list data into applications, including through scraping or manual entry.
+The adapter can be enabled only after SupremeValues provides written permission
+and an authorised JSON/API or partner feed. Configure that feed with
+`SUPREME_VALUES_URL` and identify the written grant with
+`SUPREME_VALUES_PERMISSION`; public SupremeValues pages are rejected.
 
 ### Price history & value alerts
 
-Every time TradeLens adopts a newer snapshot — from a sync, a Supreme import, or
-a bundled update — it records each item's per-source value as a point in a local
+Every time TradeLens adopts a newer snapshot — from an authorised sync or a
+bundled update — it records each item's per-source value as a point in a local
 time series. Open any item to see its **Price history** chart (low / high /
 latest), and enable notifications in **Settings** to get gentle alerts when a
 favourite moves beyond your chosen threshold. History stays entirely on your
@@ -182,15 +176,14 @@ device.
 
 ## Install (Windows)
 
-
 - **Per-user install.** The installer runs without administrator rights and
   installs for the current user only (no system-wide changes). Choose a
   per-machine build only if you specifically need one.
 - **Supported:** Windows 10 (1809+) and Windows 11, 64-bit (x64). A WebView2
   runtime is required and is present by default on current Windows.
 - **SmartScreen.** Until the signing certificate builds reputation, Windows may
-  show a "Windows protected your PC" prompt on first run — choose *More info →
-  Run anyway*. Verify the download against the published checksum first.
+  show a "Windows protected your PC" prompt on first run — choose _More info →
+  Run anyway_. Verify the download against the published checksum first.
 - **Updating / uninstalling.** Installing a newer version over an older one
   keeps your data. Uninstalling removes the app but **leaves your local
   database** (favorites, history, settings) in place unless you delete it
@@ -213,7 +206,7 @@ Value snapshots are **only** treated as signed when the client is built with a
 trusted public key (`VITE_SNAPSHOT_PUBLIC_KEY`) and HTTPS endpoint
 (`VITE_SNAPSHOT_URL`). A production build missing either value stays offline
 from cached/bundled data. Development-only unsigned endpoints are labelled
-*Development feed - unverified* in Settings rather than claiming verification.
+_Development feed - unverified_ in Settings rather than claiming verification.
 
 ## Privacy
 

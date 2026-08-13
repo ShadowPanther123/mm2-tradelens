@@ -3,6 +3,7 @@ import type { Item, SourceMode } from "@/types";
 import { capitalise, formatRating, formatValue } from "@/utils/format";
 import { toEngineMode } from "@/utils/sourceMode";
 import { cn } from "@/utils/cn";
+import type { ReactNode } from "react";
 
 /**
  * Colour a stability label by sentiment. The source publishes free-form text
@@ -34,10 +35,12 @@ export function ValueBadge({
   item,
   mode,
   large = false,
+  extra,
 }: {
   item: Item;
   mode: SourceMode;
   large?: boolean;
+  extra?: ReactNode;
 }) {
   const resolved = resolveValue(item, toEngineMode(mode));
   if (!resolved) {
@@ -50,12 +53,12 @@ export function ValueBadge({
     resolved.stabilityLabel ??
     (resolved.stability ? capitalise(resolved.stability) : undefined);
   return (
-    <div className="flex flex-wrap items-center justify-end gap-1.5">
+    <div
+      className="flex flex-wrap items-center justify-end gap-1.5"
+      data-testid="value-badge"
+    >
       <span
-        className={cn(
-          "font-semibold tabular-nums",
-          large ? "text-2xl" : "text-sm",
-        )}
+        className={cn("font-semibold tabular-nums", large ? "text-2xl" : "text-sm")}
       >
         {formatValue(resolved.value)}
       </span>
@@ -77,7 +80,12 @@ export function ValueBadge({
           {stabilityText}
         </span>
       )}
-      <span className="chip bg-slate-500/15 text-slate-400" title="Published value range">
+      {extra}
+      <span
+        className="chip bg-slate-500/15 text-slate-400"
+        data-testid="value-range"
+        title="Published value range"
+      >
         Range {range}
       </span>
     </div>

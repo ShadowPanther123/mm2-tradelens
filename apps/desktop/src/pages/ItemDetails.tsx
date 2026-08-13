@@ -40,7 +40,12 @@ export function ItemDetails() {
       </Link>
 
       <div className="card flex items-center gap-4 p-5">
-        <ItemIcon category={item.category} image={item.image} alt={item.displayName} size="lg" />
+        <ItemIcon
+          category={item.category}
+          image={item.image}
+          alt={item.displayName}
+          size="lg"
+        />
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold">{item.displayName}</h1>
@@ -61,11 +66,19 @@ export function ItemDetails() {
         <StatPill label="Value" value={resolved ? formatValue(resolved.value) : "—"} />
         <StatPill
           label="Demand"
-          value={resolved?.demandRating !== undefined ? formatRating(resolved.demandRating) : "—"}
+          value={
+            resolved?.demandRating !== undefined
+              ? formatRating(resolved.demandRating)
+              : "—"
+          }
         />
         <StatPill
           label="Rarity"
-          value={resolved?.rarityRating !== undefined ? formatRating(resolved.rarityRating) : "—"}
+          value={
+            resolved?.rarityRating !== undefined
+              ? formatRating(resolved.rarityRating)
+              : "—"
+          }
         />
         <StatPill
           label="Stability"
@@ -86,7 +99,7 @@ export function ItemDetails() {
 
       <SourceComparison item={item} thresholdPercent={thresholdPercent} />
 
-      <ValueHistoryChart itemId={item.id} />
+      <ValueHistoryChart item={item} />
 
       <div className="card grid grid-cols-3 gap-4 p-5 text-sm">
         <StatPill label="Category" value={capitalise(item.category)} />

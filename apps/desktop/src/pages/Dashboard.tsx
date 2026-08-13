@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
 import { biggestMovers } from "@tradelens/trade-engine";
 import { useDataStore } from "@/hooks/useDataStore";
-import { SearchBar, StalenessBanner, SampleDataBanner, ItemRow, StatPill } from "@/components";
+import {
+  SearchBar,
+  StalenessBanner,
+  SampleDataBanner,
+  ItemRow,
+  StatPill,
+} from "@/components";
 import { formatPercent, trendArrow } from "@/utils/format";
 import { toEngineMode } from "@/utils/sourceMode";
 import type { SourceId } from "@/types";
@@ -11,12 +17,17 @@ export function Dashboard() {
   const mode = useDataStore((s) => s.settings.sourceMode);
   const favorites = useDataStore((s) => s.favorites);
   const history = useDataStore((s) => s.history);
+  const portfolio = useDataStore((s) => s.portfolio);
   const itemById = useDataStore((s) => s.itemById);
+  const generatedAt = useDataStore((s) => s.snapshotMeta?.generatedAt);
 
   // Pick a concrete source for trend display (consensus has no trend field).
   const engineMode = toEngineMode(mode);
-  const trendSource: SourceId = engineMode === "consensus" ? "supreme" : engineMode;
-  const movers = biggestMovers(items, trendSource, "both", 5);
+  const trendSource: SourceId = engineMode === "consensus" ? "mm2values" : engineMode;
+  const latestSyncItems = generatedAt
+    ? items.filter((item) => item.values[trendSource]?.updatedAt === generatedAt)
+    : [];
+  const movers = biggestMovers(latestSyncItems, trendSource, "both", 5);
 
   const favoriteItems = favorites
     .map((f) => itemById(f.itemId))
@@ -37,7 +48,7 @@ export function Dashboard() {
 
       <SearchBar placeholder="Search any item…" autoFocus />
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="card flex flex-col gap-1 p-4">
           <StatPill label="Items tracked" value={String(items.length)} />
         </div>
@@ -47,11 +58,17 @@ export function Dashboard() {
         <div className="card flex flex-col gap-1 p-4">
           <StatPill label="Saved trades" value={String(history.length)} />
         </div>
+        <div className="card flex flex-col gap-1 p-4">
+          <StatPill
+            label="Portfolio items"
+            value={String(portfolio.reduce((sum, entry) => sum + entry.quantity, 0))}
+          />
+        </div>
       </div>
 
       <section className="card p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold">Recently moving</h2>
+          <h2 className="font-semibold">Newest sync changes</h2>
           <Link to="/search" className="text-xs text-accent hover:underline">
             Browse all
           </Link>
@@ -71,7 +88,9 @@ export function Dashboard() {
               <span className="font-medium">{m.item.displayName}</span>
               <span
                 className={
-                  m.changePercent >= 0 ? "text-win tabular-nums" : "text-loss tabular-nums"
+                  m.changePercent >= 0
+                    ? "text-win tabular-nums"
+                    : "text-loss tabular-nums"
                 }
               >
                 {trendArrow(m.changePercent / 100)} {formatPercent(m.changePercent)}
