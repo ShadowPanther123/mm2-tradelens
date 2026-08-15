@@ -1,12 +1,21 @@
-import { useMemo } from "react";
-import { biggestMovers, resolveValue, type TrendEntry } from "@tradelens/trade-engine";
+import { useEffect, useMemo, useState } from "react";
+import {
+  historyMovers,
+  mergeHistoryReadings,
+  resolveValue,
+  snapshotHistory,
+  type HistoryMover,
+  type HistoryReading,
+} from "@tradelens/trade-engine";
 import { ItemRow, StatPill } from "@/components";
 import { useDataStore } from "@/hooks/useDataStore";
+import { getAllValueHistory } from "@/database";
+import { logger } from "@/services/logger";
 import type { Item, SourceId } from "@/types";
 import { formatPercent, formatValue } from "@/utils/format";
 import { toEngineMode } from "@/utils/sourceMode";
 
-function Ranking({ title, entries }: { title: string; entries: TrendEntry[] }) {
+function Ranking({ title, entries }: { title: string; entries: HistoryMover[] }) {
   return (
     <section className="card p-4">
       <h2 className="mb-3 font-semibold">{title}</h2>
@@ -39,7 +48,7 @@ export function Analytics() {
   const items = useDataStore((state) => state.items);
   const mode = useDataStore((state) => state.settings.sourceMode);
   const searchStats = useDataStore((state) => state.searchStats);
-  const generatedAt = useDataStore((state) => state.snapshotMeta?.generatedAt);
+  const revision = useDataStore((state) => state.snapshotMeta?.revision ?? 0);
 
   const source: SourceId = (() => {
     const preferred = toEngineMode(mode);
@@ -47,33 +56,69 @@ export function Analytics() {
       return preferred;
     return items.some((item) => item.values.mm2values) ? "mm2values" : "supreme";
   })();
-  const latestSyncItems = useMemo(
-    () =>
-      generatedAt
-        ? items.filter((item) => item.values[source]?.updatedAt === generatedAt)
-        : [],
-    [generatedAt, items, source],
-  );
-  const latestMovers = biggestMovers(
-    latestSyncItems,
-    source,
-    "both",
-    Number.MAX_SAFE_INTEGER,
+
+  // Load locally recorded history and merge it with the series embedded in the
+  // snapshot so movers reflect real movement even when the newest sync carried
+  // no changes on this exact revision.
+  const [dbHistory, setDbHistory] = useState<Map<string, HistoryReading[]>>(new Map());
+  useEffect(() => {
+    let active = true;
+    getAllValueHistory()
+      .then((rows) => {
+        if (!active) return;
+        const grouped = new Map<string, HistoryReading[]>();
+        for (const p of rows) {
+          const reading: HistoryReading = {
+            source: p.source,
+            value: p.value,
+            revision: p.revision,
+            recordedAt: p.recordedAt,
+          };
+          const bucket = grouped.get(p.itemId);
+          if (bucket) bucket.push(reading);
+          else grouped.set(p.itemId, [reading]);
+        }
+        setDbHistory(grouped);
+      })
+      .catch((err) => {
+        logger.warn("analytics", "could not load value history", { detail: String(err) });
+        if (active) setDbHistory(new Map());
+      });
+    return () => {
+      active = false;
+    };
+  }, [revision]);
+
+  const history = useMemo(() => {
+    const merged = snapshotHistory(items, source);
+    for (const item of items) {
+      const embedded = merged.get(item.id) ?? [];
+      const local = (dbHistory.get(item.id) ?? []).filter((r) => r.source === source);
+      const combined = mergeHistoryReadings(embedded, local);
+      if (combined.length > 0) merged.set(item.id, combined);
+    }
+    return merged;
+  }, [items, dbHistory, source]);
+
+  const latestMovers = useMemo(
+    () => historyMovers(items, history, source, { direction: "both", limit: 100 }),
+    [items, history, source],
   );
   const rises = latestMovers.filter((entry) => entry.changePercent > 0).slice(0, 8);
   const falls = latestMovers.filter((entry) => entry.changePercent < 0).slice(0, 8);
   const hottest = useMemo(() => {
-    return [...latestSyncItems]
+    return [...items]
       .map((item) => {
         const reading = item.values[source];
-        const movement = Math.abs(reading?.trendPercent ?? 0);
+        const mover = latestMovers.find((m) => m.item.id === item.id);
+        const movement = Math.abs(mover?.changePercent ?? 0);
         const demand = reading?.demand ?? 0;
         return { item, score: demand * 2 + movement };
       })
       .filter((entry) => entry.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 8);
-  }, [latestSyncItems, source]);
+  }, [items, source, latestMovers]);
   const searched = searchStats
     .map((stat) => ({ stat, item: items.find((item) => item.id === stat.itemId) }))
     .filter((entry): entry is { stat: typeof entry.stat; item: Item } =>

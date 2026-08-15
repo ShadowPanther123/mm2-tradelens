@@ -212,11 +212,38 @@ async function loadValidSnapshot(): Promise<ValueSnapshot | null> {
 }
 
 /**
- * Whether the bundled snapshot has a higher monotonic revision than a cached
- * one. Revision is authoritative; timestamps must never cause a downgrade.
+ * Whether `candidate` should supersede `current`. A higher revision is required
+ * (revision stays the monotonic key, so equal data never re-adopts and there is
+ * no timestamp churn), but a candidate whose `generatedAt` is strictly older is
+ * never accepted even when its revision is higher. This is the guard against a
+ * stale snapshot that carries an inflated revision number permanently masking
+ * fresher values.
+ */
+export function isNewerSnapshot(
+  current: ValueSnapshot,
+  candidate: ValueSnapshot,
+): boolean {
+  if (candidate.revision <= current.revision) return false;
+  const currentAt = Date.parse(current.generatedAt);
+  const candidateAt = Date.parse(candidate.generatedAt);
+  if (
+    Number.isFinite(currentAt) &&
+    Number.isFinite(candidateAt) &&
+    candidateAt < currentAt
+  ) {
+    // Higher revision but older data — refuse the downgrade.
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Whether the bundled snapshot should supersede a cached one. Revision is the
+ * monotonic key; a bundled snapshot that is older by timestamp never downgrades
+ * fresher cached values (see {@link isNewerSnapshot}).
  */
 function bundledIsNewer(cached: ValueSnapshot, bundled: ValueSnapshot): boolean {
-  return bundled.revision > cached.revision;
+  return isNewerSnapshot(cached, bundled);
 }
 
 /** True when the active snapshot is the bundled demonstration data, not live values. */
@@ -232,12 +259,13 @@ function isSample(snapshot: ValueSnapshot | null): boolean {
  * Resolve a local (no-network) update when no remote values service is
  * configured. Prefers a snapshot published into the app data directory by a
  * values sync (scripts/publish-local), falling back to the values bundled with
- * this build, and only accepts one whose revision is newer than the current
- * cache. A published file that fails schema validation is ignored so a bad drop
- * can never break the update check.
+ * this build, and only accepts one that is genuinely newer than the current
+ * cache (higher revision and not older by timestamp; see {@link isNewerSnapshot}).
+ * A published file that fails schema validation is ignored so a bad drop can
+ * never break the update check.
  */
 async function resolveLocalUpdate(
-  currentRevision: number,
+  current: ValueSnapshot,
   bundledSnapshot: ValueSnapshot,
 ): Promise<FetchOutcome> {
   let candidate: ValueSnapshot | null = null;
@@ -257,13 +285,16 @@ async function resolveLocalUpdate(
     logger.warn("updates", "could not read published snapshot", describeError(err));
   }
 
-  if (!candidate || bundledSnapshot.revision > candidate.revision) {
+  // Prefer the fresher of the published file and the bundled data. Freshness —
+  // not a raw revision number — decides, so a stale published drop with an
+  // inflated revision can never win over newer bundled values.
+  if (!candidate || isNewerSnapshot(candidate, bundledSnapshot)) {
     candidate = bundledSnapshot;
   }
 
-  return candidate.revision > currentRevision
+  return isNewerSnapshot(current, candidate)
     ? { status: "updated", snapshot: candidate }
-    : { status: "already-current", revision: currentRevision };
+    : { status: "already-current", revision: current.revision };
 }
 
 /**
@@ -632,10 +663,8 @@ export const useDataStore = create<DataState>((set, get) => ({
           "server-error",
         ].includes(outcome.status)
       ) {
-        const local = await resolveLocalUpdate(
-          currentRevision,
-          await loadBundledCatalogue(),
-        );
+        const bundled = await loadBundledCatalogue();
+        const local = await resolveLocalUpdate(current ?? bundled, bundled);
         if (local.status === "updated" || outcome.status === "not-configured") {
           outcome = local;
         }

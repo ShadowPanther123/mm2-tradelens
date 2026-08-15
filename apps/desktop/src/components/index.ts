@@ -1,5 +1,7 @@
 export { TitleBar } from "./TitleBar";
 export { Sidebar } from "./Sidebar";
+export { Icon } from "./Icon";
+export type { IconName } from "./Icon";
 export { ErrorBoundary } from "./ErrorBoundary";
 export { ToastViewport } from "./ToastViewport";
 export { SearchBar } from "./SearchBar";

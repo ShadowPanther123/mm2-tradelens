@@ -1,32 +1,32 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { useDataStore } from "@/hooks/useDataStore";
+import { Icon, type IconName } from "./Icon";
 import type { SourceMode } from "@/types";
 
 interface NavItem {
   to: string;
   label: string;
-  icon: string;
+  icon: IconName;
 }
 
 const NAV: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: "◈" },
-  { to: "/search", label: "Search", icon: "⌕" },
-  { to: "/calculator", label: "Calculator", icon: "⇄" },
-  { to: "/scan", label: "Scan", icon: "▣" },
-  { to: "/trends", label: "Trends", icon: "↗" },
-  { to: "/favorites", label: "Favorites", icon: "★" },
-  { to: "/portfolio", label: "Portfolio", icon: "◇" },
-  { to: "/community", label: "Community", icon: "◉" },
-  { to: "/analytics", label: "Analytics", icon: "▥" },
-  { to: "/history", label: "History", icon: "⟲" },
-  { to: "/settings", label: "Settings", icon: "⚙" },
+  { to: "/", label: "Dashboard", icon: "dashboard" },
+  { to: "/search", label: "Search", icon: "search" },
+  { to: "/calculator", label: "Calculator", icon: "calculator" },
+  { to: "/scan", label: "Scan", icon: "scan" },
+  { to: "/trends", label: "Trends", icon: "trends" },
+  { to: "/favorites", label: "Favorites", icon: "favorites" },
+  { to: "/portfolio", label: "Portfolio", icon: "portfolio" },
+  { to: "/community", label: "Community", icon: "community" },
+  { to: "/analytics", label: "Analytics", icon: "analytics" },
+  { to: "/history", label: "History", icon: "history" },
+  { to: "/settings", label: "Settings", icon: "settings" },
 ];
 
 const SOURCE_LABELS: Record<SourceMode, string> = {
   supreme: "Supreme Values",
   mm2values: "MM2Values",
-  community: "Community",
   "compare-both": "Compare Both",
   consensus: "Combined estimate",
 };
@@ -66,17 +66,32 @@ export function Sidebar() {
           title={item.label}
           className={({ isActive }) =>
             cn(
-              "flex items-center justify-center gap-3 rounded-xl px-2 py-2.5 text-sm transition-colors sm:justify-start sm:px-3",
+              "group relative flex items-center justify-center gap-3 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors sm:justify-start sm:px-3",
               isActive
                 ? "bg-accent/15 text-white shadow-glow"
                 : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
             )
           }
         >
-          <span className="w-4 text-center text-base leading-none" aria-hidden="true">
-            {item.icon}
-          </span>
-          <span className="sr-only sm:not-sr-only">{item.label}</span>
+          {({ isActive }) => (
+            <>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute left-0 top-1/2 hidden h-5 w-1 -translate-y-1/2 rounded-r-full bg-accent transition-opacity sm:block",
+                  isActive ? "opacity-100" : "opacity-0",
+                )}
+              />
+              <Icon
+                name={item.icon}
+                className={cn(
+                  "h-5 w-5 transition-transform group-hover:scale-110",
+                  isActive ? "text-accent-soft" : "text-slate-400",
+                )}
+              />
+              <span className="sr-only sm:not-sr-only">{item.label}</span>
+            </>
+          )}
         </NavLink>
       ))}
       <div className="mt-auto hidden border-t border-white/5 sm:block">

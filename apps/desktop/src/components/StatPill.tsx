@@ -17,7 +17,11 @@ export function StatPill({ label, value, accent = "default" }: StatPillProps) {
       <span className="text-[10px] uppercase tracking-wide text-slate-500">
         {label}
       </span>
-      <span className={`text-sm font-medium ${ACCENT[accent]}`}>{value}</span>
+      <span
+        className={`text-lg font-semibold tabular-nums tracking-tight ${ACCENT[accent]}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }

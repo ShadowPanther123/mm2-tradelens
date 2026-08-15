@@ -40,7 +40,7 @@ export const Stability = z.enum(["stable", "fluctuating", "volatile"]);
 export type Stability = z.infer<typeof Stability>;
 
 /** Identifier of a supported value source. */
-export const SourceId = z.enum(["supreme", "mm2values", "community"]);
+export const SourceId = z.enum(["supreme", "mm2values"]);
 export type SourceId = z.infer<typeof SourceId>;
 
 /** How a source reading was obtained (for provenance and auditing). */

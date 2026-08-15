@@ -5,7 +5,6 @@ import { capitalise, formatDate, formatValue } from "@/utils/format";
 const SOURCE_LABELS: Record<SourceId, string> = {
   supreme: "Supreme Values",
   mm2values: "MM2Values",
-  community: "Community",
 };
 
 /** Tailwind text colour per confidence level, calm rather than alarming. */

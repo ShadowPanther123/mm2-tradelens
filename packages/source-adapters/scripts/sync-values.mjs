@@ -24,12 +24,13 @@
  * This tool only reads public pages and only rewrites local values in place; it
  * never hotlinks images or invents data a source did not provide.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { dirname, resolve, extname } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SNAPSHOT_PATH = resolve(here, "../src/mm2values-snapshot.json");
+const ICON_DIR = resolve(here, "../../../apps/desktop/public/icons/items");
 
 const MM2_BASE = "https://www.mm2values.com";
 const USER_AGENT = "mm2-tradelens-sync/1.0 (+local value sync)";
@@ -78,6 +79,53 @@ export function slugify(name) {
     .normalize("NFKD")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Build a map from icon stem (filename without extension) to the actual
+ * on-disk filename, so image references can always be pinned to a file that
+ * genuinely exists with its real extension.
+ * @param {string} [iconDir]
+ * @returns {Map<string, string>}
+ */
+export function iconFileIndex(iconDir = ICON_DIR) {
+  const index = new Map();
+  let entries;
+  try {
+    entries = readdirSync(iconDir);
+  } catch {
+    return index;
+  }
+  for (const filename of entries) {
+    const stem = filename.slice(0, filename.length - extname(filename).length);
+    if (stem) index.set(stem, filename);
+  }
+  return index;
+}
+
+/**
+ * Reconcile every item's `image` to the icon file that actually exists on disk
+ * for its id. This prevents the "icons turn into placeholder cubes" regression
+ * where the snapshot referenced a stale path/extension (e.g. `<id>.png`) after
+ * the bundled icon was stored as `<id>.webp`, or carried no image at all.
+ * Items whose id has no matching icon file are left untouched.
+ * @param {any} snapshot
+ * @param {Map<string, string>} [index]
+ * @returns {number} number of image fields corrected
+ */
+export function reconcileIconPaths(snapshot, index = iconFileIndex()) {
+  if (index.size === 0) return 0;
+  let fixed = 0;
+  for (const item of snapshot.items ?? []) {
+    const filename = index.get(item.id);
+    if (!filename) continue;
+    const want = `icons/items/${filename}`;
+    if (item.image !== want) {
+      item.image = want;
+      fixed++;
+    }
+  }
+  return fixed;
 }
 
 /** Strip a trailing " Value: 12,345" suffix some chroma names carry. */
@@ -137,8 +185,51 @@ export function mapRarity(category) {
   return RARITY_BY_CATEGORY[category] ?? "misc";
 }
 
-export function mapCategory(category) {
-  return category === "pets" ? "pet" : "other";
+const GUN_PATTERN =
+  /\b(gun|blaster|rifle|revolver|raygun|ray\s*gun|cannon|launcher|pistol|shotgun|sniper|uzi|tommy|blunderbuss|flamethrower|crossbow|bow)\b/i;
+const KNIFE_PATTERN =
+  /\b(knife|blade|dagger|sword|scythe|saw|axe|katana|machete|cleaver|shard|shiv|edge|slasher|chainsaw|sickle|hatchet|kunai|spear|trident|lance|glaive|halberd|shears|carver|piercer)\b/i;
+const BUNDLE_PATTERN = /\b(set|bundle|pack|collection|crate|box|pile|bag|combo|kit)\b/i;
+
+/**
+ * Classify an item into a schema category. mm2values pages are organised by
+ * rarity, not item type, so the source category only reliably tells us whether
+ * something is a pet. For everything else we infer knife/gun/bundle from the
+ * item name, falling back to the generic "other" bucket when nothing matches.
+ * This keeps the Browse/Search filters meaningful instead of collapsing the
+ * whole catalogue into a single "Items" group.
+ * @param {string} category source page category (rarity slug or "pets")
+ * @param {string} [name] item display name
+ * @returns {"knife"|"gun"|"pet"|"bundle"|"other"}
+ */
+export function mapCategory(category, name = "") {
+  if (category === "pets") return "pet";
+  const n = String(name);
+  if (KNIFE_PATTERN.test(n)) return "knife";
+  if (GUN_PATTERN.test(n)) return "gun";
+  if (BUNDLE_PATTERN.test(n)) return "bundle";
+  return "other";
+}
+
+/**
+ * Re-derive every item's category from its display name using {@link mapCategory}.
+ * Pets keep their pet tag (rarity "pet"); other items are (re)classified into
+ * knife/gun/bundle/other. Runs over the whole snapshot so a re-sync self-heals
+ * categorisation the same way icon paths do.
+ * @param {any} snapshot
+ * @returns {number} number of category fields changed
+ */
+export function reconcileCategories(snapshot) {
+  let fixed = 0;
+  for (const item of snapshot.items ?? []) {
+    const sourceCategory = item.rarity === "pet" ? "pets" : "";
+    const next = mapCategory(sourceCategory, item.displayName);
+    if (item.category !== next) {
+      item.category = next;
+      fixed++;
+    }
+  }
+  return fixed;
 }
 
 /** Drop undefined-valued keys so the emitted JSON stays compact. */
@@ -596,7 +687,7 @@ export function reconcile(snapshot, rows, source, opts) {
       id,
       displayName: row.name,
       aliases: [],
-      category: mapCategory(row.category),
+      category: mapCategory(row.category, row.name),
       rarity: mapRarity(row.category),
       chroma: row.category === "chroma",
       verified: true,
@@ -750,6 +841,22 @@ async function main() {
   const totalRefreshes = reports.reduce((n, r) => n + r.refreshed, 0);
   const totalUpdates = totalChanges + totalRefreshes;
 
+  // Always pin icon references to the files that actually exist on disk so a
+  // stale path/extension can never leave an item rendering a placeholder cube.
+  const iconFixes = reconcileIconPaths(snapshot);
+  if (iconFixes > 0) {
+    // eslint-disable-next-line no-console
+    console.log(`\nReconciled ${iconFixes} icon path(s) to on-disk files.`);
+  }
+
+  // Re-derive item categories (knife/gun/bundle/pet/other) from names so the
+  // Browse/Search filters stay meaningful even though the source is rarity-based.
+  const categoryFixes = reconcileCategories(snapshot);
+  if (categoryFixes > 0) {
+    // eslint-disable-next-line no-console
+    console.log(`Reclassified ${categoryFixes} item categor(y/ies) from names.`);
+  }
+
   // eslint-disable-next-line no-console
   console.log("\nSummary");
   for (const r of reports) {
@@ -765,7 +872,7 @@ async function main() {
     }
   }
 
-  if (totalUpdates === 0) {
+  if (totalUpdates === 0 && iconFixes === 0 && categoryFixes === 0) {
     // eslint-disable-next-line no-console
     console.log("\nUp to date — no value changes found.");
     return;
@@ -774,8 +881,9 @@ async function main() {
   if (args.dryRun) {
     // eslint-disable-next-line no-console
     console.log(
-      `\nDry run: ${totalChanges} change(s), ${totalRefreshes} refresh(es) detected; ` +
-        "snapshot not written.",
+      `\nDry run: ${totalChanges} change(s), ${totalRefreshes} refresh(es), ` +
+        `${iconFixes} icon fix(es), ${categoryFixes} category fix(es) ` +
+        `detected; snapshot not written.`,
     );
     return;
   }
@@ -791,7 +899,8 @@ async function main() {
   writeFileSync(SNAPSHOT_PATH, after, "utf8");
   // eslint-disable-next-line no-console
   console.log(
-    `\nWrote ${totalChanges} change(s), ${totalRefreshes} refresh(es) ` +
+    `\nWrote ${totalChanges} change(s), ${totalRefreshes} refresh(es), ` +
+      `${iconFixes} icon fix(es), ${categoryFixes} category fix(es) ` +
       `to ${SNAPSHOT_PATH} (revision ${snapshot.revision}).`,
   );
 }

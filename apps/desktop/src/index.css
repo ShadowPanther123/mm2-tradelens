@@ -67,6 +67,18 @@
   body {
     @apply bg-base-900 text-slate-100 font-sans antialiased;
     font-size: 14px;
+    background-image:
+      radial-gradient(
+        60rem 40rem at 15% -10%,
+        rgb(var(--color-accent) / 0.1),
+        transparent 60%
+      ),
+      radial-gradient(
+        50rem 34rem at 100% 0%,
+        rgb(var(--color-yourside) / 0.07),
+        transparent 55%
+      );
+    background-attachment: fixed;
   }
 
   /* Thin, unobtrusive scrollbars for a desktop feel. */
@@ -112,6 +124,11 @@
 
   .card {
     @apply glass rounded-2xl;
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--color-white) / 0.03),
+      transparent 40%
+    );
   }
 
   .btn {

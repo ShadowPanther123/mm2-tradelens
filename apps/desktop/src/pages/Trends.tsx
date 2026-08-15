@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  latestSyncAbsoluteMovers,
-  latestSyncMovers,
+  biggestAbsoluteMovers,
+  historyMovers,
   mergeHistoryReadings,
   mostContested,
   snapshotHistory,
@@ -29,7 +29,6 @@ export function Trends() {
   const items = useDataStore((s) => s.items);
   const mode = useDataStore((s) => s.settings.sourceMode);
   const revision = useDataStore((s) => s.snapshotMeta?.revision ?? 0);
-  const generatedAt = useDataStore((s) => s.snapshotMeta?.generatedAt);
 
   const [days, setDays] = useState<Window>(7);
   const [category, setCategory] = useState<string>("all");
@@ -108,35 +107,26 @@ export function Trends() {
   }, [scopedItems, dbHistory, trendSource]);
 
   const windowDays = days;
-  const latestSyncItems = useMemo(
-    () =>
-      generatedAt
-        ? scopedItems.filter(
-            (item) => item.values[trendSource]?.updatedAt === generatedAt,
-          )
-        : [],
-    [generatedAt, scopedItems, trendSource],
-  );
 
-  const rising = latestSyncMovers(latestSyncItems, history, trendSource, {
+  const rising = historyMovers(scopedItems, history, trendSource, {
     days: windowDays,
     direction: "up",
     limit: 6,
   });
-  const falling = latestSyncMovers(latestSyncItems, history, trendSource, {
+  const falling = historyMovers(scopedItems, history, trendSource, {
     days: windowDays,
     direction: "down",
     limit: 6,
   });
   // Rankings reset on every adopted snapshot; graph series retain the selected
-  // historical window for the items that moved in the newest sync.
+  // historical window for the items that moved.
   const recentMovement = useMemo(() => {
-    const up = latestSyncMovers(latestSyncItems, history, trendSource, {
+    const up = historyMovers(scopedItems, history, trendSource, {
       days: windowDays,
       direction: "up",
       limit: 6,
     });
-    const down = latestSyncMovers(latestSyncItems, history, trendSource, {
+    const down = historyMovers(scopedItems, history, trendSource, {
       days: windowDays,
       direction: "down",
       limit: 6,
@@ -144,13 +134,11 @@ export function Trends() {
     return [...up, ...down].sort(
       (a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent),
     );
-  }, [latestSyncItems, history, trendSource, windowDays]);
-  const biggestSwings = latestSyncAbsoluteMovers(
-    latestSyncItems,
-    history,
-    trendSource,
-    { days: windowDays, limit: 6 },
-  );
+  }, [scopedItems, history, trendSource, windowDays]);
+  const biggestSwings = biggestAbsoluteMovers(scopedItems, history, trendSource, {
+    days: windowDays,
+    limit: 6,
+  });
   const steady = stableHighDemand(scopedItems, trendSource, 4, 6);
   const contested = mostContested(scopedItems, 6);
 
@@ -231,15 +219,15 @@ export function Trends() {
       {nothingMoving ? (
         <section className="card p-4">
           <EmptyState
-            title="No value changes in the newest sync"
-            hint="Historical graphs remain available on each item's details page."
+            title="Nothing has moved in this window"
+            hint="Try a longer time window, or check each item's details page for its full history."
           />
         </section>
       ) : (
         <>
           <section className="card p-4" data-testid="latest-sync-changes">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">Newest sync changes</h2>
+              <h2 className="font-semibold">Recent movement</h2>
               <span className="text-xs text-slate-500">
                 {days}-day graphs ·{" "}
                 {trendSource === mode ? trendSource : `via ${trendSource}`}

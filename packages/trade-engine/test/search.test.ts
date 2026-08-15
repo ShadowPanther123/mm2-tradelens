@@ -160,7 +160,7 @@ describe("search filters", () => {
     make("pet-c", "Charlie", {
       category: "pet",
       rarity: "pet",
-      values: { community: { value: 20, updatedAt } },
+      values: { supreme: { value: 20, updatedAt } },
     }),
   ];
 
@@ -175,7 +175,7 @@ describe("search filters", () => {
   });
 
   it("filters by source availability", () => {
-    const results = searchItems(catalogue, "c", 10, { sources: "community" });
+    const results = searchItems(catalogue, "c", 10, { sources: "supreme" });
     expect(results.map((r) => r.item.id)).toEqual(["pet-c"]);
   });
 });

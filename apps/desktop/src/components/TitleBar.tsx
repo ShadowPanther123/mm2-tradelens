@@ -1,4 +1,5 @@
 import { windowControls } from "@/services/tauri";
+import { Icon } from "./Icon";
 
 /** Custom frameless title bar with drag region and window controls. */
 export function TitleBar() {
@@ -9,7 +10,9 @@ export function TitleBar() {
         bg-base-800/60 backdrop-blur-md border-b border-white/5"
     >
       <div data-tauri-drag-region className="flex items-center gap-2">
-        <div className="h-4 w-4 rounded-md bg-gradient-to-br from-accent to-yourside" />
+        <span className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-br from-accent to-yourside text-base-900 shadow-glow">
+          <Icon name="logo" className="h-3.5 w-3.5" />
+        </span>
         <span data-tauri-drag-region className="text-xs font-semibold tracking-wide">
           MM2&nbsp;TradeLens
         </span>
@@ -21,7 +24,7 @@ export function TitleBar() {
           title="Minimize"
           aria-label="Minimize window"
         >
-          &#8211;
+          <Icon name="minimize" className="h-4 w-4" />
         </button>
         <button
           className="grid h-7 w-7 place-items-center rounded-md text-slate-400 hover:bg-white/10 hover:text-white"
@@ -29,7 +32,7 @@ export function TitleBar() {
           title="Maximize"
           aria-label="Maximize or restore window"
         >
-          &#9633;
+          <Icon name="maximize" className="h-3.5 w-3.5" />
         </button>
         <button
           className="grid h-7 w-7 place-items-center rounded-md text-slate-400 hover:bg-loss/80 hover:text-white"
@@ -37,7 +40,7 @@ export function TitleBar() {
           title="Close"
           aria-label="Close window"
         >
-          &#10005;
+          <Icon name="close" className="h-4 w-4" />
         </button>
       </div>
     </div>

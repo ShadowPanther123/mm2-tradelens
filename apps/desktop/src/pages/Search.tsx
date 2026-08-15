@@ -51,9 +51,8 @@ const RARITY_ORDER: ItemRarity[] = [
 const SOURCE_LABELS: Record<SourceId, string> = {
   mm2values: "MM2Values",
   supreme: "Supreme Values",
-  community: "Community",
 };
-const SOURCE_ORDER: SourceId[] = ["mm2values", "supreme", "community"];
+const SOURCE_ORDER: SourceId[] = ["mm2values", "supreme"];
 
 /** Above this many rows the results are windowed for smooth scrolling. */
 const VIRTUALIZE_THRESHOLD = 30;

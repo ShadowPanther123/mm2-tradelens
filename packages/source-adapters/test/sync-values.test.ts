@@ -8,6 +8,9 @@ import {
   slugify,
   mapStability,
   cleanStabilityLabel,
+  reconcileIconPaths,
+  mapCategory,
+  reconcileCategories,
 } from "../scripts/sync-values.mjs";
 
 const MM2_BLOCK = `
@@ -106,6 +109,81 @@ describe("parseSupremePayload", () => {
   it("skips entries missing a name or numeric value", () => {
     const rows = parseSupremePayload([{ value: 1 }, { name: "X" }, { name: "Y", value: "nope" }]);
     expect(rows).toEqual([]);
+  });
+});
+
+describe("reconcileIconPaths", () => {
+  const index = new Map([
+    ["batwing", "batwing.webp"],
+    ["beach", "beach.png"],
+  ]);
+
+  it("pins each item image to the on-disk file for its id", () => {
+    const snapshot = {
+      items: [
+        { id: "batwing", image: "icons/items/batwing.png" }, // stale extension
+        { id: "beach" }, // missing image entirely
+        { id: "unknown", image: "icons/items/unknown.png" }, // no file → untouched
+      ],
+    };
+    const fixed = reconcileIconPaths(snapshot, index);
+    expect(fixed).toBe(2);
+    expect(snapshot.items[0].image).toBe("icons/items/batwing.webp");
+    expect(snapshot.items[1].image).toBe("icons/items/beach.png");
+    expect(snapshot.items[2].image).toBe("icons/items/unknown.png");
+  });
+
+  it("does nothing when every image already matches disk", () => {
+    const snapshot = {
+      items: [{ id: "batwing", image: "icons/items/batwing.webp" }],
+    };
+    expect(reconcileIconPaths(snapshot, index)).toBe(0);
+  });
+
+  it("is a no-op when the icon index is empty", () => {
+    const snapshot = { items: [{ id: "batwing", image: "icons/items/batwing.png" }] };
+    expect(reconcileIconPaths(snapshot, new Map())).toBe(0);
+    expect(snapshot.items[0].image).toBe("icons/items/batwing.png");
+  });
+});
+
+describe("mapCategory", () => {
+  it("tags pets from the source category", () => {
+    expect(mapCategory("pets", "Adopt Me Dog")).toBe("pet");
+  });
+
+  it("infers knives, guns and bundles from the item name", () => {
+    expect(mapCategory("godly", "Nik's Scythe")).toBe("knife");
+    expect(mapCategory("godly", "Chroma Laser Blade")).toBe("knife");
+    expect(mapCategory("godly", "Ice Dagger")).toBe("knife");
+    expect(mapCategory("godly", "Ray Gun")).toBe("gun");
+    expect(mapCategory("godly", "Blaster")).toBe("gun");
+    expect(mapCategory("misc", "Halloween Set")).toBe("bundle");
+    expect(mapCategory("misc", "Starter Pack")).toBe("bundle");
+  });
+
+  it("falls back to other when nothing matches", () => {
+    expect(mapCategory("godly", "Seer")).toBe("other");
+    expect(mapCategory("rare", "Batwing")).toBe("other");
+  });
+});
+
+describe("reconcileCategories", () => {
+  it("re-derives categories from names and keeps pets tagged", () => {
+    const snapshot = {
+      items: [
+        { id: "scythe", displayName: "Nik's Scythe", rarity: "godly", category: "other" },
+        { id: "raygun", displayName: "Ray Gun", rarity: "godly", category: "other" },
+        { id: "dog", displayName: "Robo Dog", rarity: "pet", category: "pet" },
+        { id: "seer", displayName: "Seer", rarity: "godly", category: "other" },
+      ],
+    };
+    const changed = reconcileCategories(snapshot);
+    expect(changed).toBe(2);
+    expect(snapshot.items[0].category).toBe("knife");
+    expect(snapshot.items[1].category).toBe("gun");
+    expect(snapshot.items[2].category).toBe("pet");
+    expect(snapshot.items[3].category).toBe("other");
   });
 });
 

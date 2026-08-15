@@ -25,8 +25,6 @@ export function sourceModeLabel(mode: SourceMode): string {
       return "Supreme Values";
     case "mm2values":
       return "MM2Values";
-    case "community":
-      return "Community";
     default:
       return mode;
   }
