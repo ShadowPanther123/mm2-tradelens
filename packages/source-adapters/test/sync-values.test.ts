@@ -162,9 +162,16 @@ describe("mapCategory", () => {
     expect(mapCategory("misc", "Starter Pack")).toBe("bundle");
   });
 
-  it("falls back to other when nothing matches", () => {
-    expect(mapCategory("godly", "Seer")).toBe("other");
-    expect(mapCategory("rare", "Batwing")).toBe("other");
+  it("defaults weapon-rarity items with no weapon word to knife", () => {
+    expect(mapCategory("godly", "Seer")).toBe("knife");
+    expect(mapCategory("rare", "Batwing")).toBe("knife");
+    expect(mapCategory("godly", "Bat")).toBe("knife");
+    expect(mapCategory("chroma", "Chroma Candleflame")).toBe("knife");
+  });
+
+  it("falls back to other for non-weapon miscellaneous items", () => {
+    expect(mapCategory("misc", "Radio")).toBe("other");
+    expect(mapCategory("", "Mystery Thing")).toBe("other");
   });
 });
 
@@ -179,11 +186,11 @@ describe("reconcileCategories", () => {
       ],
     };
     const changed = reconcileCategories(snapshot);
-    expect(changed).toBe(2);
+    expect(changed).toBe(3);
     expect(snapshot.items[0].category).toBe("knife");
     expect(snapshot.items[1].category).toBe("gun");
     expect(snapshot.items[2].category).toBe("pet");
-    expect(snapshot.items[3].category).toBe("other");
+    expect(snapshot.items[3].category).toBe("knife");
   });
 });
 

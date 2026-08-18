@@ -192,37 +192,62 @@ const KNIFE_PATTERN =
 const BUNDLE_PATTERN = /\b(set|bundle|pack|collection|crate|box|pile|bag|combo|kit)\b/i;
 
 /**
+ * mm2values rarity pages that contain tradeable weapons. In MM2 every item in
+ * one of these lists is either a knife or a gun, so an item here that carries no
+ * gun marker is treated as a knife rather than dropped into "other". This is
+ * what lets weapons whose names contain no weapon word (e.g. "Bat", "Chroma
+ * Candleflame", "Seer") still appear under the Knives filter.
+ */
+const WEAPON_RARITIES = new Set([
+  "common",
+  "uncommon",
+  "rare",
+  "legendary",
+  "godly",
+  "ancient",
+  "unique",
+  "vintage",
+  "chroma",
+]);
+
+/**
  * Classify an item into a schema category. mm2values pages are organised by
- * rarity, not item type, so the source category only reliably tells us whether
- * something is a pet. For everything else we infer knife/gun/bundle from the
- * item name, falling back to the generic "other" bucket when nothing matches.
- * This keeps the Browse/Search filters meaningful instead of collapsing the
- * whole catalogue into a single "Items" group.
- * @param {string} category source page category (rarity slug or "pets")
+ * rarity, not item type. Pets and the miscellaneous list are handled from the
+ * source category; for the weapon rarities we use gun/knife name markers and,
+ * crucially, default anything left in a weapon list to "knife" (MM2 weapon
+ * lists only hold knives and guns). This keeps the Browse/Search Knives/Guns
+ * filters complete instead of hiding weapons whose names lack a weapon word.
+ * @param {string} category source page category (rarity slug, "pets" or "misc")
  * @param {string} [name] item display name
  * @returns {"knife"|"gun"|"pet"|"bundle"|"other"}
  */
 export function mapCategory(category, name = "") {
-  if (category === "pets") return "pet";
+  const cat = String(category ?? "").trim().toLowerCase();
+  if (cat === "pets" || cat === "pet") return "pet";
   const n = String(name);
-  if (KNIFE_PATTERN.test(n)) return "knife";
   if (GUN_PATTERN.test(n)) return "gun";
+  if (KNIFE_PATTERN.test(n)) return "knife";
+  if (cat === "misc") return BUNDLE_PATTERN.test(n) ? "bundle" : "other";
+  // Any remaining item in a weapon rarity list is a knife (guns are marked
+  // above). Non-weapon lists fall back to bundle/other.
+  if (WEAPON_RARITIES.has(cat)) return "knife";
   if (BUNDLE_PATTERN.test(n)) return "bundle";
   return "other";
 }
 
 /**
- * Re-derive every item's category from its display name using {@link mapCategory}.
- * Pets keep their pet tag (rarity "pet"); other items are (re)classified into
- * knife/gun/bundle/other. Runs over the whole snapshot so a re-sync self-heals
- * categorisation the same way icon paths do.
+ * Re-derive every item's category from its rarity + display name using
+ * {@link mapCategory}. Pets keep their pet tag; weapon-rarity items are
+ * (re)classified into gun/knife (defaulting to knife) so no weapon is hidden
+ * from the Knives/Guns filters. Runs over the whole snapshot so a re-sync
+ * self-heals categorisation the same way icon paths do.
  * @param {any} snapshot
  * @returns {number} number of category fields changed
  */
 export function reconcileCategories(snapshot) {
   let fixed = 0;
   for (const item of snapshot.items ?? []) {
-    const sourceCategory = item.rarity === "pet" ? "pets" : "";
+    const sourceCategory = item.rarity === "pet" ? "pets" : String(item.rarity ?? "");
     const next = mapCategory(sourceCategory, item.displayName);
     if (item.category !== next) {
       item.category = next;
