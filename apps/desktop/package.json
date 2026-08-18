@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "prepare:data": "node ../../scripts/prepare-desktop-data.mjs",
+    "verify:fresh": "node ../../scripts/verify-snapshot-fresh.mjs",
     "predev": "npm run prepare:data",
     "dev": "vite",
-    "prebuild": "npm run prepare:data",
+    "prebuild": "npm run verify:fresh && npm run prepare:data",
     "build": "tsc --noEmit && vite build",
     "postbuild": "node ../../scripts/validate-desktop-bundle.mjs",
     "preview": "vite preview --port 4173",

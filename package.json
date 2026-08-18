@@ -17,6 +17,7 @@
     "dev:desktop": "npm run dev --workspace apps/desktop",
     "dev:api": "npm run dev --workspace services/values-api",
     "sync:values": "npm run sync:values --workspace @tradelens/source-adapters",
+    "verify:fresh": "node scripts/verify-snapshot-fresh.mjs",
     "publish:local": "node scripts/publish-local.mjs",
     "release": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1",
     "release:validate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-release.ps1",
