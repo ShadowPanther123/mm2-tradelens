@@ -11,6 +11,7 @@ import {
   reconcileIconPaths,
   mapCategory,
   reconcileCategories,
+  rosterType,
 } from "../scripts/sync-values.mjs";
 
 const MM2_BLOCK = `
@@ -162,11 +163,21 @@ describe("mapCategory", () => {
     expect(mapCategory("misc", "Starter Pack")).toBe("bundle");
   });
 
-  it("defaults weapon-rarity items with no weapon word to knife", () => {
+  it("uses the wiki roster for unmarked weapons (gun vs knife)", () => {
+    // "Harvester" is a gun with no gun word in its name; the roster fixes it,
+    // and colour variants match the base roster entry.
+    expect(mapCategory("ancient", "Harvester")).toBe("gun");
+    expect(mapCategory("unique", "Blue Harvester")).toBe("gun");
+    expect(mapCategory("unique", "Bronze Harvester")).toBe("gun");
+    // "Seer" and "Combat" are knives per the MM2 wiki, not guns.
     expect(mapCategory("godly", "Seer")).toBe("knife");
-    expect(mapCategory("rare", "Batwing")).toBe("knife");
-    expect(mapCategory("godly", "Bat")).toBe("knife");
+    expect(mapCategory("common", "Combat")).toBe("knife");
+    expect(mapCategory("legendary", "Blue Scratch")).toBe("knife");
     expect(mapCategory("chroma", "Chroma Candleflame")).toBe("knife");
+  });
+
+  it("defaults remaining weapon-rarity items to knife", () => {
+    expect(mapCategory("rare", "Batwing")).toBe("knife");
   });
 
   it("falls back to other for non-weapon miscellaneous items", () => {
@@ -175,14 +186,27 @@ describe("mapCategory", () => {
   });
 });
 
+describe("rosterType", () => {
+  it("resolves unmarked weapons from the committed wiki roster", () => {
+    expect(rosterType("Harvester")).toBe("gun");
+    expect(rosterType("Bronze Harvester")).toBe("gun");
+    expect(rosterType("Seer")).toBe("knife");
+    expect(rosterType("Combat")).toBe("knife");
+  });
+
+  it("returns undefined for items on neither roster", () => {
+    expect(rosterType("Totally Made Up Item")).toBeUndefined();
+  });
+});
+
 describe("reconcileCategories", () => {
-  it("re-derives categories from names and keeps pets tagged", () => {
+  it("re-derives categories via markers + roster and keeps pets tagged", () => {
     const snapshot = {
       items: [
         { id: "scythe", displayName: "Nik's Scythe", rarity: "godly", category: "other" },
         { id: "raygun", displayName: "Ray Gun", rarity: "godly", category: "other" },
         { id: "dog", displayName: "Robo Dog", rarity: "pet", category: "pet" },
-        { id: "seer", displayName: "Seer", rarity: "godly", category: "other" },
+        { id: "harvester", displayName: "Harvester", rarity: "ancient", category: "other" },
       ],
     };
     const changed = reconcileCategories(snapshot);
@@ -190,7 +214,7 @@ describe("reconcileCategories", () => {
     expect(snapshot.items[0].category).toBe("knife");
     expect(snapshot.items[1].category).toBe("gun");
     expect(snapshot.items[2].category).toBe("pet");
-    expect(snapshot.items[3].category).toBe("knife");
+    expect(snapshot.items[3].category).toBe("gun");
   });
 });
 

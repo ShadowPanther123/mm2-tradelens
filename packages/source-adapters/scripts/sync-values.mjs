@@ -31,6 +31,23 @@ import { dirname, resolve, extname } from "node:path";
 const here = dirname(fileURLToPath(import.meta.url));
 const SNAPSHOT_PATH = resolve(here, "../src/mm2values-snapshot.json");
 const ICON_DIR = resolve(here, "../../../apps/desktop/public/icons/items");
+const WEAPON_TYPES_PATH = resolve(here, "../data/weapon-types.json");
+
+/**
+ * Authoritative knife/gun rosters, slugified, sourced once from the MM2 fandom
+ * wiki Category:Guns and Category:Knives and committed as data so the sync stays
+ * deterministic and offline. mm2values organises items by rarity (not weapon
+ * type), so these rosters are what let unmarked weapons (e.g. "Harvester" is a
+ * gun, "Seer" is a knife) land in the correct Knives/Guns filter.
+ */
+const WEAPON_ROSTER = (() => {
+  try {
+    const raw = JSON.parse(readFileSync(WEAPON_TYPES_PATH, "utf8"));
+    return { guns: new Set(raw.guns ?? []), knives: new Set(raw.knives ?? []) };
+  } catch {
+    return { guns: new Set(), knives: new Set() };
+  }
+})();
 
 const MM2_BASE = "https://www.mm2values.com";
 const USER_AGENT = "mm2-tradelens-sync/1.0 (+local value sync)";
@@ -194,9 +211,8 @@ const BUNDLE_PATTERN = /\b(set|bundle|pack|collection|crate|box|pile|bag|combo|k
 /**
  * mm2values rarity pages that contain tradeable weapons. In MM2 every item in
  * one of these lists is either a knife or a gun, so an item here that carries no
- * gun marker is treated as a knife rather than dropped into "other". This is
- * what lets weapons whose names contain no weapon word (e.g. "Bat", "Chroma
- * Candleflame", "Seer") still appear under the Knives filter.
+ * gun marker and is not on the gun roster is treated as a knife rather than
+ * dropped into "other".
  */
 const WEAPON_RARITIES = new Set([
   "common",
@@ -210,13 +226,66 @@ const WEAPON_RARITIES = new Set([
   "chroma",
 ]);
 
+/** Colour/finish qualifiers that prefix variant names (e.g. "Blue Harvester"). */
+const VARIANT_PREFIXES = new Set([
+  "blue", "red", "green", "gold", "golden", "silver", "bronze", "pink", "black",
+  "white", "purple", "orange", "yellow", "cyan", "teal", "rainbow", "chroma",
+  "dark", "light", "ghost", "crystal", "frozen", "ice", "icy", "diamond", "ruby",
+  "emerald", "sapphire", "shadow", "toy", "mystery", "elder", "fire", "lava",
+  "neon", "evil", "holy", "royal", "ancient", "old", "new", "classic", "og",
+  "original", "corrupt", "corrupted", "cursed",
+]);
+
+/** Slugify a name for roster lookup, dropping any parenthetical qualifier. */
+function rosterSlug(name) {
+  return String(name)
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Candidate roster keys for a name: the full slug plus the slug with leading
+ * colour/finish qualifiers stripped, so "Blue Harvester" also matches the base
+ * "harvester" roster entry.
+ */
+function rosterKeys(name) {
+  const s = rosterSlug(name);
+  const keys = new Set([s]);
+  const parts = s.split("-");
+  let i = 0;
+  while (i < parts.length - 1 && VARIANT_PREFIXES.has(parts[i])) {
+    i += 1;
+    keys.add(parts.slice(i).join("-"));
+  }
+  return [...keys];
+}
+
+/**
+ * Look an item up in the authoritative knife/gun rosters. Returns "gun",
+ * "knife", or undefined when it is on neither (or ambiguously on both).
+ * @param {string} name
+ * @returns {"gun"|"knife"|undefined}
+ */
+export function rosterType(name) {
+  const keys = rosterKeys(name);
+  const isGun = keys.some((k) => WEAPON_ROSTER.guns.has(k));
+  const isKnife = keys.some((k) => WEAPON_ROSTER.knives.has(k));
+  if (isGun && !isKnife) return "gun";
+  if (isKnife && !isGun) return "knife";
+  return undefined;
+}
+
 /**
  * Classify an item into a schema category. mm2values pages are organised by
- * rarity, not item type. Pets and the miscellaneous list are handled from the
- * source category; for the weapon rarities we use gun/knife name markers and,
- * crucially, default anything left in a weapon list to "knife" (MM2 weapon
- * lists only hold knives and guns). This keeps the Browse/Search Knives/Guns
- * filters complete instead of hiding weapons whose names lack a weapon word.
+ * rarity, not item type, so we combine three signals, most specific first:
+ *   1. explicit gun/knife name markers ("Ray Gun", "Ice Dagger");
+ *   2. the authoritative MM2 wiki knife/gun roster (so unmarked weapons such as
+ *      "Harvester" → gun and "Seer" → knife are placed correctly);
+ *   3. a weapon-rarity fallback to "knife" (those lists only hold knives/guns).
+ * Pets and the miscellaneous list are handled from the source category.
  * @param {string} category source page category (rarity slug, "pets" or "misc")
  * @param {string} [name] item display name
  * @returns {"knife"|"gun"|"pet"|"bundle"|"other"}
@@ -227,9 +296,11 @@ export function mapCategory(category, name = "") {
   const n = String(name);
   if (GUN_PATTERN.test(n)) return "gun";
   if (KNIFE_PATTERN.test(n)) return "knife";
+  const roster = rosterType(n);
+  if (roster) return roster;
   if (cat === "misc") return BUNDLE_PATTERN.test(n) ? "bundle" : "other";
-  // Any remaining item in a weapon rarity list is a knife (guns are marked
-  // above). Non-weapon lists fall back to bundle/other.
+  // Any remaining item in a weapon rarity list is a knife (guns are caught by
+  // markers or the roster above). Non-weapon lists fall back to bundle/other.
   if (WEAPON_RARITIES.has(cat)) return "knife";
   if (BUNDLE_PATTERN.test(n)) return "bundle";
   return "other";
@@ -238,9 +309,9 @@ export function mapCategory(category, name = "") {
 /**
  * Re-derive every item's category from its rarity + display name using
  * {@link mapCategory}. Pets keep their pet tag; weapon-rarity items are
- * (re)classified into gun/knife (defaulting to knife) so no weapon is hidden
- * from the Knives/Guns filters. Runs over the whole snapshot so a re-sync
- * self-heals categorisation the same way icon paths do.
+ * (re)classified into gun/knife via markers + the wiki roster so no weapon is
+ * hidden from, or misfiled between, the Knives/Guns filters. Runs over the whole
+ * snapshot so a re-sync self-heals categorisation the same way icon paths do.
  * @param {any} snapshot
  * @returns {number} number of category fields changed
  */
