@@ -17,9 +17,9 @@
     "@tradelens/source-adapters": "0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
+    "@types/node": "^26.3.0",
     "esbuild": "^0.28.2",
-    "typescript": "^5.5.4",
-    "vitest": "^3.2.6"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   }
 }
