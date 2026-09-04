@@ -28,7 +28,7 @@
     "@tradelens/item-schema": "0.1.0"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "vitest": "^3.2.6"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   }
 }
