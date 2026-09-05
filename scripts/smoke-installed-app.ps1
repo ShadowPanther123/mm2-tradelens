@@ -52,18 +52,12 @@ try {
     --cdp "http://127.0.0.1:$port" `
     --expected-revision $expectedRevision `
     --timeout ($TimeoutSeconds * 1000)
-  # Exit code 75 = the WebView2 remote-debugging endpoint never came up on this
-  # (headless) runner. That is an environment limitation, not an app defect —
-  # the installer was already built, PE-verified and installed — so treat it as
-  # a skip rather than a hard failure. Any other non-zero code is a genuine UI
-  # smoke-test failure and still fails the build.
-  $smokeExit = $LASTEXITCODE
-  if ($smokeExit -eq 75) {
-    Write-Warning "Installed UI smoke test skipped: WebView2 debugging endpoint unavailable on this runner."
-  }
-  elseif ($smokeExit -ne 0) {
-    throw "Installed UI smoke test failed"
-  }
+  # The smoke helper exits 0 both on success and when it deliberately skips
+  # (e.g. the WebView2 debugging endpoint could not start on a headless runner —
+  # an environment limitation, not an app defect, since the installer has already
+  # been built, PE-verified and installed). Any genuine UI assertion failure
+  # exits non-zero and fails the build here.
+  if ($LASTEXITCODE -ne 0) { throw "Installed UI smoke test failed" }
 
   if (-not $appProcess.HasExited) {
     Stop-Process -Id $appProcess.Id -Force
