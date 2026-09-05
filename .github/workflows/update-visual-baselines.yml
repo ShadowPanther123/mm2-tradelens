@@ -39,10 +39,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- apps/desktop/e2e/__screenshots__; then
+          git add apps/desktop/e2e/__screenshots__
+          # `git add` stages new (untracked) baselines too; check the index for
+          # any staged change before committing.
+          if git diff --cached --quiet; then
             echo "No baseline changes to commit."
             exit 0
           fi
-          git add apps/desktop/e2e/__screenshots__
           git commit -m "test(desktop): update Linux visual-regression baselines [skip ci]"
           git push origin HEAD:${GITHUB_REF_NAME}
