@@ -1,0 +1,48 @@
+name: update-visual-baselines
+
+# Playwright screenshot baselines are platform-specific: Playwright looks for
+# `<name>-<project>-<platform>.png` and CI runs on Linux, while the app is
+# developed on Windows. Without Linux baselines the visual-regression suite in
+# `ci` fails on every run ("A snapshot doesn't exist ... writing actual").
+#
+# This maintainer-triggered job regenerates the visual baselines on the same OS
+# the CI uses (Linux) and commits them, so the `ci` visual job has a stable
+# reference to compare against. Re-run it whenever an intentional UI change
+# updates the expected screenshots.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-visual-baselines
+  cancel-in-progress: false
+
+jobs:
+  update-baselines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/desktop
+      - name: Regenerate Linux visual baselines
+        run: npx playwright test visual.spec.ts --update-snapshots
+        working-directory: apps/desktop
+      - name: Commit updated baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- apps/desktop/e2e/__screenshots__; then
+            echo "No baseline changes to commit."
+            exit 0
+          fi
+          git add apps/desktop/e2e/__screenshots__
+          git commit -m "test(desktop): update Linux visual-regression baselines [skip ci]"
+          git push origin HEAD:${GITHUB_REF_NAME}
