@@ -25,8 +25,25 @@ jobs:
       # Gate on shipped (production) dependencies only: dev-tool advisories in
       # the bundler/test runner (vite, vitest, esbuild) never reach end users,
       # so they must not permanently fail CI. Any high/critical in a runtime
-      # dependency still blocks the build.
-      - run: npm audit --omit=dev --audit-level=high
+      # dependency still blocks the build. The audit endpoint is occasionally
+      # flaky, so transient network/endpoint errors are retried.
+      - name: Audit production dependencies
+        run: |
+          for attempt in 1 2 3; do
+            out="$(npm audit --omit=dev --audit-level=high 2>&1)"; status=$?
+            echo "$out"
+            if [ "$status" = "0" ]; then
+              exit 0
+            fi
+            if echo "$out" | grep -qi "audit endpoint returned an error\|ENOTFOUND\|ETIMEDOUT\|ECONNRESET\|network"; then
+              echo "npm audit endpoint error (attempt $attempt), retrying in 15s..."
+              sleep 15
+              continue
+            fi
+            exit "$status"
+          done
+          echo "npm audit endpoint kept failing after 3 attempts" >&2
+          exit 1
       # Informational full audit (never fails the job) so dev-tool advisories
       # stay visible for periodic review.
       - run: npm audit || true

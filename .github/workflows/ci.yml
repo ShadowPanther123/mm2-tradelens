@@ -53,6 +53,14 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: apps/desktop/src-tauri
+      # `tauri::generate_context!` fails to expand unless the configured
+      # `frontendDist` (../dist) exists. The Rust-only job never builds the
+      # frontend, so provide a minimal placeholder that satisfies the macro.
+      - name: Provide placeholder frontend dist
+        working-directory: apps/desktop
+        run: |
+          mkdir -p dist
+          [ -f dist/index.html ] || echo '<!doctype html><title>ci</title>' > dist/index.html
       # Tauri's Linux build needs the WebKitGTK/AppIndicator system libraries.
       - name: Install Tauri system dependencies
         run: |
@@ -108,8 +116,28 @@ jobs:
           cache: npm
       - run: npm ci
       # Gate on shipped (production) dependencies only; dev-tool advisories in
-      # the bundler/test runner never reach end users.
-      - run: npm audit --omit=dev --audit-level=high
+      # the bundler/test runner never reach end users. The npm audit endpoint
+      # is occasionally flaky, so retry transient network/endpoint errors
+      # before failing the build.
+      - name: Audit production dependencies
+        run: |
+          for attempt in 1 2 3; do
+            out="$(npm audit --omit=dev --audit-level=high 2>&1)"; status=$?
+            echo "$out"
+            if [ "$status" = "0" ]; then
+              exit 0
+            fi
+            # A flaky registry/endpoint error is transient — retry. A genuine
+            # vulnerability report is not, so fail immediately.
+            if echo "$out" | grep -qi "audit endpoint returned an error\|ENOTFOUND\|ETIMEDOUT\|ECONNRESET\|network"; then
+              echo "npm audit endpoint error (attempt $attempt), retrying in 15s..."
+              sleep 15
+              continue
+            fi
+            exit "$status"
+          done
+          echo "npm audit endpoint kept failing after 3 attempts" >&2
+          exit 1
 
   # ---- Windows release build + installer smoke test ------------------------
   build-windows:

@@ -16,6 +16,24 @@ updates:
       # Batch low-risk dev tooling into a single PR to reduce noise.
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # Major-version bumps of the build/lint toolchain are breaking changes
+      # that need a manual config migration (e.g. ESLint 9+ flat config, Vite 7,
+      # Vitest 3). Left unpinned they land in the grouped dev-dependencies PR and
+      # break CI on every run. Take minor/patch (incl. security) updates only;
+      # majors are adopted deliberately in a dedicated change.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@typescript-eslint/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: eslint-plugin-*
+        update-types: ["version-update:semver-major"]
+      - dependency-name: vite
+        update-types: ["version-update:semver-major"]
+      - dependency-name: vitest
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitejs/plugin-react"
+        update-types: ["version-update:semver-major"]
     labels:
       - dependencies
       - javascript
