@@ -134,12 +134,13 @@ for (const file of walk(join(desktop, "public"))) {
   }
 }
 
-// Every legendary item must carry its canonical, bundled icon, and every image
-// reference in the snapshot must resolve to a real public asset.
+// Legendary items should carry their canonical, bundled icon (a warning only:
+// a newly listed item without art must never block value delivery), and every
+// image reference in the snapshot must resolve to a real public asset.
 const snapshot = JSON.parse(readFileSync(SNAPSHOT_PATH, "utf8"));
 for (const item of snapshot.items) {
   if (item.rarity === "legendary" && !item.image) {
-    errors.push(`Legendary item has no icon: ${item.id}`);
+    warnings.push(`Legendary item has no icon: ${item.id}`);
     continue;
   }
   if (!item.image) continue;

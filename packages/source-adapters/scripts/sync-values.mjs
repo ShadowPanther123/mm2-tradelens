@@ -24,9 +24,9 @@
  * This tool only reads public pages and only rewrites local values in place; it
  * never hotlinks images or invents data a source did not provide.
  */
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve, extname } from "node:path";
+import { dirname, resolve, extname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SNAPSHOT_PATH = resolve(here, "../src/mm2values-snapshot.json");
@@ -707,17 +707,28 @@ export function reconcile(snapshot, rows, source, opts) {
   for (const row of rows) {
     report.checked++;
     const key = slugify(row.name);
-    const bucket = bySlug.get(key) ?? [];
+    const allNamed = bySlug.get(key) ?? [];
+    // A source item id is a stable identity: a row may only fall back to a
+    // name match on an item that has no id for this source yet. Otherwise a
+    // brand-new same-named listing (e.g. a rare "Laser" added beside the godly
+    // one) would overwrite the existing item's value and identity.
+    const bucket = row.sourceItemId
+      ? allNamed.filter((it) => {
+          const existing = it.values?.[source]?.sourceItemId;
+          return !existing || String(existing) === String(row.sourceItemId);
+        })
+      : allNamed;
 
     /** @type {any} */
     let target = row.sourceItemId ? bySourceItemId.get(String(row.sourceItemId)) : undefined;
     if (!target && bucket.length === 1) {
       target = bucket[0];
     } else if (!target && bucket.length > 1) {
-      target =
-        (row.sourceItemId &&
-          bucket.find((it) => it.values?.[source]?.sourceItemId === row.sourceItemId)) ||
-        bucket.find((it) => it.displayName.toLowerCase() === row.name.toLowerCase());
+      const rarity = mapRarity(row.category);
+      const sameName = bucket.filter(
+        (it) => it.displayName.toLowerCase() === row.name.toLowerCase(),
+      );
+      target = sameName.find((it) => it.rarity === rarity) ?? sameName[0];
       if (!target) {
         report.ambiguous++;
         continue;
@@ -775,9 +786,13 @@ export function reconcile(snapshot, rows, source, opts) {
       continue;
     }
 
-    let id = key;
+    // Same-named items are disambiguated by their stable source id, matching
+    // the existing catalogue convention (e.g. laser-46 / laser-375) and the
+    // production audit's canonical-id rule.
+    let id = allNamed.length && row.sourceItemId ? `${key}-${slugify(String(row.sourceItemId))}` : key;
+    const base = id;
     let n = 2;
-    while (usedIds.has(id)) id = `${key}-${n++}`;
+    while (usedIds.has(id)) id = `${base}-${n++}`;
     usedIds.add(id);
     const newItem = compact({
       id,
@@ -790,7 +805,7 @@ export function reconcile(snapshot, rows, source, opts) {
       values: { [source]: buildReading(row, source, now, undefined) },
     });
     items.push(newItem);
-    bySlug.set(key, [newItem]);
+    bySlug.set(key, [...allNamed, newItem]);
     if (row.sourceItemId) bySourceItemId.set(String(row.sourceItemId), newItem);
     report.newItems++;
   }
@@ -828,6 +843,52 @@ async function fetchMm2Rows() {
     console.log(`  mm2values/${param}: ${parsed.length} items`);
   }
   return rows;
+}
+
+const ICON_MAX_BYTES = 72 * 1024;
+
+/** @param {Buffer} buf */
+function rasterExtension(buf) {
+  if (buf.length >= 8 && buf.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex"))) return "png";
+  if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "jpg";
+  if (buf.length >= 12 && buf.toString("ascii", 0, 4) === "RIFF" && buf.toString("ascii", 8, 12) === "WEBP")
+    return "webp";
+  return null;
+}
+
+/**
+ * Download a local icon for every item that has none yet (typically items
+ * mm2values just added), from the image the source row itself references.
+ * Best-effort: a failed download is logged and never blocks the value sync.
+ * @returns {Promise<number>} icons written
+ */
+async function fetchMissingIcons(snapshot, rows, iconDir = ICON_DIR) {
+  const bySourceId = new Map(rows.filter((r) => r.sourceItemId).map((r) => [String(r.sourceItemId), r]));
+  let written = 0;
+  for (const item of snapshot.items) {
+    if (item.image) continue;
+    if (["png", "webp", "jpg"].some((ext) => existsSync(join(iconDir, `${item.id}.${ext}`)))) continue;
+    const url = bySourceId.get(String(item.values?.mm2values?.sourceItemId ?? ""))?.imageUrl;
+    if (!url || new URL(url).origin !== MM2_BASE) continue;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch(url, { headers: { "user-agent": USER_AGENT }, signal: controller.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      const ext = rasterExtension(buf);
+      if (!ext) throw new Error("not a supported raster image");
+      if (buf.length === 0 || buf.length > ICON_MAX_BYTES) throw new Error(`size ${buf.length} out of range`);
+      writeFileSync(join(iconDir, `${item.id}.${ext}`), buf);
+      written++;
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(`  icon for ${item.id} skipped — ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return written;
 }
 
 async function fetchSupremeRows() {
@@ -885,11 +946,14 @@ async function main() {
 
   const reports = [];
   let anySourceSucceeded = false;
+  /** @type {any[]} */
+  let mm2Rows = [];
 
   if (wanted.has("mm2values")) {
     // eslint-disable-next-line no-console
     console.log("Fetching mm2values.com …");
     const rows = await fetchMm2Rows();
+    mm2Rows = rows;
     reports.push(reconcile(snapshot, rows, "mm2values", { now, allowNewItems: true }));
     anySourceSucceeded = true;
   }
@@ -936,6 +1000,15 @@ async function main() {
   const totalChanges = reports.reduce((n, r) => n + r.changed + r.added + r.newItems, 0);
   const totalRefreshes = reports.reduce((n, r) => n + r.refreshed, 0);
   const totalUpdates = totalChanges + totalRefreshes;
+
+  // Give newly listed items a bundled icon (best-effort, never blocks values).
+  if (!args.dryRun && mm2Rows.length) {
+    const fetched = await fetchMissingIcons(snapshot, mm2Rows);
+    if (fetched > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`\nDownloaded ${fetched} icon(s) for new items.`);
+    }
+  }
 
   // Always pin icon references to the files that actually exist on disk so a
   // stale path/extension can never leave an item rendering a placeholder cube.

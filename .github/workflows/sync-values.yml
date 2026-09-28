@@ -17,6 +17,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
 
 # Serialise this job and don't clash with a manual publish-values run.
 concurrency:
@@ -67,7 +68,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/source-adapters/src/mm2values-snapshot.json
+          git add packages/source-adapters/src/mm2values-snapshot.json apps/desktop/public/icons/items
           git commit -m "chore(values): daily MM2Values sync (revision ${{ steps.diff.outputs.revision }})"
           git push origin HEAD:main
 
@@ -115,3 +116,30 @@ jobs:
         id: deployment
         if: steps.diff.outputs.changed == 'true'
         uses: actions/deploy-pages@v4
+
+      # A failing sync freezes every installed app's values, so never let it
+      # fail silently: keep one open issue updated until a run succeeds again.
+      - name: Report sync failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Value sync is failing"
+          existing=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          body="The scheduled MM2Values sync failed, so installed apps are not receiving new values. Run: $RUN_URL"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
+
+      - name: Close sync failure issue
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Never turn a healthy sync red if issues are disabled or unreachable.
+          for n in $(gh issue list --state open --search 'in:title "Value sync is failing"' --json number --jq '.[].number' || true); do
+            gh issue close "$n" --comment "Value sync recovered in run ${{ github.run_id }}." || true
+          done

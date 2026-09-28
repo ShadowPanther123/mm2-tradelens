@@ -325,6 +325,31 @@ describe("reconcile", () => {
     expect(snap.items[0].values.mm2values.retrievedAt).toBe(now);
   });
 
+  it("never overwrites a same-named item that belongs to another source id", () => {
+    // Regression: mm2values added a rare "Laser" (id 1022) beside the godly
+    // (46) and vintage (375) ones. Name fallback used to attach it to laser-46,
+    // corrupting its value and failing the audit on every sync.
+    const snap = snapshotWith(45);
+    snap.items = [
+      { ...snap.items[0], id: "laser-46", displayName: "Laser", rarity: "godly",
+        values: { mm2values: { value: 23, updatedAt: now, sourceItemId: "46" } } },
+      { ...snap.items[0], id: "laser-375", displayName: "Laser", rarity: "vintage",
+        values: { mm2values: { value: 8, updatedAt: now, sourceItemId: "375" } } },
+    ];
+    const rows = [
+      { name: "Laser", value: 23, category: "godly", sourceItemId: "46" },
+      { name: "Laser", value: 8, category: "vintage", sourceItemId: "375" },
+      { name: "Laser", value: 15, category: "rare", sourceItemId: "1022" },
+    ];
+    const report = reconcile(snap, rows, "mm2values", { now, allowNewItems: true });
+    expect(report.newItems).toBe(1);
+    const byId = Object.fromEntries(snap.items.map((i) => [i.id, i]));
+    expect(byId["laser-46"].values.mm2values).toMatchObject({ value: 23, sourceItemId: "46" });
+    expect(byId["laser-375"].values.mm2values).toMatchObject({ value: 8, sourceItemId: "375" });
+    expect(byId["laser-1022"]).toMatchObject({ rarity: "rare" });
+    expect(byId["laser-1022"].values.mm2values).toMatchObject({ value: 15, sourceItemId: "1022" });
+  });
+
   it("adds a brand-new item for mm2values but not for supreme", () => {
     const snap = snapshotWith(45);
     const seer = [{ name: "Seer", value: 100, category: "godly" }];
