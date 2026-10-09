@@ -22,7 +22,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/api": "^2.12.1",
     "@tradelens/item-schema": "0.1.0",
     "@tradelens/snapshot-signing": "0.1.0",
     "@tradelens/source-adapters": "0.1.0",
