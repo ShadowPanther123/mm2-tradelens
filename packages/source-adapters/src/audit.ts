@@ -261,7 +261,9 @@ export function auditItems(items: Item[], options: AuditOptions = {}): AuditRepo
 
       // Extreme value changes versus the previous value.
       const prev = reading.previousValue;
-      if (prev !== undefined && prev > 0 && reading.value >= 0) {
+      // MM2Values explicitly publishes zero for items with no assigned value.
+      const isUnvaluedMm2Item = source === "mm2values" && reading.value === 0;
+      if (prev !== undefined && prev > 0 && reading.value >= 0 && !isUnvaluedMm2Item) {
         const ratio = reading.value / prev;
         if (
           Math.abs(reading.value - prev) >= extremeChangeMinAbsolute &&

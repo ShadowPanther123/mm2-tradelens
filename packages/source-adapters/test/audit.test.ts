@@ -210,6 +210,21 @@ describe("auditItems — additional checks", () => {
     expect(report.extremeChanges[0]!.to).toBe(500);
   });
 
+  it.each([
+    { source: "mm2values", value: 0, clean: true },
+    { source: "mm2values", value: 5, clean: false },
+    { source: "supreme", value: 0, clean: false },
+  ] as const)("audits a $source value change from 40 to $value", ({ source, value, clean }) => {
+    const report = auditItems([
+      item({
+        id: "santa-pet",
+        displayName: "Santa Pet",
+        values: { [source]: { value, previousValue: 40, updatedAt: NOW } },
+      }),
+    ]);
+    expect(report.clean).toBe(clean);
+  });
+
   it("ignores extreme percentages caused by sub-unit rounding noise", () => {
     const report = auditItems([
       item({
