@@ -7171,5 +7171,97 @@
     "sourceUrl": "https://www.mm2values.com/img/BrozenSynthwave.png",
     "sha256": "ad221a423d672e99c07ffbe2f4c4cc3d3d7a1b96ee6e1f7bd1f27e91cc479601",
     "bytes": 10204
+  },
+  {
+    "id": "emberbow",
+    "image": "icons/items/emberbow.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Emberbow.png",
+    "sha256": "81d21f4a331b3b954b4996853cf287b0dc7527a766a62252ff89a1e0dc73e8bd",
+    "bytes": 32446
+  },
+  {
+    "id": "emberscythe",
+    "image": "icons/items/emberscythe.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Emberscythe.png",
+    "sha256": "2427a95e6d4a89e92639a288c71cea59282e79131b078f532a421bb6af1e9150",
+    "bytes": 8526,
+    "sourceSha256": "c32bed1955eeeeb34a1a38e3084e5eaf49745f6d0cdfbcfec7ad0a990d1bf67b",
+    "sourceBytes": 38401
+  },
+  {
+    "id": "chroma-embersickle",
+    "image": "icons/items/chroma-embersickle.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Chroma_Embersickle.png",
+    "sha256": "16b8cf9b9fae0aab143626ace37baf1a1955b9fa27f0577a64ab1a3ef0816148",
+    "bytes": 5908
+  },
+  {
+    "id": "chroma-emberbow",
+    "image": "icons/items/chroma-emberbow.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Chroma_Emberbow.png",
+    "sha256": "abe4a6f4a71ca6d37b5001d237ff355443653ef0689accbf51605d7eacfb4ab8",
+    "bytes": 37460
+  },
+  {
+    "id": "chroma-mortal",
+    "image": "icons/items/chroma-mortal.webp",
+    "sourceUrl": "https://www.mm2values.com/img/chromamortal.png",
+    "sha256": "58be0fdaa936d6dd79edee0ad96e2ff2fdc70021b2e58637f8f4d5189df60043",
+    "bytes": 16762,
+    "sourceSha256": "8eb482bcd62e79170b78ff207bc75695d280518a3c8b0f533b5fd89c0ff8bfe3",
+    "sourceBytes": 121019
+  },
+  {
+    "id": "chroma-immortal",
+    "image": "icons/items/chroma-immortal.webp",
+    "sourceUrl": "https://www.mm2values.com/img/chromaimmortal.png",
+    "sha256": "a189b67efa8b9e10e414cd5571f65fa7320b0088e582e2e385d73b6e6d1a3c8e",
+    "bytes": 7774,
+    "sourceSha256": "ab0b2a501e7369dbfe76b1757c66b6a5e9751136ce3c07b19a3f022d859021b1",
+    "sourceBytes": 45079
+  },
+  {
+    "id": "embersickle",
+    "image": "icons/items/embersickle.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Embersickle.png",
+    "sha256": "e4c63824b80a3e09af267a9cefea56e5bc725c49a2576f4bcf61c40b0ee80966",
+    "bytes": 5946
+  },
+  {
+    "id": "mortal",
+    "image": "icons/items/mortal.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Mortal.png",
+    "sha256": "bf4f1370b73f91fea4dd2bfd1f959cf4a3f78ad518151bf2268d75b3d1b4c098",
+    "bytes": 6302
+  },
+  {
+    "id": "immortal",
+    "image": "icons/items/immortal.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Immortal.png",
+    "sha256": "6082974e575454d293c2316057dcc96c970a2265008783f81b7d095a350863f2",
+    "bytes": 7212
+  },
+  {
+    "id": "chroma-emberscythe",
+    "image": "icons/items/chroma-emberscythe.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Chroma_Emberscythe.png",
+    "sha256": "90f93d01a96f91110ea1cbb6043afabf299ff9d1ab5ba17e4c77b94c75398aea",
+    "bytes": 23348,
+    "sourceSha256": "751b4ed3035e365f045e7f17cc2ddd634b54a9fd64f0de18caa7e19ffef4ba19",
+    "sourceBytes": 74646
+  },
+  {
+    "id": "embergun",
+    "image": "icons/items/embergun.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Embergun2026.png",
+    "sha256": "5985a82e3e1248ab2e03306f80a9f718bc331dd68e5768828e2778c8df7de542",
+    "bytes": 4714
+  },
+  {
+    "id": "emberknife",
+    "image": "icons/items/emberknife.webp",
+    "sourceUrl": "https://www.mm2values.com/img/Emberknife26.png",
+    "sha256": "be0cd95ac98ee61348d12deeb8162474ea94044b5a8cbce0873d6ff20a5fec92",
+    "bytes": 5152
   }
 ]

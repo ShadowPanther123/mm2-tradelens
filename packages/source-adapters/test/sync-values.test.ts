@@ -56,6 +56,13 @@ describe("parseMm2Html", () => {
     expect(rows[1].valueRange).toEqual({ low: 2175, high: 2225 });
   });
 
+  it("keeps the value when MM2Values has only a coming-soon image", () => {
+    const html = MM2_BLOCK.replace("BatwingUpdated.png", "Coming.PNG?v=2");
+    const [batwing] = parseMm2Html(html, "ancient");
+    expect(batwing).toMatchObject({ name: "Batwing", value: 45, sourceItemId: "3" });
+    expect(batwing.imageUrl).toBeUndefined();
+  });
+
   it("preserves free-form stability labels while bucketing the enum", () => {
     // mm2values uses labels beyond the three-way enum (e.g. "Overpaid For").
     // Valuation judgements read as steady; only real movement is "fluctuating".

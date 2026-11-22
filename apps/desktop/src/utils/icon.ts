@@ -40,3 +40,10 @@ export function localImageSrc(ref: string): string {
     return ref;
   return `/${ref}`;
 }
+
+/** Resolve a catalogue icon hosted alongside the app's signed snapshot feed. */
+export function feedIconSrc(ref: string, snapshotUrl: string): string | undefined {
+  if (!/^icons\/items\/[a-z0-9][a-z0-9-]*\.(?:png|webp|jpe?g)$/.test(ref)) return;
+  if (!snapshotUrl.startsWith("https://") || !snapshotUrl.endsWith("/v1/snapshot") || !URL.canParse(snapshotUrl)) return;
+  return new URL(`../${ref}`, snapshotUrl).href;
+}

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useDataStore } from "@/hooks/useDataStore";
+import { DEFAULT_SNAPSHOT_URL, isValuesServiceConfigured } from "@/services/updates";
 import type { ItemCategory } from "@/types";
-import { isUsableLocalImage, localImageSrc, PLACEHOLDER_ICON } from "@/utils/icon";
+import { feedIconSrc, isUsableLocalImage, localImageSrc, PLACEHOLDER_ICON } from "@/utils/icon";
 
 const ICONS: Record<ItemCategory, string> = {
   knife: "🔪",
@@ -11,10 +13,8 @@ const ICONS: Record<ItemCategory, string> = {
 };
 
 /**
- * Category icon in a rounded tile. When an item has a *local* image it is
- * lazy-loaded and shown; external (hotlink) references are ignored. If the image
- * is missing or fails to load, the shared placeholder is tried, and finally the
- * emoji category glyph, so a row never renders a broken image.
+ * Prefer bundled artwork. New icons can load from the configured values feed
+ * when the current snapshot references an image the app did not ship with.
  */
 export function ItemIcon({
   category,
@@ -27,7 +27,7 @@ export function ItemIcon({
   alt?: string;
   size?: "sm" | "md" | "lg";
 }) {
-  const [failed, setFailed] = useState(false);
+  const offlineMode = useDataStore((state) => state.settings.offlineMode);
   const dims =
     size === "lg"
       ? "h-14 w-14 text-2xl"
@@ -35,35 +35,55 @@ export function ItemIcon({
         ? "h-8 w-8 text-base"
         : "h-10 w-10 text-lg";
 
-  // Never hotlink: only bundled/local or in-memory images are shown. Bundled
-  // paths are made root-relative so they resolve on every route.
   const src = isUsableLocalImage(image) ? localImageSrc(image) : undefined;
-  const showImage = Boolean(src) && !failed;
+  const remoteSrc = !offlineMode && isValuesServiceConfigured && image
+    ? feedIconSrc(image, DEFAULT_SNAPSHOT_URL)
+    : undefined;
 
   return (
     <div
       className={`grid ${dims} shrink-0 place-items-center overflow-hidden rounded-xl bg-base-500/60 border border-white/5`}
     >
-      {showImage ? (
-        <img
+      {src ? (
+        <IconImage
+          key={`${src}|${remoteSrc ?? ""}`}
           src={src}
-          alt={alt ?? ""}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-contain"
-          onError={(e) => {
-            // Try the placeholder once, then fall back to the emoji glyph.
-            const img = e.currentTarget;
-            if (img.src.endsWith(PLACEHOLDER_ICON)) {
-              setFailed(true);
-            } else {
-              img.src = PLACEHOLDER_ICON;
-            }
-          }}
+          remoteSrc={remoteSrc}
+          alt={alt}
+          category={category}
         />
       ) : (
         <span>{ICONS[category]}</span>
       )}
     </div>
+  );
+}
+
+function IconImage({
+  src,
+  remoteSrc,
+  alt,
+  category,
+}: {
+  src: string;
+  remoteSrc?: string;
+  alt?: string;
+  category: ItemCategory;
+}) {
+  const [currentSrc, setCurrentSrc] = useState<string | undefined>(src);
+  if (!currentSrc) return <span>{ICONS[category]}</span>;
+
+  return (
+    <img
+      src={currentSrc}
+      alt={alt ?? ""}
+      loading="lazy"
+      decoding="async"
+      className="h-full w-full object-contain"
+      onError={() => {
+        if (currentSrc === PLACEHOLDER_ICON) setCurrentSrc(undefined);
+        else setCurrentSrc(currentSrc === src && remoteSrc ? remoteSrc : PLACEHOLDER_ICON);
+      }}
+    />
   );
 }

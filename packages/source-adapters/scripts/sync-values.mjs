@@ -401,7 +401,7 @@ export function parseMm2Html(html, category) {
       valueRange,
       stability,
       sourceItemId,
-      imageUrl: imageFile ? `${MM2_BASE}/img/${imageFile}` : undefined,
+      imageUrl: imageFile && !/^coming\.png(?:[?#]|$)/i.test(imageFile) ? `${MM2_BASE}/img/${imageFile}` : undefined,
       category,
     });
   }
