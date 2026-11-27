@@ -28,7 +28,7 @@
     "clean": "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true})\""
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.6"
   },
   "engines": {
